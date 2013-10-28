@@ -16,6 +16,7 @@ describe('oauth', function() {
   beforeEach(module('templates'));
 
   beforeEach(inject(function($injector) { $rootScope   = $injector.get('$rootScope') }));
+  beforeEach(inject(function($injector) { $compile     = $injector.get('$compile') }));
   beforeEach(inject(function($injector) { $location    = $injector.get('$location') }));
   beforeEach(inject(function($injector) { $cookies     = $injector.get('$cookies') }));
   beforeEach(inject(function($injector) { $httpBackend = $injector.get('$httpBackend') }));
@@ -38,7 +39,7 @@ describe('oauth', function() {
     );
   }));
 
-  var compile = function($rootScope, $compile) {
+  var compile = function() {
     scope = $rootScope;
     $compile(element)(scope);
     scope.$digest();
@@ -63,24 +64,24 @@ describe('oauth', function() {
       $rootScope.$on('oauth:success', callback);
     });
 
-    beforeEach(inject(function($rootScope, $compile) {
+    beforeEach(function() {
       compile($rootScope, $compile);
-    }));
+    });
 
-    it('shows the link "Logout #{profile.email}"', inject(function(Profile) {
+    it('shows the link "Logout #{profile.email}"', function() {
       $httpBackend.flush();
       result = element.find('.logout').text();
       expect(result).toBe('Logout Alice Wonderland');
-    }));
+    });
 
     it('removes the fragment', function() {
       expect($location.hash()).toBe('');
     });
 
-    it('shows the logout link', inject(function(Profile) {
+    it('shows the logout link', function() {
       expect(element.find('.login').css('display')).toBe('none');
       expect(element.find('.logout').css('display')).toBe('');
-    }));
+    });
 
     it('fires the oauth:login event', function() {
       var event = jasmine.any(Object);
@@ -99,16 +100,16 @@ describe('oauth', function() {
         $location.path('/');
       });
 
-      it('keeps being logged in', inject(function(Profile) {
+      it('keeps being logged in', function() {
         $httpBackend.flush();
         result = element.find('.logout').text();
         expect(result).toBe('Logout Alice Wonderland');
-      }));
+      });
 
-      it('shows the logout link', inject(function(Profile) {
+      it('shows the logout link', function() {
         expect(element.find('.login').css('display')).toBe('none');
         expect(element.find('.logout').css('display')).toBe('');
-      }));
+      });
 
       it('fires the oauth:login event', function() {
         var event = jasmine.any(Object);
@@ -118,17 +119,16 @@ describe('oauth', function() {
     });
 
 
-
     describe('when logs out', function() {
 
       beforeEach(function() {
         element.find('.logout').click();
       });
 
-      it('shows the login link', inject(function(Profile) {
+      it('shows the login link', function() {
         expect(element.find('.login').css('display')).toBe('');
         expect(element.find('.logout').css('display')).toBe('none');
-      }));
+      });
     });
   });
 
@@ -139,9 +139,9 @@ describe('oauth', function() {
       $rootScope.$on('oauth:logout', callback);
     });
 
-    beforeEach(inject(function($rootScope, $compile) {
+    beforeEach(function() {
       compile($rootScope, $compile)
-    }));
+    });
 
     beforeEach(function() {
       spyOn(Endpoint, 'redirect');
@@ -179,29 +179,29 @@ describe('oauth', function() {
       $rootScope.$on('oauth:denied', callback);
     });
 
-    beforeEach(inject(function($rootScope, $compile) {
+    beforeEach(function() {
       compile($rootScope, $compile)
-    }));
+    });
 
-    beforeEach(inject(function($rootScope, $compile) {
+    beforeEach(function() {
       spyOn(Endpoint, 'redirect');
-    }));
+    });
 
-    it('shows the text "Denied"', inject(function($compile, $rootScope) {
+    it('shows the text "Denied"', function() {
       result = element.find('.denied').text();
       expect(result).toBe('Access denied. Try again.');
-    }));
+    });
 
-    it('sets the href attribute', inject(function($compile, $rootScope) {
+    it('sets the href attribute', function() {
       result = element.find('.denied').click();
       expect(Endpoint.redirect).toHaveBeenCalled();
-    }));
+    });
 
-    it('shows the login link', inject(function(Profile) {
+    it('shows the login link', function() {
       expect(element.find('.login').css('display')).toBe('none');
       expect(element.find('.logout').css('display')).toBe('none');
       expect(element.find('.denied').css('display')).toBe('');
-    }));
+    });
 
     it('fires the oauth:denied event', function() {
       var event = jasmine.any(Object);

@@ -68,9 +68,9 @@ describe('RequestWrapper', function() {
           Timecop.uninstall();
         });
 
-        beforeEach(inject(function($rootScope, $compile) {
+        beforeEach(function() {
           spyOn(Endpoint, 'redirect');
-        }));
+        });
 
         it('redirects the user', inject(function(Profile) {
           Profile.get();

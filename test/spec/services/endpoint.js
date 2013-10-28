@@ -21,9 +21,9 @@ describe('Endpoint', function() {
       result = Endpoint.set(scope);
     });
 
-    it('returns the oauth server endpoint', inject(function() {
+    it('returns the oauth server endpoint', function() {
       expect(result).toEqual(uri);
-    }));
+    });
 
     describe('when in a specific /path', function() {
 
@@ -35,9 +35,9 @@ describe('Endpoint', function() {
         result = Endpoint.set(scope);
       });
 
-      it('returns previous path in status', inject(function() {
+      it('returns previous path in status', function() {
         expect(result).toEqual(uri + 'path');
-      }));
+      });
     });
   });
 
@@ -52,8 +52,8 @@ describe('Endpoint', function() {
       result = Endpoint.get();
     });
 
-    it('returns the oauth server endpoint', inject(function() {
+    it('returns the oauth server endpoint', function() {
       expect(result).toEqual(uri);
-    }));
+    });
   });
 });

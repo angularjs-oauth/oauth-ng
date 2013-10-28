@@ -28,15 +28,15 @@ describe('AccessToken', function() {
         result = AccessToken.set(scope);
       });
 
-      it('sets the access token', inject(function() {
+      it('sets the access token', function() {
         expect(result.access_token).toEqual('token');
-      }));
+      });
 
-      it('sets #expires_at', inject(function() {
+      it('sets #expires_at', function() {
         var expected_date = new Date();
         expected_date.setSeconds(expected_date.getSeconds() + 7200 - 60);
         expect(parseInt(result.expires_at/100)).toBe(parseInt(expected_date/100)); // 10 ms
-      }));
+      });
     });
 
     describe('with the access token in the fragment URI', function() {
@@ -49,18 +49,18 @@ describe('AccessToken', function() {
         result = AccessToken.set(scope);
       });
 
-      it('sets the access token', inject(function() {
+      it('sets the access token', function() {
         expect(result.access_token).toEqual('token');
-      }));
+      });
 
-      it('removes the fragment string', inject(function() {
+      it('removes the fragment string', function() {
         expect($location.hash()).toEqual('');
-      }));
+      });
 
-      it('stores the token in the cookies', inject(function() {
+      it('stores the token in the cookies', function() {
         var stored_token = $cookies[scope.client];
         expect(result.access_token).toEqual('token');
-      }));
+      });
     });
 
     describe('with the access token stored in the cookies', function() {
@@ -88,18 +88,18 @@ describe('AccessToken', function() {
         result = AccessToken.set(scope);
       });
 
-      it('sets the access token', inject(function() {
+      it('sets the access token', function() {
         expect(result.error).toEqual('access_denied');
-      }));
+      });
 
-      it('removes the fragment string', inject(function() {
+      it('removes the fragment string', function() {
         expect($location.hash()).toEqual('');
-      }));
+      });
 
-      it('stores the error message in the cookies', inject(function() {
+      it('stores the error message in the cookies', function() {
         var stored_token = $cookies[scope.client];
         expect(result.error).toBe('access_denied');
-      }));
+      });
     });
   });
 
@@ -118,9 +118,9 @@ describe('AccessToken', function() {
       result = AccessToken.get();
     });
 
-    it('sets the access token', inject(function() {
+    it('sets the access token', function() {
       expect(result.access_token).toEqual('token');
-    }));
+    });
   });
 
 
@@ -138,13 +138,13 @@ describe('AccessToken', function() {
       result = AccessToken.destroy(scope);
     });
 
-    it('sets the access token', inject(function() {
+    it('sets the access token', function() {
       expect(result).toBeNull();
-    }));
+    });
 
-    it('reset the cache', inject(function() {
+    it('reset the cache', function() {
       expect($cookies[scope.client]).toBeUndefined;
-    }));
+    });
   });
 
 
@@ -164,9 +164,9 @@ describe('AccessToken', function() {
         result = AccessToken.expired();
       });
 
-      it('returns false', inject(function() {
+      it('returns false', function() {
         expect(result).toBe(false);
-      }));
+      });
     });
 
     describe('when expired', function() {
@@ -189,9 +189,9 @@ describe('AccessToken', function() {
         Timecop.uninstall();
       });
 
-      it('returns true', inject(function() {
+      it('returns true', function() {
         expect(result).toBe(true);
-      }));
+      });
     });
   });
 });
