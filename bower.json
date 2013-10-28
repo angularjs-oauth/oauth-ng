@@ -1,6 +1,7 @@
 {
   "name": "ng-oauth",
   "version": "0.1.0",
+  "main": "dist/ng-oauth.js",
   "ignore": [
     "app",
     "test",
