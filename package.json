@@ -1,6 +1,8 @@
 {
-  "name": "oauth",
+  "name": "oauth-ng",
   "version": "0.1.0",
+  "homepage": "https://github.com/lelylan/oauth-ng",
+  "author": "Andrea Reginato",
   "dependencies": {},
   "devDependencies": {
     "grunt": "~0.4.1",

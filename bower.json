@@ -1,6 +1,6 @@
 {
-  "name": "xyzeWidget",
-  "version": "0.0.1",
+  "name": "oauth-ng",
+  "version": "0.1.0",
   "dependencies": {
     "angular": "~1.0.7",
     "json3": "~3.2.4",

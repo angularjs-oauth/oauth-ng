@@ -11,9 +11,19 @@ module.exports = function (grunt) {
   require('load-grunt-tasks')(grunt);
   require('time-grunt')(grunt);
 
+
   grunt.initConfig({
+    package: require('./package.json'),
+    shared: {
+      banner: '/**\n' +
+      ' * <%= package.name %>\n' +
+      ' * @version v<%= package.version %> - <%= grunt.template.today("yyyy-mm-dd") %>\n' +
+      ' * @link <%= package.homepage %>\n' +
+      ' * @author <%= package.author %>\n' +
+      ' * @license MIT License, http://www.opensource.org/licenses/MIT\n' +
+      ' */\n\n'
+    },
     yeoman: {
-      // configurable paths
       app: require('./bower.json').appPath || 'app',
       dist: 'dist'
     },
@@ -156,11 +166,18 @@ module.exports = function (grunt) {
         }
       }
     },
-    // not used since Uglify task does concat,
-    // but still available if needed
-    /*concat: {
-      dist: {}
-    },*/
+    concat: {
+      options: {
+        banner: '<%= shared.banner %>'
+      },
+      dist: {
+        files: {
+          '<%= yeoman.dist %>/scripts/scripts.js': [
+            '<%= yeoman.dist %>/scripts/scripts.js'
+          ]
+        }
+      }
+    },
     rev: {
       dist: {
         files: {
@@ -315,9 +332,12 @@ module.exports = function (grunt) {
       }
     },
     uglify: {
+      options: {
+        banner: '<%= shared.banner %>'
+      },
       dist: {
         files: {
-          '<%= yeoman.dist %>/scripts/scripts.js': [
+          '<%= yeoman.dist %>/scripts/scripts.min.js': [
             '<%= yeoman.dist %>/scripts/scripts.js'
           ]
         }
@@ -358,8 +378,9 @@ module.exports = function (grunt) {
     'ngmin',
     'cssmin',
     'uglify',
-    'rev',
-    'usemin'
+    //'rev',
+    'usemin',
+    'concat'
   ]);
 
   grunt.registerTask('default', [
