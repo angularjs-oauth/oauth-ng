@@ -1,10 +1,7 @@
 {
-  "name": "xyze-widget",
-  "version": "0.0.1",
-  "dependencies": {
-    "gzippo": "~0.2.0",
-    "express": "~3.4.3"
-  },
+  "name": "oauth",
+  "version": "0.1.0",
+  "dependencies": {},
   "devDependencies": {
     "grunt": "~0.4.1",
     "grunt-contrib-copy": "~0.4.1",

@@ -2,7 +2,7 @@
 
 var client = angular.module('oauth.requestWrapper', ['ngResource']);
 
-client.factory('RequestWrapper', ['AccessToken', '$http', function(AccessToken, $http) {
+client.factory('RequestWrapper', ['AccessToken', 'Endpoint', '$http', function(AccessToken, Endpoint, $http) {
   var service = {};
   var token;
 

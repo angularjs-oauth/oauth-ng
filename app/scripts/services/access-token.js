@@ -46,7 +46,7 @@ service.factory('AccessToken', ['$location', '$http', '$cookies', '$rootScope',
    */
 
   service.expired = function() {
-    return (token.expires_at && token.expires_at < new Date())
+    return (token && token.expires_at && token.expires_at < new Date())
   }
 
 

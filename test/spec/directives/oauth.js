@@ -4,7 +4,7 @@
 
 describe('oauth', function() {
 
-  var $location, $cookies, $httpBackend, AccessToken, Endpoint, element, scope, result, config;
+  var $location, $cookies, $httpBackend, $rootScope, AccessToken, Endpoint, element, scope, result, config, callback;
 
   var uri      = 'http://example.com/oauth/authorize?response_type=token&client_id=client-id&redirect_uri=http://example.com/redirect&scope=scope&state=/';
   var fragment = 'access_token=token&token_type=bearer&expires_in=7200&state=/path';
@@ -13,15 +13,16 @@ describe('oauth', function() {
   var profile  = { id: '1', fullname: 'Alice Wonderland', email: 'alice@example.com' };
 
   beforeEach(module('oauth'));
-  beforeEach(module('views/templates/default.html'));
+  beforeEach(module('templates'));
 
+  beforeEach(inject(function($injector) { $rootScope   = $injector.get('$rootScope') }));
   beforeEach(inject(function($injector) { $location    = $injector.get('$location') }));
   beforeEach(inject(function($injector) { $cookies     = $injector.get('$cookies') }));
   beforeEach(inject(function($injector) { $httpBackend = $injector.get('$httpBackend') }));
   beforeEach(inject(function($injector) { AccessToken  = $injector.get('AccessToken') }));
   beforeEach(inject(function($injector) { Endpoint     = $injector.get('Endpoint') }));
   beforeEach(inject(function($injector) { config       = $injector.get('oauth.config') }));
-
+  beforeEach(inject(function($injector) { callback     = jasmine.createSpy('callback') }));
 
   beforeEach(inject(function($rootScope, $compile) {
     element = angular.element(
@@ -46,10 +47,9 @@ describe('oauth', function() {
 
   describe('when logged in', function() {
 
-
-    beforeEach(inject(function() {
+    beforeEach(function() {
       config.profile = 'http://example.com/me';
-    }));
+    });
 
     beforeEach(function() {
       $location.hash(fragment);
@@ -57,6 +57,10 @@ describe('oauth', function() {
 
     beforeEach(function() {
       $httpBackend.whenGET('http://example.com/me', headers).respond(profile);
+    });
+
+    beforeEach(function() {
+      $rootScope.$on('oauth:success', callback);
     });
 
     beforeEach(inject(function($rootScope, $compile) {
@@ -78,8 +82,18 @@ describe('oauth', function() {
       expect(element.find('.logout').css('display')).toBe('');
     }));
 
+    it('fires the oauth:login event', function() {
+      var event = jasmine.any(Object);
+      var token = AccessToken.get();
+      expect(callback).toHaveBeenCalledWith(event, token);
+    });
+
 
     describe('when refreshes the page', function() {
+
+      beforeEach(function() {
+        $rootScope.$on('oauth:success', callback);
+      });
 
       beforeEach(function() {
         $location.path('/');
@@ -95,7 +109,14 @@ describe('oauth', function() {
         expect(element.find('.login').css('display')).toBe('none');
         expect(element.find('.logout').css('display')).toBe('');
       }));
+
+      it('fires the oauth:login event', function() {
+        var event = jasmine.any(Object);
+        var token = AccessToken.get();
+        expect(callback).toHaveBeenCalledWith(event, token);
+      });
     });
+
 
 
     describe('when logs out', function() {
@@ -114,28 +135,37 @@ describe('oauth', function() {
 
   describe('when logged out', function() {
 
+    beforeEach(function() {
+      $rootScope.$on('oauth:logout', callback);
+    });
+
     beforeEach(inject(function($rootScope, $compile) {
       compile($rootScope, $compile)
     }));
 
-    beforeEach(inject(function($rootScope, $compile) {
+    beforeEach(function() {
       spyOn(Endpoint, 'redirect');
-    }));
+    });
 
-    it('shows the text "Sing In"', inject(function($compile, $rootScope) {
+    it('shows the text "Sing In"', function() {
       result = element.find('.login').text();
       expect(result).toBe('Sign In');
-    }));
+    });
 
-    it('sets the href attribute', inject(function($compile, $rootScope) {
+    it('sets the href attribute', function() {
       result = element.find('.login').click();
       expect(Endpoint.redirect).toHaveBeenCalled();
-    }));
+    });
 
-    it('shows the login link', inject(function(Profile) {
+    it('shows the login link', function() {
       expect(element.find('.login').css('display')).toBe('');
       expect(element.find('.logout').css('display')).toBe('none');
-    }));
+    });
+
+    it('fires the oauth:logout event', function() {
+      var event = jasmine.any(Object);
+      expect(callback).toHaveBeenCalledWith(event);
+    });
   });
 
 
@@ -143,6 +173,10 @@ describe('oauth', function() {
 
     beforeEach(function() {
       $location.hash(denied);
+    });
+
+    beforeEach(function() {
+      $rootScope.$on('oauth:denied', callback);
     });
 
     beforeEach(inject(function($rootScope, $compile) {
@@ -168,6 +202,11 @@ describe('oauth', function() {
       expect(element.find('.logout').css('display')).toBe('none');
       expect(element.find('.denied').css('display')).toBe('');
     }));
+
+    it('fires the oauth:denied event', function() {
+      var event = jasmine.any(Object);
+      expect(callback).toHaveBeenCalledWith(event);
+    });
   });
 });
 

@@ -19,7 +19,7 @@ module.exports = function(config) {
       'app/bower_components/timecop/*.js',
       'app/scripts/*.js',
       'app/scripts/**/*.js',
-      'app/views/templates/default.html',
+      'app/views/**/*.html',
       'test/spec/services/**/*.js',
       'test/spec/directives/**/*.js'
     ],
@@ -52,9 +52,13 @@ module.exports = function(config) {
     singleRun: false,
 
     // Preprocessor for converting HTML files to AngularJS templates
-    preprocessors: { 'app/views/templates/default.html': 'html2js' },
+    preprocessors: { 'app/views/**/*.html': 'html2js' },
 
-    // set the path to use to search the template
-    ngHtml2JsPreprocessor: { stripPrefix: 'app/' },
+    // set the path to use to search the template and set the templates module to
+    // load all templates at once
+    ngHtml2JsPreprocessor: {
+      stripPrefix: 'app/',
+      moduleName: 'templates'
+    },
   });
 };
