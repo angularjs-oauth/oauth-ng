@@ -1,6 +1,14 @@
 {
   "name": "ng-oauth",
   "version": "0.1.0",
+  "ignore": [
+    "app",
+    "test",
+    "bower.json",
+    "Gruntfile.js",
+    "karma.conf.js",
+    "package.json"
+  ],
   "dependencies": {
     "angular": "~1.0.7",
     "json3": "~3.2.4",

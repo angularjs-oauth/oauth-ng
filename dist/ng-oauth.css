@@ -1,0 +1,22 @@
+/**
+ * ng-oauth
+ * @version v0.1.0 - 2013-10-28
+ * @link https://github.com/lelylan/oauth-ng
+ * @author Andrea Reginato
+ * @license MIT License, http://www.opensource.org/licenses/MIT
+ */
+
+/* line 6, ../../app/styles/main.scss */
+
+html,
+body {
+  margin: 20px;
+}
+
+/* line 10, ../../app/styles/main.scss */
+
+body {
+  background: #fafafa;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: #333;
+}
