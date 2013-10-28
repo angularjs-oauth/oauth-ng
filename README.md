@@ -44,8 +44,8 @@ Do not forget to provide specs to your contribution.
 
 ### Requirements
 
-In order to make ng-oauth work you need to install [yeoman](yeoman.io)
-and [PhantomJS](http://phantomjs.org/).
+* [Yeoman](yeoman.io)
+* [PhantomJS](http://phantomjs.org/).
 
 ### Install
 
@@ -63,19 +63,19 @@ npm install
 bower install
 ```
 
-### Running locally
+#### Run local server
 
 ```
 grunt server
 ```
 
-### Running specs
+#### Run specs
 
 ```
 grunt karma:unit
 ```
 
-### Creating your distribution
+#### Create your own distribution
 
 ```
 grunt build
