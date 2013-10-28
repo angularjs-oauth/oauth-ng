@@ -1,5 +1,5 @@
 {
-  "name": "oauth-ng",
+  "name": "ng-oauth",
   "version": "0.1.0",
   "dependencies": {
     "angular": "~1.0.7",

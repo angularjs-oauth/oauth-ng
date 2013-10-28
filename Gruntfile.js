@@ -172,7 +172,7 @@ module.exports = function (grunt) {
       },
       dist: {
         files: {
-          '<%= yeoman.dist %>/scripts/scripts.js': [
+          '<%= yeoman.dist %>/scripts/<%= package.name %>.js': [
             '<%= yeoman.dist %>/scripts/scripts.js'
           ]
         }
@@ -337,8 +337,8 @@ module.exports = function (grunt) {
       },
       dist: {
         files: {
-          '<%= yeoman.dist %>/scripts/scripts.min.js': [
-            '<%= yeoman.dist %>/scripts/scripts.js'
+          '<%= yeoman.dist %>/scripts/<%= package.name %>.min.js': [
+            '<%= yeoman.dist %>/scripts/<%= package.name %>.js'
           ]
         }
       }
@@ -370,11 +370,13 @@ module.exports = function (grunt) {
   grunt.registerTask('build', [
     'clean:dist',
     'useminPrepare',
-    'concurrent:dist',
+    //'concurrent:dist',
+    'compass:dist',
+    'copy:styles',
     'autoprefixer',
     'concat',
     //'copy:dist',
-    'cdnify',
+    //'cdnify',
     'ngmin',
     'cssmin',
     'uglify',
