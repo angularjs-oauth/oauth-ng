@@ -1,17 +1,17 @@
 'use strict';
 
 // App libraries
-angular.module('oauth', [
-  'oauth.directive',       // login directive
-  'oauth.accessToken',     // access token service
-  'oauth.endpoint',        // oauth endpoint service
-  'oauth.requestWrapper',  // requests wrapper (inject the access token into the header)
-  'oauth.profile',         // profile model
-  'oauth.config'           // configurations
+var app = angular.module('oauth', [
+  'oauth.directive',      // login directive
+  'oauth.accessToken',    // access token service
+  'oauth.endpoint',       // oauth endpoint service
+  'oauth.profile',        // profile model
+  'oauth.interceptor',    // bearer token interceptor
+  'oauth.config'          // configurations
 ])
 
-// HTML5 mode
-angular.module('oauth').config(['$locationProvider', function($locationProvider) {
-  $locationProvider.html5Mode(true).hashPrefix('!');
-}]);
-
+angular.module('oauth').config(['$locationProvider','$httpProvider',
+  function($locationProvider, $httpProvider) {
+    $locationProvider.html5Mode(true).hashPrefix('!');      // HTML5 mode
+    $httpProvider.interceptors.push('OAuthInterceptor');    // Authentication header
+  }]);

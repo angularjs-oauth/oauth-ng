@@ -13,10 +13,10 @@ module.exports = function(config) {
     files: [
       'app/bower_components/jquery/jquery.js',
       'app/bower_components/angular/angular.js',
-      'app/bower_components/angular-cookies/angular-cookies.js',
       'app/bower_components/angular-resource/angular-resource.js',
       'app/bower_components/angular-mocks/angular-mocks.js',
-      'app/bower_components/timecop/*.js',
+      'app/bower_components/ngstorage/ngStorage.js',
+      'app/bower_components/timecop/timecop-0.1.1.js',
       'app/scripts/*.js',
       'app/scripts/**/*.js',
       'app/views/**/*.html',

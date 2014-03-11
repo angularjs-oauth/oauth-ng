@@ -2,11 +2,12 @@
 
 var client = angular.module('oauth.profile', ['ngResource'])
 
-client.factory('Profile', ['RequestWrapper', '$resource', 'oauth.config',
-  function(RequestWrapper, $resource, config) {
+client.factory('Profile', ['$http', 'oauth.config', function($http, config) {
+  var service = {}
 
-    var resource = $resource(config.profile, {}, {
-      //get: { method: 'JSONP', params: { callback: 'JSON_CALLBACK' } }
-    });
-    return RequestWrapper.wrap(resource, ['get']);
+  service.get = function() {
+    return $http.get(config.profile);
+  }
+
+  return service;
 }]);

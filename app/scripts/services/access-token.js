@@ -1,12 +1,12 @@
 'use strict';
 
-var service = angular.module('oauth.accessToken', ['ngCookies']);
+var service = angular.module('oauth.accessToken', ['ngStorage']);
 
-service.factory('AccessToken', ['$location', '$http', '$cookies', '$rootScope',
-  function($location, $http, $cookies, $rootScope) {
+service.factory('AccessToken', ['$rootScope', '$location', '$http', '$sessionStorage',
+  function($rootScope, $location, $http, $sessionStorage) {
 
   var service = {};
-  var token = null;
+  var token   = null;
 
 
   /*
@@ -19,30 +19,31 @@ service.factory('AccessToken', ['$location', '$http', '$cookies', '$rootScope',
 
 
   /*
-   * Sets and returns the access token taking it from the fragment URI or eventually
-   * from the cookies. Use `AccessToken.init()` to load (at boot time) the access token.
+   * Sets and returns the access token. It tries (in order) the following strategies:
+   * - takes the token from the fragment URI
+   * - takes the token from the sessionStorage
    */
 
-  service.set = function(scope) {
-    setTokenFromString(scope);    // take the token from the query string and eventually save it in the cookies
-    setTokenFromCookies(scope);   // take the from the cookies
+  service.set = function() {
+    setTokenFromString();
+    setTokenFromSession();
     return token
   }
 
 
   /*
-   *  Delete the access token and remove the cookies.
+   *  Delete the access token and remove the session.
    */
 
-  service.destroy = function(scope) {
+  service.destroy = function() {
+    delete $sessionStorage.token;
     token = null;
-    delete $cookies[scope.client];
     return token;
   }
 
 
   /*
-   * Tells when the access token is expired.
+   * Tells if the access token is expired.
    */
 
   service.expired = function() {
@@ -50,27 +51,28 @@ service.factory('AccessToken', ['$location', '$http', '$cookies', '$rootScope',
   }
 
 
-  /* --------------- */
-  /* Private methods */
-  /* --------------- */
+
+  /* * * * * * * * * *
+   * PRIVATE METHODS *
+   * * * * * * * * * */
 
 
   /*
    * Get the access token from a string and save it
    */
 
-  var setTokenFromString = function(scope) {
+  var setTokenFromString = function() {
     var token = getTokenFromString($location.hash());
 
     if (token) {
       removeFragment();
-      setToken(token, scope);
+      setToken(token);
     }
   };
 
 
   /*
-   * Parse the fragment URI into an object
+   * Parse the fragment URI and return an object
    */
 
   var getTokenFromString = function(hash) {
@@ -90,31 +92,23 @@ service.factory('AccessToken', ['$location', '$http', '$cookies', '$rootScope',
 
 
   /*
-   * Set the access token from the cookies.
-   * Returns the access token only when the storage attribute is set to 'cookies'.
+   * Set the access token from the sessionStorage.
    */
 
-  var setTokenFromCookies = function(scope) {
-    if (scope.storage == 'cookies') {
-      if ($cookies[scope.client]) {
-        var params = JSON.parse($cookies[scope.client]);
-        setToken(params, scope);
-      }
+  var setTokenFromSession = function() {
+    if ($sessionStorage.token) {
+      var params = JSON.parse($sessionStorage.token);
+      setToken(params);
     }
   }
 
 
   /*
-   * Save the access token into a cookie identified by the application ID
-   * Save the access token only when the storage attribute is set to 'cookies'.
+   * Save the access token into a session
    */
 
-  var setTokenInCookies = function(scope, params) {
-    if (scope.storage == 'cookies') {
-      if (params && params.access_token) {
-        $cookies[scope.client] = JSON.stringify(params);
-      }
-    }
+  var setTokenInSession = function() {
+    $sessionStorage.token = JSON.stringify(token);
   }
 
 
@@ -122,12 +116,11 @@ service.factory('AccessToken', ['$location', '$http', '$cookies', '$rootScope',
    * Set the access token.
    */
 
-  var setToken = function(params, scope) {
+  var setToken = function(params) {
     token = token || {}                 // init the token
     angular.extend(token, params);      // set the access token params
     setExpiresAt();                     // set the expiring time
-    setTokenInCookies(scope, params);   // save the token into a cookie
-
+    setTokenInSession();                // save the token into the session
     return token;
   };
 
