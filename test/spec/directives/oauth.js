@@ -10,7 +10,7 @@ describe('oauth', function() {
   var fragment = 'access_token=token&token_type=bearer&expires_in=7200&state=/path';
   var denied   = 'error=access_denied&error_description=error';
   var headers  = { 'Accept': 'application/json, text/plain, */*', 'Authorization': 'Bearer token' }
-  var profile  = { id: '1', fullname: 'Alice Wonderland', email: 'alice@example.com' };
+  var profile  = { id: '1', full_name: 'Alice Wonderland', email: 'alice@example.com' };
 
   beforeEach(module('oauth'));
   beforeEach(module('templates'));

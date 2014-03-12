@@ -11,7 +11,7 @@ directives.directive('oauth', ['AccessToken', 'Endpoint', 'Profile' ,'oauth.conf
     scope: {
       site: '@',                    // (required) set the oauth2 server host (e.g. http://people.example.com)
       clientId: '@clientId',        // (required) client id
-      redirectUrl: '@redirectUrl',  // (required) client redirect uri
+      redirectUri: '@redirectUri',  // (required) client redirect uri
       scope: '@',                   // (optional) scope
       profile: '@',                 // (optional) user info uri (e.g http://example.com/me)
       template: '@'                 // (optional) template to render (e.g views/templates/default.html)

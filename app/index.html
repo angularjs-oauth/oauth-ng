@@ -30,13 +30,12 @@
 
     <oauth ng-cloak
       site="http://people.lelylan.com"
-      client="e72c43c75adc9665e4d4c13354c41f337d5a2e439d3da1243bb47e39745f435c"
-      redirect="http://localhost:9000"
+      client-id="e72c43c75adc9665e4d4c13354c41f337d5a2e439d3da1243bb47e39745f435c"
+      redirect-uri="http://localhost:9000"
       scope="resources"
       profile="http://api.lelylan.com/me">
     </oauth>
 
-    <script src="bower_components/jquery/jquery.js"></script>
     <script src="bower_components/angular/angular.js"></script>
     <script src="bower_components/ngstorage/ngStorage.js"></script>
 
@@ -45,8 +44,8 @@
     <script src="scripts/directives/oauth.js"></script>
     <script src="scripts/services/access-token.js"></script>
     <script src="scripts/services/endpoint.js"></script>
-    <script src="scripts/services/request-wrapper.js"></script>
     <script src="scripts/services/profile.js"></script>
+    <script src="scripts/interceptors/oauth-interceptor.js"></script>
     <script src="scripts/config/config.js"></script>
     <!-- endbuild -->
 
