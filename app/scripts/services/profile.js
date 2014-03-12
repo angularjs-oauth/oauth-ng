@@ -1,6 +1,6 @@
 'use strict';
 
-var client = angular.module('oauth.profile', ['ngResource'])
+var client = angular.module('oauth.profile', [])
 
 client.factory('Profile', ['$http', 'oauth.config', function($http, config) {
   var service = {}
