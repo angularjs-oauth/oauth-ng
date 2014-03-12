@@ -148,40 +148,44 @@ describe('oauth', function() {
   });
 
 
-  //describe('when logged out', function() {
+  describe('when logged out', function() {
 
-    //beforeEach(function() {
-      //$rootScope.$on('oauth:logout', callback);
-    //});
+    beforeEach(function() {
+      $rootScope.$on('oauth:logout', callback);
+    });
 
-    //beforeEach(function() {
-      //compile($rootScope, $compile)
-    //});
+    beforeEach(function() {
+      AccessToken.destroy();
+    });
 
-    //beforeEach(function() {
-      //spyOn(Endpoint, 'redirect');
-    //});
+    beforeEach(function() {
+      compile($rootScope, $compile)
+    });
 
-    //it('shows the text "Sing In"', function() {
-      //result = element.find('.login').text();
-      //expect(result).toBe('Sign In');
-    //});
+    beforeEach(function() {
+      spyOn(Endpoint, 'redirect');
+    });
 
-    //it('sets the href attribute', function() {
-      //result = element.find('.login').click();
-      //expect(Endpoint.redirect).toHaveBeenCalled();
-    //});
+    it('shows the text "Sing In"', function() {
+      result = element.find('.logged-out').text();
+      expect(result).toBe('Sign In');
+    });
 
-    //it('shows the login link', function() {
-      //expect(element.find('.login').css('display')).toBe('');
-      //expect(element.find('.logout').css('display')).toBe('none');
-    //});
+    it('sets the href attribute', function() {
+      result = element.find('.logged-out').click();
+      expect(Endpoint.redirect).toHaveBeenCalled();
+    });
 
-    //it('fires the oauth:logout event', function() {
-      //var event = jasmine.any(Object);
-      //expect(callback).toHaveBeenCalledWith(event);
-    //});
-  //});
+    it('shows the login link', function() {
+      expect(element.find('.logged-out').attr('class')).not.toMatch('ng-hide');
+      expect(element.find('.logged-in').attr('class')).toMatch('ng-hide');
+    });
+
+    it('fires the oauth:logout event', function() {
+      var event = jasmine.any(Object);
+      expect(callback).toHaveBeenCalledWith(event);
+    });
+  });
 
 
   //describe('when denied', function() {
