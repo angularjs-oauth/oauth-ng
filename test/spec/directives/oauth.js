@@ -188,44 +188,44 @@ describe('oauth', function() {
   });
 
 
-  //describe('when denied', function() {
+  describe('when denied', function() {
 
-    //beforeEach(function() {
-      //$location.hash(denied);
-    //});
+    beforeEach(function() {
+      $location.hash(denied);
+    });
 
-    //beforeEach(function() {
-      //$rootScope.$on('oauth:denied', callback);
-    //});
+    beforeEach(function() {
+      $rootScope.$on('oauth:denied', callback);
+    });
 
-    //beforeEach(function() {
-      //compile($rootScope, $compile)
-    //});
+    beforeEach(function() {
+      compile($rootScope, $compile)
+    });
 
-    //beforeEach(function() {
-      //spyOn(Endpoint, 'redirect');
-    //});
+    beforeEach(function() {
+      spyOn(Endpoint, 'redirect');
+    });
 
-    //it('shows the text "Denied"', function() {
-      //result = element.find('.denied').text();
-      //expect(result).toBe('Access denied. Try again.');
-    //});
+    it('shows the text "Denied"', function() {
+      result = element.find('.denied').text();
+      expect(result).toBe('Access denied. Try again.');
+    });
 
-    //it('sets the href attribute', function() {
-      //result = element.find('.denied').click();
-      //expect(Endpoint.redirect).toHaveBeenCalled();
-    //});
+    it('sets the href attribute', function() {
+      result = element.find('.denied').click();
+      expect(Endpoint.redirect).toHaveBeenCalled();
+    });
 
-    //it('shows the login link', function() {
-      //expect(element.find('.login').css('display')).toBe('none');
-      //expect(element.find('.logout').css('display')).toBe('none');
-      //expect(element.find('.denied').css('display')).toBe('');
-    //});
+    it('shows the login link', function() {
+      expect(element.find('.logged-out').attr('class')).toMatch('ng-hide');
+      expect(element.find('.logged-in').attr('class')).toMatch('ng-hide');
+      expect(element.find('.denied').attr('class')).not.toMatch('ng-hide');
+    });
 
-    //it('fires the oauth:denied event', function() {
-      //var event = jasmine.any(Object);
-      //expect(callback).toHaveBeenCalledWith(event);
-    //});
-  //});
+    it('fires the oauth:denied event', function() {
+      var event = jasmine.any(Object);
+      expect(callback).toHaveBeenCalledWith(event);
+    });
+  });
 });
 
