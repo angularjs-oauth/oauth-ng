@@ -18,8 +18,8 @@ client.factory('Endpoint', ['AccessToken', '$location',
     url = scope.site +
       scope.authorizePath +
       '?response_type=token&' +
-      'client_id=' + scope.client + '&' +
-      'redirect_uri=' + scope.redirect + '&' +
+      'client_id=' + scope.clientId + '&' +
+      'redirect_uri=' + scope.redirectUri + '&' +
       'scope=' + scope.scope + '&' +
       'state=' + $location.url()
 

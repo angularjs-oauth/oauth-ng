@@ -2,22 +2,19 @@
 
 var directives = angular.module('oauth.directive', []);
 
-directives.directive('oauth', ['AccessToken', 'Endpoint', 'Profile' ,'oauth.config', '$location', '$rootScope', '$compile', '$http', '$templateCache',
-  function(AccessToken, Endpoint, Profile, config, $location, $rootScope, $compile, $http, $templateCache) {
+directives.directive('oauth', ['AccessToken', 'Endpoint', 'Profile', '$location', '$rootScope', '$compile', '$http', '$templateCache',
+  function(AccessToken, Endpoint, Profile, $location, $rootScope, $compile, $http, $templateCache) {
 
   var definition = {
     restrict: 'AE',
-    replace: false,
+    replace: true,
     scope: {
-      site: '@',       // (required) set the oauth2 server host (e.g. http://people.lelylan.com)
-      client: '@',     // (required) client id
-      redirect: '@',   // (required) client redirect uri
-      scope: '@',      // (optional) scope
-      flow: '@',       // (required) flow (e.g password, implicit)
-      view: '@',       // (optional) view (e.g standard, popup)
-      storage: '@',    // (optional) storage (e.g none, cookies)
-      profile: '@',    // (optional) user info uri (e.g http://example.com/me)
-      template: '@'    // (optional) template to render (e.g views/templates/default.html)
+      site: '@',                    // (required) set the oauth2 server host (e.g. http://people.example.com)
+      clientId: '@clientId',        // (required) client id
+      redirectUri: '@redirectUri',  // (required) client redirect uri
+      scope: '@',                   // (optional) scope
+      profileUri: '@profileUri',    // (optional) user profile uri (e.g http://example.com/me)
+      template: '@'                 // (optional) template to render (e.g views/templates/default.html)
     }
   };
 
@@ -28,8 +25,8 @@ directives.directive('oauth', ['AccessToken', 'Endpoint', 'Profile' ,'oauth.conf
       init();                    // set defaults
       compile();                 // compile the desired layout
       Endpoint.set(scope);       // set the oauth client url for authorization
-      AccessToken.set(scope);    // set the access token object (from fragment or cookies)
-      initProfile();             // get the profile info
+      AccessToken.set(scope);    // set the access token object (from fragment or session)
+      initProfile(scope);        // get the profile info
       initView();                // set the actual visualization status for the widget
     });
 
@@ -49,10 +46,12 @@ directives.directive('oauth', ['AccessToken', 'Endpoint', 'Profile' ,'oauth.conf
       });
     };
 
-    var initProfile = function() {
+    var initProfile = function(scope) {
       var token = AccessToken.get();
-      if (token && token.access_token && config.profile)
-        scope.profile = Profile.get();
+
+      if (token && token.access_token && scope.profileUri) {
+        Profile.get(scope.profileUri).success(function(response) { scope.profile = response })
+      }
     }
 
     var initView = function(token) {
@@ -72,21 +71,25 @@ directives.directive('oauth', ['AccessToken', 'Endpoint', 'Profile' ,'oauth.conf
       loggedOut();
     }
 
+    // set the oauth2 directive to the logged-in status
     var loggedIn = function() {
       $rootScope.$broadcast('oauth:success', AccessToken.get());
-      scope.show = 'logout';
+      scope.show = 'logged-in';
     }
 
+    // set the oauth2 directive to the logged-out status
     var loggedOut = function() {
       $rootScope.$broadcast('oauth:logout');
-      scope.show = 'login';
+      scope.show = 'logged-out';
     }
 
+    // set the oauth2 directive to the denied status
     var denied = function() {
       scope.show = 'denied';
       $rootScope.$broadcast('oauth:denied');
     }
 
+    // Updates the template at runtime
     scope.$on('oauth:template', function(event, template) {
       scope.template = template;
       compile(scope);

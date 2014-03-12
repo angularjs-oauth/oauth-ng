@@ -1,29 +1,26 @@
-// TODO set the login template
-// beforeEach(module('tpl/tabs.html', 'tpl/pane.html'));
-// TODO move this template in tests/templates and make it dry.
+'use strict';
 
 describe('oauth', function() {
 
-  var $location, $cookies, $httpBackend, $rootScope, AccessToken, Endpoint, element, scope, result, config, callback;
+  var $rootScope, $location, $sessionStorage, $httpBackend, $compile, AccessToken, Endpoint, element, scope, result, callback;
 
   var uri      = 'http://example.com/oauth/authorize?response_type=token&client_id=client-id&redirect_uri=http://example.com/redirect&scope=scope&state=/';
   var fragment = 'access_token=token&token_type=bearer&expires_in=7200&state=/path';
   var denied   = 'error=access_denied&error_description=error';
-  var headers  = { 'X-XSRF-TOKEN': undefined, 'Accept': 'application/json, text/plain, */*', 'X-Requested-With': 'XMLHttpRequest', 'Authorization': 'Bearer token' }
-  var profile  = { id: '1', fullname: 'Alice Wonderland', email: 'alice@example.com' };
+  var headers  = { 'Accept': 'application/json, text/plain, */*', 'Authorization': 'Bearer token' }
+  var profile  = { id: '1', full_name: 'Alice Wonderland', email: 'alice@example.com' };
 
   beforeEach(module('oauth'));
   beforeEach(module('templates'));
 
-  beforeEach(inject(function($injector) { $rootScope   = $injector.get('$rootScope') }));
-  beforeEach(inject(function($injector) { $compile     = $injector.get('$compile') }));
-  beforeEach(inject(function($injector) { $location    = $injector.get('$location') }));
-  beforeEach(inject(function($injector) { $cookies     = $injector.get('$cookies') }));
-  beforeEach(inject(function($injector) { $httpBackend = $injector.get('$httpBackend') }));
-  beforeEach(inject(function($injector) { AccessToken  = $injector.get('AccessToken') }));
-  beforeEach(inject(function($injector) { Endpoint     = $injector.get('Endpoint') }));
-  beforeEach(inject(function($injector) { config       = $injector.get('oauth.config') }));
-  beforeEach(inject(function($injector) { callback     = jasmine.createSpy('callback') }));
+  beforeEach(inject(function($injector) { $rootScope      = $injector.get('$rootScope') }));
+  beforeEach(inject(function($injector) { $compile        = $injector.get('$compile') }));
+  beforeEach(inject(function($injector) { $location       = $injector.get('$location') }));
+  beforeEach(inject(function($injector) { $sessionStorage = $injector.get('$sessionStorage') }));
+  beforeEach(inject(function($injector) { $httpBackend    = $injector.get('$httpBackend') }));
+  beforeEach(inject(function($injector) { AccessToken     = $injector.get('AccessToken') }));
+  beforeEach(inject(function($injector) { Endpoint        = $injector.get('Endpoint') }));
+  beforeEach(inject(function($injector) { callback        = jasmine.createSpy('callback') }));
 
   beforeEach(inject(function($rootScope, $compile) {
     element = angular.element(
@@ -32,7 +29,7 @@ describe('oauth', function() {
           'client="client-id"' +
           'redirect="http://example.com/redirect"' +
           'scope="scope"' +
-          'profile="http://example.com/me"' +
+          'profile-uri="http://example.com/me"' +
           'template="views/templates/default.html"' +
           'storage="cookies">Sign In</oauth>' +
       '</span>'
@@ -47,10 +44,6 @@ describe('oauth', function() {
 
 
   describe('when logged in', function() {
-
-    beforeEach(function() {
-      config.profile = 'http://example.com/me';
-    });
 
     beforeEach(function() {
       $location.hash(fragment);
@@ -69,8 +62,9 @@ describe('oauth', function() {
     });
 
     it('shows the link "Logout #{profile.email}"', function() {
+      $rootScope.$apply();
       $httpBackend.flush();
-      result = element.find('.logout').text();
+      result = element.find('.logged-in').text();
       expect(result).toBe('Logout Alice Wonderland');
     });
 
@@ -79,8 +73,8 @@ describe('oauth', function() {
     });
 
     it('shows the logout link', function() {
-      expect(element.find('.login').css('display')).toBe('none');
-      expect(element.find('.logout').css('display')).toBe('');
+      expect(element.find('.logged-out').attr('class')).toMatch('ng-hide');
+      expect(element.find('.logged-in').attr('class')).not.toMatch('ng-hide');
     });
 
     it('fires the oauth:login event', function() {
@@ -88,7 +82,6 @@ describe('oauth', function() {
       var token = AccessToken.get();
       expect(callback).toHaveBeenCalledWith(event, token);
     });
-
 
     describe('when refreshes the page', function() {
 
@@ -100,15 +93,20 @@ describe('oauth', function() {
         $location.path('/');
       });
 
+      beforeEach(function() {
+        compile($rootScope, $compile);
+      });
+
       it('keeps being logged in', function() {
+        $rootScope.$apply();
         $httpBackend.flush();
-        result = element.find('.logout').text();
+        result = element.find('.logged-in').text();
         expect(result).toBe('Logout Alice Wonderland');
       });
 
       it('shows the logout link', function() {
-        expect(element.find('.login').css('display')).toBe('none');
-        expect(element.find('.logout').css('display')).toBe('');
+        expect(element.find('.logged-out').attr('class')).toMatch('ng-hide');
+        expect(element.find('.logged-in').attr('class')).not.toMatch('ng-hide');
       });
 
       it('fires the oauth:login event', function() {
@@ -122,12 +120,21 @@ describe('oauth', function() {
     describe('when logs out', function() {
 
       beforeEach(function() {
-        element.find('.logout').click();
+        $rootScope.$on('oauth:logout', callback);
+      });
+
+      beforeEach(function() {
+        element.find('.logged-in').click();
       });
 
       it('shows the login link', function() {
-        expect(element.find('.login').css('display')).toBe('');
-        expect(element.find('.logout').css('display')).toBe('none');
+        expect(element.find('.logged-out').attr('class')).not.toMatch('ng-hide');
+        expect(element.find('.logged-in').attr('class')).toMatch('ng-hide');
+      });
+
+      it('fires the oauth:logout event', function() {
+        var event = jasmine.any(Object);
+        expect(callback).toHaveBeenCalledWith(event);
       });
     });
   });
@@ -140,6 +147,10 @@ describe('oauth', function() {
     });
 
     beforeEach(function() {
+      AccessToken.destroy();
+    });
+
+    beforeEach(function() {
       compile($rootScope, $compile)
     });
 
@@ -148,18 +159,18 @@ describe('oauth', function() {
     });
 
     it('shows the text "Sing In"', function() {
-      result = element.find('.login').text();
+      result = element.find('.logged-out').text();
       expect(result).toBe('Sign In');
     });
 
     it('sets the href attribute', function() {
-      result = element.find('.login').click();
+      result = element.find('.logged-out').click();
       expect(Endpoint.redirect).toHaveBeenCalled();
     });
 
     it('shows the login link', function() {
-      expect(element.find('.login').css('display')).toBe('');
-      expect(element.find('.logout').css('display')).toBe('none');
+      expect(element.find('.logged-out').attr('class')).not.toMatch('ng-hide');
+      expect(element.find('.logged-in').attr('class')).toMatch('ng-hide');
     });
 
     it('fires the oauth:logout event', function() {
@@ -198,9 +209,9 @@ describe('oauth', function() {
     });
 
     it('shows the login link', function() {
-      expect(element.find('.login').css('display')).toBe('none');
-      expect(element.find('.logout').css('display')).toBe('none');
-      expect(element.find('.denied').css('display')).toBe('');
+      expect(element.find('.logged-out').attr('class')).toMatch('ng-hide');
+      expect(element.find('.logged-in').attr('class')).toMatch('ng-hide');
+      expect(element.find('.denied').attr('class')).not.toMatch('ng-hide');
     });
 
     it('fires the oauth:denied event', function() {
@@ -208,5 +219,41 @@ describe('oauth', function() {
       expect(callback).toHaveBeenCalledWith(event);
     });
   });
-});
 
+
+  describe('with no custom template', function() {
+
+    beforeEach(function() {
+      AccessToken.destroy();
+    });
+
+    beforeEach(function() {
+      compile($rootScope, $compile)
+    });
+
+    it('shows the default template', function() {
+      expect(element.find('.btn-oauth').text()).toBe('');
+    });
+  });
+
+
+  describe('with custom template', function() {
+
+    beforeEach(function() {
+      AccessToken.destroy();
+    });
+
+    beforeEach(function() {
+      compile($rootScope, $compile)
+    });
+
+    beforeEach(function() {
+      $rootScope.$broadcast('oauth:template', 'views/templates/button.html');
+      $rootScope.$apply();
+    });
+
+    it('shows the button template', function() {
+      expect(element.find('.btn-oauth').text()).not.toBe('');
+    });
+  });
+});

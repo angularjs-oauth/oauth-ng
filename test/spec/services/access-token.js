@@ -2,18 +2,17 @@
 
 describe('AccessToken', function() {
 
-  var result, $location, $cookies, AccessToken, date;
+  var result, $location, $sessionStorage, AccessToken, date;
 
   var fragment = 'access_token=token&token_type=bearer&expires_in=7200&state=/path';
   var denied   = 'error=access_denied&error_description=error';
   var token    = { access_token: 'token', token_type: 'bearer', expires_in: 7200, state: '/path' };
-  var scope    = { site: 'http://example.com', client: 'client-id', redirect: 'http://example.com/redirect', scope: 'scope', flow: 'implicit', storage: 'cookies' };
 
   beforeEach(module('oauth'));
 
-  beforeEach(inject(function($injector) { $location   = $injector.get('$location') }));
-  beforeEach(inject(function($injector) { $cookies    = $injector.get('$cookies') }));
-  beforeEach(inject(function($injector) { AccessToken = $injector.get('AccessToken') }));
+  beforeEach(inject(function($injector) { $location       = $injector.get('$location') }));
+  beforeEach(inject(function($injector) { $sessionStorage = $injector.get('$sessionStorage') }));
+  beforeEach(inject(function($injector) { AccessToken     = $injector.get('AccessToken') }));
 
 
   describe('#set', function() {
@@ -25,7 +24,7 @@ describe('AccessToken', function() {
       });
 
       beforeEach(function() {
-        result = AccessToken.set(scope);
+        result = AccessToken.set();
       });
 
       it('sets the access token', function() {
@@ -46,7 +45,7 @@ describe('AccessToken', function() {
       });
 
       beforeEach(function() {
-        result = AccessToken.set(scope);
+        result = AccessToken.set();
       });
 
       it('sets the access token', function() {
@@ -57,23 +56,23 @@ describe('AccessToken', function() {
         expect($location.hash()).toEqual('');
       });
 
-      it('stores the token in the cookies', function() {
-        var stored_token = $cookies[scope.client];
+      it('stores the token in the session', function() {
+        var stored_token = $sessionStorage.token;
         expect(result.access_token).toEqual('token');
       });
     });
 
-    describe('with the access token stored in the cookies', function() {
+    describe('with the access token stored in the session', function() {
 
       beforeEach(function() {
-        $cookies[scope.client] = JSON.stringify(token);
+        $sessionStorage.token = token;
       });
 
       beforeEach(function() {
-        result = AccessToken.set(scope);
+        result = AccessToken.set();
       });
 
-      it('sets the access token from cookies', function() {
+      it('sets the access token from session', function() {
         expect(result.access_token).toEqual('token');
       });
     });
@@ -85,7 +84,7 @@ describe('AccessToken', function() {
       });
 
       beforeEach(function() {
-        result = AccessToken.set(scope);
+        result = AccessToken.set();
       });
 
       it('sets the access token', function() {
@@ -96,8 +95,8 @@ describe('AccessToken', function() {
         expect($location.hash()).toEqual('');
       });
 
-      it('stores the error message in the cookies', function() {
-        var stored_token = $cookies[scope.client];
+      it('stores the error message in the session', function() {
+        var stored_token = $sessionStorage.token;
         expect(result.error).toBe('access_denied');
       });
     });
@@ -111,7 +110,7 @@ describe('AccessToken', function() {
     });
 
     beforeEach(function() {
-      AccessToken.set(scope);
+      AccessToken.set();
     });
 
     beforeEach(function() {
@@ -131,11 +130,11 @@ describe('AccessToken', function() {
     });
 
     beforeEach(function() {
-      AccessToken.set(scope);
+      AccessToken.set();
     });
 
     beforeEach(function() {
-      result = AccessToken.destroy(scope);
+      result = AccessToken.destroy();
     });
 
     it('sets the access token', function() {
@@ -143,7 +142,7 @@ describe('AccessToken', function() {
     });
 
     it('reset the cache', function() {
-      expect($cookies[scope.client]).toBeUndefined;
+      expect($sessionStorage.token).toBeUndefined;
     });
   });
 
@@ -155,7 +154,7 @@ describe('AccessToken', function() {
     });
 
     beforeEach(function() {
-      AccessToken.set(scope);
+      AccessToken.set();
     });
 
     describe('when not expired', function() {
@@ -173,12 +172,12 @@ describe('AccessToken', function() {
 
       beforeEach(function() {
         date = new Date();
-        date.setTime(date.getTime() + 86400000); // 1 day
+        date.setTime(date.getTime() + 86400000);
       });
 
       beforeEach(function() {
         Timecop.install();
-        Timecop.travel(date);
+        Timecop.travel(date); // go to the future for one day
       });
 
       beforeEach(function() {

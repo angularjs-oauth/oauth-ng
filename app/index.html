@@ -1,61 +1,109 @@
-<!doctype html>
-<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+
+<!DOCTYPE html>
+<html lang="en" ng-app="app">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title></title>
-    <meta name="description" content="">
-    <meta name="viewport" content="width=device-width">
-    <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="OAuth2 AngularJS Directive">
+    <meta name="author" content="Andrea Reginato | Lelylan">
+
+    <title>OAuth2 AngularJS Directive</title>
 
     <!-- build:css(.tmp) ng-oauth.css -->
     <link rel="stylesheet" href="styles/main.css">
     <!-- endbuild -->
-  </head>
-  <body ng-app="app">
-    <!--[if lt IE 7]>
-      <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
-    <![endif]-->
 
+    <!-- Just for debugging purposes. Don't actually copy this line! -->
+    <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
-      <script src="bower_components/es5-shim/es5-shim.js"></script>
-      <script src="bower_components/json3/lib/json3.min.js"></script>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
+  </head>
 
-    <!-- Add your site or application content here -->
-    <h1>Oauth Login Directive</h1>
+  <body>
 
-    <oauth ng-cloak
-      site="http://people.lelylan.com"
-      client="e72c43c75adc9665e4d4c13354c41f337d5a2e439d3da1243bb47e39745f435c"
-      redirect="http://localhost:9000"
-      scope="resources"
-      profile="http://api.lelylan.com/me"
-      storage="cookies">Sign In</oauth>
+    <!-- Begin page content -->
+    <div class="container">
+      <div class="page-header">
+        <h1>OAuth2 AngularJS Directive</h1>
+      </div>
 
-    <script src="bower_components/jquery/jquery.js"></script>
+      <p class="lead">
+      A new <code>&lt;oauth&gt;</code> directive working with the
+      <a href="http://tools.ietf.org/html/rfc6749#section-1.3.2">OAuth2 Implicit Flow</a>.
+      </p>
+
+      <div class="page-header">
+        <h2>Examples</h2>
+      </div>
+
+      <p class="lead">
+      The OAuth2 AngularJS directive comes with a default textual style. This can be easily
+      personalize by defining a new template.
+      </p>
+
+      <div class="row">
+        <div class="col-md-6">
+          <div class="page-header">
+            <h4>Textual template (default)</h4>
+          </div>
+          <p class="lead">
+          <oauth
+            site="http://people.lelylan.com"
+            client-id="e72c43c75adc9665e4d4c13354c41f337d5a2e439d3da1243bb47e39745f435c"
+            redirect-uri="http://localhost:9000"
+            profile-uri="http://api.lelylan.com/me"
+            scope="resources">
+          </oauth>
+          </p>
+        </div>
+
+        <div class="col-md-6">
+          <div class="page-header">
+            <h4>Button template</h4>
+          </div>
+          <p class="lead">
+          <oauth
+            site="http://people.lelylan.com"
+            client-id="e72c43c75adc9665e4d4c13354c41f337d5a2e439d3da1243bb47e39745f435c"
+            redirect-uri="http://localhost:9000"
+            profile-uri="http://api.lelylan.com/me"
+            scope="resources"
+            template="views/templates/button.html">
+          </oauth>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div id="footer">
+      <div class="container">
+        <p class="text-muted">Powered by <a href="http://lelylan.com" target="blank">The Lelylan Team</a></p>
+      </div>
+    </div>
+
+
     <script src="bower_components/angular/angular.js"></script>
-    <script src="bower_components/angular-resource/angular-resource.js"></script>
-    <script src="bower_components/angular-cookies/angular-cookies.js"></script>
-    <script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
+    <script src="bower_components/ngstorage/ngStorage.js"></script>
 
     <!-- build:js({.tmp,app}) ng-oauth.js -->
     <script src="scripts/app.js"></script>
     <script src="scripts/directives/oauth.js"></script>
     <script src="scripts/services/access-token.js"></script>
     <script src="scripts/services/endpoint.js"></script>
-    <script src="scripts/services/request-wrapper.js"></script>
     <script src="scripts/services/profile.js"></script>
+    <script src="scripts/interceptors/oauth-interceptor.js"></script>
     <script src="scripts/config/config.js"></script>
     <!-- endbuild -->
 
     <script>
       var app = angular.module('app', ['oauth']);
       app.value('oauth.config', { profile: 'http:///api.lelylan.com/me' });
-    </script>
 
-</body>
+    </script>
+  </body>
 </html>

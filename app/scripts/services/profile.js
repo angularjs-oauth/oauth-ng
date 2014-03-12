@@ -1,12 +1,13 @@
 'use strict';
 
-var client = angular.module('oauth.profile', ['ngResource'])
+var client = angular.module('oauth.profile', [])
 
-client.factory('Profile', ['RequestWrapper', '$resource', 'oauth.config',
-  function(RequestWrapper, $resource, config) {
+client.factory('Profile', ['$http', function($http) {
+  var service = {}
 
-    var resource = $resource(config.profile, {}, {
-      //get: { method: 'JSONP', params: { callback: 'JSON_CALLBACK' } }
-    });
-    return RequestWrapper.wrap(resource, ['get']);
+  service.get = function(uri) {
+    return $http.get(uri);
+  }
+
+  return service;
 }]);
