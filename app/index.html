@@ -1,14 +1,13 @@
-
 <!DOCTYPE html>
 <html lang="en" ng-app="app">
   <head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="OAuth2 AngularJS Directive">
-    <meta name="author" content="Andrea Reginato | Lelylan">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <meta name="description" content="AngularJS 1.2+ directive for OAuth 2.0">
+    <meta name="author" content="Andrea Reginato, The Lelylan Team">
 
-    <title>OAuth2 AngularJS Directive</title>
+    <title>ng-oauth | OAuth 2.0 AngularJS Directive</title>
 
     <!-- build:css(.tmp) ng-oauth.css -->
     <link rel="stylesheet" href="styles/main.css">
@@ -19,73 +18,108 @@
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
+
   </head>
+  <body class="presentation">
 
-  <body>
+    <!-- top navbar -->
 
-    <!-- Begin page content -->
+    <nav class="navbar navbar-default navbar-fixed-top lelylan-navbar-top-menu" role="navigation">
     <div class="container">
-      <div class="page-header">
-        <h1>OAuth2 AngularJS Directive</h1>
-      </div>
-
-      <p class="lead">
-      A new <code>&lt;oauth&gt;</code> directive working with the
-      <a href="http://tools.ietf.org/html/rfc6749#section-1.3.2">OAuth2 Implicit Flow</a>.
-      </p>
-
-      <div class="page-header">
-        <h2>Examples</h2>
-      </div>
-
-      <p class="lead">
-      The OAuth2 AngularJS directive comes with a default textual style. This can be easily
-      personalize by defining a new template.
-      </p>
-
-      <div class="row">
-        <div class="col-md-6">
-          <div class="page-header">
-            <h4>Textual template (default)</h4>
+      <div class="navbar">
+        <div class="navbar-inner-flat">
+          <ul class="nav navbar-nav">
+            <li><a class="navbar-brand" href="/"><strong>ng-oauth</strong></a></li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li>
+            <a href="#getting-started">Configuration</a>
+            </li>
+            <li>
+              <a href="#custom-templates">Customization</a>
+            </li>
+            <li>
+            <a href="#examples">Examples</a>
+            </li>
           </div>
-          <p class="lead">
-          <oauth
-            site="http://people.lelylan.com"
-            client-id="e72c43c75adc9665e4d4c13354c41f337d5a2e439d3da1243bb47e39745f435c"
-            redirect-uri="http://localhost:9000"
-            profile-uri="http://api.lelylan.com/me"
-            scope="resources">
-          </oauth>
-          </p>
-        </div>
-
-        <div class="col-md-6">
-          <div class="page-header">
-            <h4>Button template</h4>
-          </div>
-          <p class="lead">
-          <oauth
-            site="http://people.lelylan.com"
-            client-id="e72c43c75adc9665e4d4c13354c41f337d5a2e439d3da1243bb47e39745f435c"
-            redirect-uri="http://localhost:9000"
-            profile-uri="http://api.lelylan.com/me"
-            scope="resources"
-            template="views/templates/button.html">
-          </oauth>
-          </p>
         </div>
       </div>
     </div>
+    </nav>
 
-    <div id="footer">
+    <!-- homepage banner -->
+    <div class="banner">
       <div class="container">
-        <p class="text-muted">Powered by <a href="http://lelylan.com" target="blank">The Lelylan Team</a></p>
+        <div class="banner-content">
+          <h1 class="title">The &lt;oauth&gt; web component</h1>
+          <p>Simple and easy to use AngularJS directive for OAuth 2.0</p>
+
+          <div class="banner-button">
+          <a href="/examples.html" class="btn-lelylan">See Examples</a>
+          </div>
+        </div>
       </div>
     </div>
 
+    <!-- content -->
+    <div class="container bs-docs-container">
+      <div class="row">
+
+        <div class="presentation-block">
+
+          <div class="row">
+            <div class="col-md-8" role="main">
+              <h4>For AngularJS Developers</h4>
+              <h1>Authorize your Frontend Applications</h1>
+
+              <p>
+              Create Angular apps that connect to any OAuth 2.0 authorization server using the
+              <a href="http://tools.ietf.org/html/rfc6749#section-1.3.2">OAuth2 Implicit Flow</a>
+              and access all desired APIs with the returned access token.
+              </p>
+
+
+              <a href="#configure" class="btn-lelylan">How to configure  &rarr;</a>
+
+            </div>
+            <div class="col-md-4" role="main">
+              <div class="pull-right">
+                <img src="images/configurations.png" %>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-4" role="main">
+              <div class="pull-left">
+                <img src="images/examples.png" %>
+              </div>
+            </div>
+            <div class="col-md-8" role="main">
+              <h4>Highly customizable</h4>
+              <h1>Personalize the directive with your style</h1>
+              <p>
+                With ng-oauth you can style the default template, but you can also dynamically
+                set a fully personalized template, where you can show exactly what you want.
+              </p>
+              <a href="#customization" class="btn-lelylan">Customize the directive &rarr;</a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <footer class="bs-footer" role="contentinfo">
+    <div class="container">
+      <div class="row bs-docs-section">
+        <p class="pull-right">© <a href="http://lelylan.com">Lelylan</a> 2014</p>
+      </div>
+    </div>
+    </footer>
 
     <script src="bower_components/angular/angular.js"></script>
     <script src="bower_components/ngstorage/ngStorage.js"></script>
@@ -102,8 +136,9 @@
 
     <script>
       var app = angular.module('app', ['oauth']);
-      app.value('oauth.config', { profile: 'http:///api.lelylan.com/me' });
-
     </script>
+
   </body>
 </html>
+
+
