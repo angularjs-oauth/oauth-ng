@@ -89,7 +89,7 @@ directives.directive('oauth', ['AccessToken', 'Endpoint', 'Profile' ,'oauth.conf
       $rootScope.$broadcast('oauth:denied');
     }
 
-    // called to update the template at runtime
+    // Updates the template at runtime
     scope.$on('oauth:template', function(event, template) {
       scope.template = template;
       compile(scope);

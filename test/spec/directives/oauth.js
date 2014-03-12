@@ -90,6 +90,9 @@ describe('oauth', function() {
       expect(callback).toHaveBeenCalledWith(event, token);
     });
 
+    it('shows the default template', function() {
+      expect(element.find('.btn-oauth').text()).toBe('');
+    });
 
     describe('when refreshes the page', function() {
 
@@ -227,5 +230,27 @@ describe('oauth', function() {
       expect(callback).toHaveBeenCalledWith(event);
     });
   });
+
+
+  describe('when changes template', function() {
+
+    beforeEach(function() {
+      AccessToken.destroy();
+    });
+
+    beforeEach(function() {
+      compile($rootScope, $compile)
+    });
+
+    beforeEach(function() {
+      $rootScope.$broadcast('oauth:template', 'views/templates/button.html');
+      $rootScope.$apply();
+    });
+
+    it('shows the button template', function() {
+      expect(element.find('.btn-oauth').text()).not.toBe('');
+    });
+  });
+
 });
 
