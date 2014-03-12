@@ -1,6 +1,6 @@
 // TODO set the login template
-// beforeEach(module('tpl/tabs.html', 'tpl/pane.html'));
-// TODO move this template in tests/templates and make it dry.
+// beforeEach(module('tpl/tabs.html', 'tpl/pane.html'))
+// TODO move the HTML template in tests/templates and make it dry
 
 describe('oauth', function() {
 
