@@ -22,9 +22,20 @@ body {
   /* Set the fixed height of the footer here */
   height: 60px;
   background-color: #f5f5f5;
+  border-top: 1px solid #ddd;
 }
 
-.oauth a { text-decoration: none; }
+#footer p {
+  color: #333;
+}
+
+#footer a {
+  text-decoration: none;
+}
+
+.oauth a {
+  text-decoration: none;
+}
 
 
 

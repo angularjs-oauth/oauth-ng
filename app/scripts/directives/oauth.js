@@ -2,8 +2,8 @@
 
 var directives = angular.module('oauth.directive', []);
 
-directives.directive('oauth', ['AccessToken', 'Endpoint', 'Profile' ,'oauth.config', '$location', '$rootScope', '$compile', '$http', '$templateCache',
-  function(AccessToken, Endpoint, Profile, config, $location, $rootScope, $compile, $http, $templateCache) {
+directives.directive('oauth', ['AccessToken', 'Endpoint', 'Profile', '$location', '$rootScope', '$compile', '$http', '$templateCache',
+  function(AccessToken, Endpoint, Profile, $location, $rootScope, $compile, $http, $templateCache) {
 
   var definition = {
     restrict: 'AE',
@@ -13,7 +13,7 @@ directives.directive('oauth', ['AccessToken', 'Endpoint', 'Profile' ,'oauth.conf
       clientId: '@clientId',        // (required) client id
       redirectUri: '@redirectUri',  // (required) client redirect uri
       scope: '@',                   // (optional) scope
-      profile: '@',                 // (optional) user info uri (e.g http://example.com/me)
+      profileUri: '@profileUri',    // (optional) user profile uri (e.g http://example.com/me)
       template: '@'                 // (optional) template to render (e.g views/templates/default.html)
     }
   };
@@ -26,7 +26,7 @@ directives.directive('oauth', ['AccessToken', 'Endpoint', 'Profile' ,'oauth.conf
       compile();                 // compile the desired layout
       Endpoint.set(scope);       // set the oauth client url for authorization
       AccessToken.set(scope);    // set the access token object (from fragment or session)
-      initProfile();             // get the profile info
+      initProfile(scope);        // get the profile info
       initView();                // set the actual visualization status for the widget
     });
 
@@ -46,11 +46,11 @@ directives.directive('oauth', ['AccessToken', 'Endpoint', 'Profile' ,'oauth.conf
       });
     };
 
-    var initProfile = function() {
+    var initProfile = function(scope) {
       var token = AccessToken.get();
 
-      if (token && token.access_token && config.profile) {
-        Profile.get().success(function(response) { scope.profile = response })
+      if (token && token.access_token && scope.profileUri) {
+        Profile.get(scope.profileUri).success(function(response) { scope.profile = response })
       }
     }
 

@@ -2,11 +2,11 @@
 
 describe('Profile', function() {
 
-  var $rootScope, $location, $httpBackend, $http, AccessToken, config, result, date, callback;
+  var $rootScope, $location, $httpBackend, $http, AccessToken, result, date, callback;
 
   var fragment = 'access_token=token&token_type=bearer&expires_in=7200&state=/path';
   var headers  = { 'Accept': 'application/json, text/plain, */*', 'Authorization': 'Bearer token' }
-  var params   = { site: 'http://example.com', client: 'client-id', redirect: 'http://example.com/redirect', scope: 'scope', flow: 'implicit', storage: 'cookies' };
+  var params   = { site: 'http://example.com', client: 'client-id', redirect: 'http://example.com/redirect', scope: 'scope', profileUri: 'http://example.com/me' };
   var resource = { id: '1', name: 'Alice' };
 
   beforeEach(module('oauth'));
@@ -15,22 +15,12 @@ describe('Profile', function() {
   beforeEach(inject(function($injector) { $location       = $injector.get('$location') }));
   beforeEach(inject(function($injector) { $httpBackend    = $injector.get('$httpBackend') }));
   beforeEach(inject(function($injector) { $http           = $injector.get('$http') }));
-  beforeEach(inject(function($injector) { config          = $injector.get('oauth.config') }));
   beforeEach(inject(function($injector) { AccessToken     = $injector.get('AccessToken') }));
 
   beforeEach(function() { callback = jasmine.createSpy('callback') });
 
 
   describe('.get', function() {
-
-    beforeEach(function() {
-      config.profile = 'http://example.com/me';
-    });
-
-    afterEach(function() {
-      config.profile = null;
-    });
-
 
     describe('when authenticated', function() {
 
@@ -45,13 +35,13 @@ describe('Profile', function() {
 
       it('makes the request', inject(function(Profile) {
         $httpBackend.expect('GET', 'http://example.com/me');
-        Profile.get();
+        Profile.get(params.profileUri);
         $rootScope.$apply();
         $httpBackend.flush();
       }));
 
       it('gets the resource', inject(function(Profile) {
-        Profile.get().success(function(response) { result = response });
+        Profile.get(params.profileUri).success(function(response) { result = response });
         $rootScope.$apply();
         $httpBackend.flush();
         expect(result.name).toEqual('Alice');
@@ -82,7 +72,7 @@ describe('Profile', function() {
         });
 
         it('fires the oauth:expired event', inject(function(Profile) {
-          Profile.get();
+          Profile.get(params.profileUri);
           $rootScope.$apply();
           $httpBackend.flush();
           var event = jasmine.any(Object);

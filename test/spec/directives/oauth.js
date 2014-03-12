@@ -1,10 +1,8 @@
-// TODO set the login template
-// beforeEach(module('tpl/tabs.html', 'tpl/pane.html'))
-// TODO move the HTML template in tests/templates and make it dry
+'use strict';
 
 describe('oauth', function() {
 
-  var $rootScope, $location, $sessionStorage, $httpBackend, AccessToken, Endpoint, element, scope, result, config, callback;
+  var $rootScope, $location, $sessionStorage, $httpBackend, $compile, AccessToken, Endpoint, element, scope, result, callback;
 
   var uri      = 'http://example.com/oauth/authorize?response_type=token&client_id=client-id&redirect_uri=http://example.com/redirect&scope=scope&state=/';
   var fragment = 'access_token=token&token_type=bearer&expires_in=7200&state=/path';
@@ -22,7 +20,6 @@ describe('oauth', function() {
   beforeEach(inject(function($injector) { $httpBackend    = $injector.get('$httpBackend') }));
   beforeEach(inject(function($injector) { AccessToken     = $injector.get('AccessToken') }));
   beforeEach(inject(function($injector) { Endpoint        = $injector.get('Endpoint') }));
-  beforeEach(inject(function($injector) { config          = $injector.get('oauth.config') }));
   beforeEach(inject(function($injector) { callback        = jasmine.createSpy('callback') }));
 
   beforeEach(inject(function($rootScope, $compile) {
@@ -32,7 +29,7 @@ describe('oauth', function() {
           'client="client-id"' +
           'redirect="http://example.com/redirect"' +
           'scope="scope"' +
-          'profile="http://example.com/me"' +
+          'profile-uri="http://example.com/me"' +
           'template="views/templates/default.html"' +
           'storage="cookies">Sign In</oauth>' +
       '</span>'
@@ -47,10 +44,6 @@ describe('oauth', function() {
 
 
   describe('when logged in', function() {
-
-    beforeEach(function() {
-      config.profile = 'http://example.com/me';
-    });
 
     beforeEach(function() {
       $location.hash(fragment);
@@ -88,10 +81,6 @@ describe('oauth', function() {
       var event = jasmine.any(Object);
       var token = AccessToken.get();
       expect(callback).toHaveBeenCalledWith(event, token);
-    });
-
-    it('shows the default template', function() {
-      expect(element.find('.btn-oauth').text()).toBe('');
     });
 
     describe('when refreshes the page', function() {
@@ -232,7 +221,23 @@ describe('oauth', function() {
   });
 
 
-  describe('when changes template', function() {
+  describe('with no custom template', function() {
+
+    beforeEach(function() {
+      AccessToken.destroy();
+    });
+
+    beforeEach(function() {
+      compile($rootScope, $compile)
+    });
+
+    it('shows the default template', function() {
+      expect(element.find('.btn-oauth').text()).toBe('');
+    });
+  });
+
+
+  describe('with custom template', function() {
 
     beforeEach(function() {
       AccessToken.destroy();
@@ -251,6 +256,4 @@ describe('oauth', function() {
       expect(element.find('.btn-oauth').text()).not.toBe('');
     });
   });
-
 });
-
