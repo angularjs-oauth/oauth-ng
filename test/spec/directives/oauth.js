@@ -129,6 +129,12 @@
         //expect(element.find('.login').css('display')).toBe('');
         //expect(element.find('.logout').css('display')).toBe('none');
       //});
+
+      //it('fires the oauth:logout event', function() {
+        //var event = jasmine.any(Object);
+        //var token = AccessToken.get();
+        //expect(callback).toHaveBeenCalledWith(event, token);
+      //});
     //});
   //});
 

@@ -8,7 +8,7 @@ service.factory('OAuthInterceptor', ['$rootScope', '$q', '$sessionStorage',
     var service = {};
 
     service.request = function(config) {
-      var token = JSON.parse($sessionStorage.token);
+      var token = $sessionStorage.token;
 
       if (token)
         config.headers.Authorization = 'Bearer ' + token.access_token;

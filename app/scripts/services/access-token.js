@@ -37,8 +37,7 @@ service.factory('AccessToken', ['$rootScope', '$location', '$http', '$sessionSto
 
   service.destroy = function() {
     delete $sessionStorage.token;
-    token = null;
-    return token;
+    return token = null;
   }
 
 
@@ -97,18 +96,18 @@ service.factory('AccessToken', ['$rootScope', '$location', '$http', '$sessionSto
 
   var setTokenFromSession = function() {
     if ($sessionStorage.token) {
-      var params = JSON.parse($sessionStorage.token);
+      var params = $sessionStorage.token;
       setToken(params);
     }
   }
 
 
   /*
-   * Save the access token into a session
+   * Save the access token into the session
    */
 
   var setTokenInSession = function() {
-    $sessionStorage.token = JSON.stringify(token);
+    $sessionStorage.token = token;
   }
 
 

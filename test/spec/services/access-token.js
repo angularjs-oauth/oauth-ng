@@ -65,7 +65,7 @@ describe('AccessToken', function() {
     describe('with the access token stored in the session', function() {
 
       beforeEach(function() {
-        $sessionStorage.token = JSON.stringify(token);
+        $sessionStorage.token = token;
       });
 
       beforeEach(function() {
