@@ -7,7 +7,7 @@ directives.directive('oauth', ['AccessToken', 'Endpoint', 'Profile' ,'oauth.conf
 
   var definition = {
     restrict: 'AE',
-    replace: false,
+    replace: true,
     scope: {
       site: '@',                    // (required) set the oauth2 server host (e.g. http://people.example.com)
       clientId: '@clientId',        // (required) client id
@@ -48,8 +48,10 @@ directives.directive('oauth', ['AccessToken', 'Endpoint', 'Profile' ,'oauth.conf
 
     var initProfile = function() {
       var token = AccessToken.get();
-      if (token && token.access_token && config.profile)
-        scope.profile = Profile.get();
+
+      if (token && token.access_token && config.profile) {
+        Profile.get().success(function(response) { scope.profile = response })
+      }
     }
 
     var initView = function(token) {
@@ -72,13 +74,13 @@ directives.directive('oauth', ['AccessToken', 'Endpoint', 'Profile' ,'oauth.conf
     // set the oauth2 directive to the logged-in status
     var loggedIn = function() {
       $rootScope.$broadcast('oauth:success', AccessToken.get());
-      scope.show = 'logged-out';
+      scope.show = 'logged-in';
     }
 
     // set the oauth2 directive to the logged-out status
     var loggedOut = function() {
       $rootScope.$broadcast('oauth:logout');
-      scope.show = 'logged-in';
+      scope.show = 'logged-out';
     }
 
     // set the oauth2 directive to the denied status

@@ -1,5 +1,5 @@
 <span class="oauth2">
-  <a href="#" class="login"  ng-show="show=='logged-in'"  ng-click="login()">Sign In</a>
-  <a href="#" class="logout" ng-show="show=='logged-out'" ng-click="logout()">Logout {{profile.fullname}}</a>
-  <a href="#" class="denied" ng-show="show=='denied'"     ng-click="login()">Access denied.</a>
+  <a href="#" class="logged-out" ng-show="show=='logged-out'" ng-click="login()">Sign In</a>
+  <a href="#" class="logged-in"  ng-show="show=='logged-in'"  ng-click="logout()">Logout {{profile.fullname}}</a>
+  <a href="#" class="denied"     ng-show="show=='denied'"     ng-click="login()">Access denied.</a>
 </span>

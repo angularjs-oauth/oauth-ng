@@ -5,7 +5,7 @@ describe('Profile', function() {
   var $rootScope, $location, $httpBackend, $http, AccessToken, config, result, date, callback;
 
   var fragment = 'access_token=token&token_type=bearer&expires_in=7200&state=/path';
-  var headers  = { 'X-XSRF-TOKEN': undefined, 'Accept': 'application/json, text/plain, */*', 'X-Requested-With': 'XMLHttpRequest', 'Authorization': 'Bearer token' }
+  var headers  = { 'Accept': 'application/json, text/plain, */*', 'Authorization': 'Bearer token' }
   var params   = { site: 'http://example.com', client: 'client-id', redirect: 'http://example.com/redirect', scope: 'scope', flow: 'implicit', storage: 'cookies' };
   var resource = { id: '1', name: 'Alice' };
 
@@ -40,7 +40,7 @@ describe('Profile', function() {
       });
 
       beforeEach(function() {
-        $httpBackend.whenGET('http://example.com/me').respond(resource);
+        $httpBackend.whenGET('http://example.com/me', headers).respond(resource);
       });
 
       it('makes the request', inject(function(Profile) {
