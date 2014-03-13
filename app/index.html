@@ -1,14 +1,13 @@
-
 <!DOCTYPE html>
 <html lang="en" ng-app="app">
   <head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="OAuth2 AngularJS Directive">
-    <meta name="author" content="Andrea Reginato | Lelylan">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+    <meta name="description" content="AngularJS 1.2+ directive for OAuth 2.0">
+    <meta name="author" content="Andrea Reginato, The Lelylan Team">
 
-    <title>OAuth2 AngularJS Directive</title>
+    <title>ng-oauth | OAuth 2.0 AngularJS Directive</title>
 
     <!-- build:css(.tmp) ng-oauth.css -->
     <link rel="stylesheet" href="styles/main.css">
@@ -19,73 +18,469 @@
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
+
+    <style>
+
+    .btn-oauth a {
+      background: #239cbb;
+      box-sizing: border-box;
+      min-height: 35px;
+      width: auto;
+      display: inline-block;
+      padding: 0.9em 1.37em;
+      cursor: pointer;
+      color: #fff !important;
+      font-size: 12px;
+      line-height: 13px;
+      font-weight: 300;
+      text-align: center;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      text-shadow: none;
+      border-radius: 0.2em;
+      border: rgba(0,0,0,0.05) 0.1em solid;
+      -webkit-transition: background 0.3s ease, border-color 0.3s ease;
+      -moz-transition: background 0.3s ease, border-color 0.3s ease;
+      transition: background 0.3s ease, border-color 0.3s ease;
+    }
+
+    .btn-oauth a:hover {
+      background: #01cf9e;
+      color: #fff;
+      text-decoration: none;
+    }
+    </style>
   </head>
+  <body class="presentation">
 
-  <body>
+    <!-- top navbar -->
 
-    <!-- Begin page content -->
+    <nav class="navbar navbar-default navbar-fixed-top lelylan-navbar-top-menu" role="navigation">
     <div class="container">
-      <div class="page-header">
-        <h1>OAuth2 AngularJS Directive</h1>
-      </div>
-
-      <p class="lead">
-      A new <code>&lt;oauth&gt;</code> directive working with the
-      <a href="http://tools.ietf.org/html/rfc6749#section-1.3.2">OAuth2 Implicit Flow</a>.
-      </p>
-
-      <div class="page-header">
-        <h2>Examples</h2>
-      </div>
-
-      <p class="lead">
-      The OAuth2 AngularJS directive comes with a default textual style. This can be easily
-      personalize by defining a new template.
-      </p>
-
-      <div class="row">
-        <div class="col-md-6">
-          <div class="page-header">
-            <h4>Textual template (default)</h4>
+      <div class="navbar">
+        <div class="navbar-inner-flat">
+          <ul class="nav navbar-nav">
+            <li><a class="navbar-brand" href="/"><strong>ng-oauth</strong></a></li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li>
+            <a href="#getting-started">Getting Started</a>
+            </li>
+            <li>
+              <a href="#customization">Customization</a>
+            </li>
+            <li>
+            <a href="#Internals">Internals</a>
+            </li>
+            <li>
+            <a href="#Internals">Contributing</a>
+            </li>
+            <li>
+            <a href="https://github.com/andreareginato/ng-oauth" target="blank">Github</a>
+            </li>
           </div>
-          <p class="lead">
-          <oauth
-            site="http://people.lelylan.com"
-            client-id="e72c43c75adc9665e4d4c13354c41f337d5a2e439d3da1243bb47e39745f435c"
-            redirect-uri="http://localhost:9000"
-            profile-uri="http://api.lelylan.com/me"
-            scope="resources">
-          </oauth>
-          </p>
-        </div>
-
-        <div class="col-md-6">
-          <div class="page-header">
-            <h4>Button template</h4>
-          </div>
-          <p class="lead">
-          <oauth
-            site="http://people.lelylan.com"
-            client-id="e72c43c75adc9665e4d4c13354c41f337d5a2e439d3da1243bb47e39745f435c"
-            redirect-uri="http://localhost:9000"
-            profile-uri="http://api.lelylan.com/me"
-            scope="resources"
-            template="views/templates/button.html">
-          </oauth>
-          </p>
         </div>
       </div>
     </div>
+    </nav>
 
-    <div id="footer">
+    <!-- homepage banner -->
+    <div class="banner">
       <div class="container">
-        <p class="text-muted">Powered by <a href="http://lelylan.com" target="blank">The Lelylan Team</a></p>
+        <div class="banner-content">
+          <h1 class="title">The &lt;oauth&gt; web component</h1>
+          <p>Simple and easy to use AngularJS directive for OAuth 2.0</p>
+
+          <div class="banner-button">
+          <a href="/examples.html" class="btn-lelylan">Try it now</a>
+          </div>
+        </div>
       </div>
     </div>
 
+    <!-- content -->
+    <div class="container bs-docs-container">
+      <div class="row">
+
+        <div class="presentation-block">
+
+          <div class="row">
+            <div class="col-md-8" role="main">
+              <h4>For AngularJS Developers</h4>
+              <h1>Authorize your Frontend Applications</h1>
+
+              <p>
+              Create Angular apps that connect to any OAuth 2.0 authorization server using the
+              <a href="http://tools.ietf.org/html/rfc6749#section-1.3.2">OAuth2 Implicit Flow</a>
+              and access all desired APIs with the returned access token.
+              </p>
+
+              <a href="#getting-started" class="btn-lelylan">How to configure  &rarr;</a>
+
+            </div>
+            <div class="col-md-4" role="main">
+              <div class="pull-right">
+                <img src="images/configurations.png" %>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-4" role="main">
+              <div class="pull-left">
+                <img src="images/examples.png" %>
+              </div>
+            </div>
+            <div class="col-md-8" role="main">
+              <h4>Highly customizable</h4>
+              <h1>Fully personalize with your style</h1>
+              <p>
+              Style the directive UI with simple CSS or create your own template to have full
+              control about the style and the content of the &lt;oauth&gt; directive.
+              </p>
+              <a href="#customization" class="btn-lelylan">Customize the directive &rarr;</a>
+            </div>
+          </div>
+
+          <!-- Getting Started Section -->
+
+          <div class="row bs-detailed">
+            <div class="col-md-12" role="main">
+              <h1 id="getting-started">Getting Started</h1>
+
+              <p>
+                Install ng-oauth2 using <a href="http://bower.io/">Bower</a>
+              </p>
+
+              <pre><xmp>bower install ng-oauth2</xmp></pre>
+
+              <p>
+              Load the required javascript libraries.
+              </p>
+
+              <pre><xmp><script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.14/angular.min.js"></script>
+<script src="bower_components/ng-oauth/dist/scripts/ng-oauth.min.js"></script></xmp></pre>
+
+              <p>
+              Inject the <code>ng-oauth</code> module into your application and remember to
+              initialize it in your html page using the <code>ng-app="app"</code> directive.
+              </p>
+
+              <pre><xmp>angular.module('app', ['ng-oauth']);</xmp></pre>
+
+              <h2>Basic Example</h2>
+
+              <pre><xmp><oauth2
+  site="http://oauth.example.com"
+  client-id="client-id"
+  redirect-uri="http://redirect.example.com"
+  profile="http://api.example.com/me">
+</oauth2></xmp></pre>
+
+
+              <h2>Configuration</h2>
+
+              <p>
+              The ng-oauth directive accepts the following attributes.
+              </p>
+
+              <table class="table table-stripped table-hover">
+                <tbody>
+                  <tr>
+                    <td>
+                      <span>site</span>
+                      <span class="info">required</span>
+                    </td>
+                    <td>
+                      A string that represents the authorization endpoint (e.g. `http://oauth2.example.com`).
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="parameter">
+                      <span>client-id</span>
+                      <span class="info">required</span>
+                    </td>
+                    <td>
+                      Registered Client ID.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="parameter">
+                      <span>redirect-uri</span>
+                      <span class="info">required</span>
+                    </td>
+                    <td>
+                      Registered application URI where the user is redirected after the authorization.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="parameter">
+                      <span>scope</span>
+                      <span class="info">optional</span>
+                    </td>
+                    <td>
+                      Application privileges.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="parameter">
+                      <span>profile-uri</span>
+                      <span class="info">optional</span>
+                    </td>
+                    <td>
+                      API endpoint returning the authenticated profile representation (e.g. `http://api.example.com/profile`).
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="parameter">
+                      <span>state</span>
+                      <span class="info">optional</span>
+                    </td>
+                    <td>
+                      Optional opaque value used by the client to maintain state between the request and callback.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="parameter">
+                      <span>template</span>
+                      <span class="info">optional</span>
+                    </td>
+                    <td>
+                      Custom template to render. Default to <code>views/templates/default.html</code>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="parameter">
+                      <span>authorize-path</span>
+                      <span class="info">optional</span>
+                    </td>
+                    <td>
+                      Authorization URL for the OAuth2 Implicit Flow. Default to <code>/oauth/authorize</code>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <h2>Events</h2>
+
+               <table class="table table-stripped table-hover">
+                <tbody>
+                  <tr>
+                    <td class="parameter">
+                      <span>oauth:success(token)</span>
+                    </td>
+                    <td>
+                      Received when the user has authorized the third party app.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="parameter">
+                      <span>oauth:logout</span>
+                      <span class="info">(to receive)</span>
+                    </td>
+                    <td>
+                      Received when the user logs out.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="parameter">
+                      <span>oauth:denied</span>
+                      <span class="info">(to receive)</span>
+                    </td>
+                    <td>
+                      Received when the user denies the access to the third party app.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="parameter">
+                      <span>oauth:template(uri)</span>
+                      <span class="info">(to fire)</span>
+                    </td>
+                    <td>
+                      Fired to update (at runtime) the directive template.
+                      See examples in the <a href="#customization">customization</a> section.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <p>
+              Here a simple example.
+              </p>
+<pre><xmp>function ExampleController($scope) {
+  $scope.$on('oauth:login', function(event, token) {
+    console.log('The user authorized the third party app with access token' + token.access_token);
+  });
+
+  $scope.$on('oauth:logout', function(event) {
+    console.log('The user has signed out');
+  });
+
+  $scope.$on('oauth:denied', function(event) {
+    console.log('The user did not authorize the third party app');
+  });
+}</xmp></pre>
+
+            </div>
+          </div>
+
+          <!-- Getting Started Section -->
+
+          <div class="row bs-detailed">
+            <div class="col-md-12" role="main">
+              <h1 id="getting-started">Customization</h1>
+              <div class="col-md-6">
+                <div class="page-header">
+                  <h4>Textual template (default)</h4>
+                </div>
+                <p class="lead">
+                <oauth
+                site="http://people.lelylan.com"
+                client-id="e72c43c75adc9665e4d4c13354c41f337d5a2e439d3da1243bb47e39745f435c"
+                redirect-uri="http://localhost:9000"
+                profile-uri="http://api.lelylan.com/me"
+                scope="resources">
+                </oauth>
+                </p>
+              </div>
+
+              <div class="col-md-6">
+                <div class="page-header">
+                  <h4>Button template</h4>
+                </div>
+                <p class="lead">
+                <oauth
+                site="http://people.lelylan.com"
+                client-id="e72c43c75adc9665e4d4c13354c41f337d5a2e439d3da1243bb47e39745f435c"
+                redirect-uri="http://localhost:9000"
+                profile-uri="http://api.lelylan.com/me"
+                scope="resources"
+                template="views/templates/button.html">
+                </oauth>
+                </p>
+              </div>
+            </div>
+          </div>
+
+
+
+
+          <div class="row bs-detailed">
+            <div class="col-md-12" role="main">
+              <h1 id="getting-started">Internals</h1>
+
+              <h2>Profile Service</h2>
+
+              <p>
+              When a user signs in, the profile is accessible from the <code>Profile</code> service.
+              </p>
+
+<pre><xmp><div ng-controller="OAuthController">
+  Welcome { me.email }
+</div>
+
+<script>
+function OAuthController($scope, Profile) {
+  $scope.me = Profile.get();
+}
+</script></xmp></pre>
+
+
+              <h2>AccessToken Service</h2>
+
+              <p>
+              When a user signs in, the access token is accessible from the <code>AccessToken</code> service.
+              </p>
+
+<pre><xmp><div ng-controller="OAuthController">
+  Hi there, you are logged in with the access token { token.access || 'none' }
+</div>
+
+<script>
+function OAuthController($scope, AccessToken) {
+  $scope.token = AccessToken.get();
+}
+</script></xmp></pre>
+
+              <h2>Endpoint Service</h2>
+
+              <p>
+              If you need the URL needed to get an access token use the <code>Endpoint</code> service.
+              </p>
+
+<pre><xmp><div ng-controller="OAuthController">
+  Hi there, the OAuth 2.0 server URL is { endpoint }
+</div>
+
+<script>
+function OAuthController($scope, Endpoint) {
+  $scope.endpoint = Endpoint.get();
+}
+</script></xmp></pre>
+              </div>
+            </div>
+
+
+          <div class="row bs-detailed">
+            <div class="col-md-12" role="main">
+
+              <h1>Contributing</h1>
+
+              <p>
+              Fork the repo on github and send a pull requests with topic branches.
+              Do not forget to provide specs to your contribution.
+              </p>
+
+              <h2>Requirements</h2>
+
+              <table class="table table-stripped table-hover">
+                <tbody>
+                  <tr>
+                    <td>
+                      <span><a href="http://yeoman.io">Yeoman</a></span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <span><a href="http://phantomjs.org">Phantomjs</a></span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+
+
+              <h2>Install</h2>
+
+              <p>Clone the repo.</p>
+
+<pre><xmp>git clone git@github.com:andreareginato/ng-oauth.git
+cd ng-oauth</xmp></pre>
+
+
+              <p>And install the required libraries.</p>
+
+<pre><xmp>npm install
+bower install</xmp></pre>
+
+              <h2>Testing</h2>
+
+              <p>
+              The project is fully tested using karma.
+              </p>
+
+<pre><xmp>grunt karma:unit</xmp></pre>
+
+
+    <footer class="bs-footer" role="contentinfo">
+    <div class="container">
+      <div class="row bs-docs-section">
+        <p class="pull-right">© <a href="http://lelylan.com">Lelylan</a> 2014</p>
+      </div>
+    </div>
+    </footer>
 
     <script src="bower_components/angular/angular.js"></script>
     <script src="bower_components/ngstorage/ngStorage.js"></script>
@@ -102,8 +497,9 @@
 
     <script>
       var app = angular.module('app', ['oauth']);
-      app.value('oauth.config', { profile: 'http:///api.lelylan.com/me' });
-
     </script>
+
   </body>
 </html>
+
+
