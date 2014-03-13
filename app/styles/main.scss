@@ -417,7 +417,7 @@ pre xmp {
 }
 
 pre {
-  margin: 0 0 10px;
+  margin: 0 0 40px;
   padding: 5px 0 5px 5px !important;
   background: #f8f8f8;
   border: 1px solid #ddd;
@@ -725,13 +725,25 @@ body.presentation {
   }
 
   p a {
-    color: $linkColor !important;
+    color: $linkColor;
   }
 
   p a:hover {
     text-decoration: none;
-    color: $linkColorHover !important;
+    color: $linkColorHover;
   }
+}
+
+/* detailed blocks */
+
+.bs-detailed h1 {
+  font-size: 64px !important;
+  font-weight: 200;
+}
+
+.bs-detailed h2 {
+  margin-top: 40px;
+  margin-bottom: 25px;
 }
 
 

@@ -33,9 +33,6 @@ directives.directive('oauth', ['AccessToken', 'Endpoint', 'Profile', '$location'
     var init = function() {
       scope.authorizePath = scope.authorizePath || '/oauth/authorize';
       scope.tokenPath     = scope.tokenPath     || '/oauth/token';
-      scope.flow          = scope.flow          || 'implicit';
-      scope.view          = scope.view          || 'standard';
-      scope.storage       = scope.storage       || 'none';
       scope.template      = scope.template      || 'views/templates/default.html';
     }
 
