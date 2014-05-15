@@ -1,21 +1,24 @@
-# oauth2-ng
+# Angular OAuth2 Directive
 
-AngularJS directive (aka web component) working with the
-[OAuth2 Implicit Flow](http://tools.ietf.org/html/rfc6749#section-1.3.2).
-
-
-## Install
-
-Install ng-oauth2 using [bower](http://bower.io/)
-
-```
-bower install ng-oauth2
-```
+AngularJS directive for [OAuth2 Implicit Flow](http://tools.ietf.org/html/rfc6749#section-1.3.2).
 
 
-## Requirements
 
-* [angular ~1.2.14](http://angularjs.org/)
+## Installation
+
+### Using Bower
+
+* `bower install oauth2-ng --save`
+
+### Using Github
+
+* [oauth2-ng.min.js]()
+
+In this case you have to manually install the following libraries.
+
+* [AngularJS](http://angularjs.org/)
+* [ngStorage](https://github.com/gsklee/ngStorage)
+
 
 
 ## Getting Started
@@ -23,6 +26,7 @@ bower install ng-oauth2
 ```html
 <html ng-app="example">
   <body>
+
     <!-- oauth2 tag -->
     <oauth2
       site="http://oauth.example.com"
@@ -31,6 +35,7 @@ bower install ng-oauth2
       scope="scope"
       profile="http://api.example.com/me">
     </oauth2>
+
     <!-- Javascript libraries -->
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.14/angular.js"></script>
     <script src="bower_components/oauth2-ng/dist/oauth2-ng.js"/></script>
@@ -49,6 +54,7 @@ The oauth2 component accepts the following attributes.
 * `scope` - Application privileges.
 * `profile` - API endpoint returning the profile representation
 * `state` - Optional opaque value used by the client to maintain state between the request and callback
+
 
 
 ### OAuth2 events
@@ -88,46 +94,66 @@ Profile Endpoint is defined with the profile attribute into the directive.
 </div>
 
 <script>
-function LelylanController($scope, LoggedUser) {
+function LelylanController($scope, Profile) {
   $scope.me = Profile.get();
 }
 </script>
 ```
+
 
 ## Contributing
 
 Fork the repo on github and send a pull requests with topic branches.
 Do not forget to provide specs to your contribution.
 
-### Requirements
+### Setup
 
-* [Yeoman](yeoman.io)
-* [PhantomJS](http://phantomjs.org/)
+* Fork and clone the repository
+* Run `npm install`
 
-### Install
+### Unit tests (karma)
 
-Clone the repo.
+* `grunt karma:unit`
 
-```
-git clone git@github.com:andreareginato/ng-oauth.git
-cd ng-oauth
-```
+### Creating your own distribution
 
-And install the required libraries.
+* Fork and clone the repository
+* Run `npm install`
+* Run `grunt`
 
-```
-npm install
-bower install
-```
+The new distribution files will be created in the `dist/` folder.
 
-#### Run specs
+### Coding guidelines
 
-```
-grunt karma:unit
-```
+Follow [github](https://github.com/styleguide/) guidelines.
 
-#### Create your own distribution
+### Feedback
 
-```
-grunt build
-```
+Use the [issue tracker](http://github.com/andreareginato/ng-oauth/issues) for bugs.
+[Mail](mailto:touch@lelylan.com) or [Tweet](http://twitter.com/lelylan) us for any idea
+that can improve the project.
+
+### Links
+
+* [GIT Repository](http://github.com/andreareginato/ng-oauth)
+* [Lelylan Dev Center](http://dev.lelylan.com)
+
+
+
+## Authors
+
+[Andrea Reginato](http://twitter.com/andreareginato)
+
+## Contributors
+
+Special thanks to all [contributors](https://github.com/andreareginato/ng-oauth/contributors)
+for submitting patches.
+
+## Changelog
+
+See [CHANGELOG](https://github.com/andreareginato/ng-oauth/blob/master/CHANGELOG.md)
+
+## Copyright
+
+Copyright (c) 2014 [Lelylan](http://lelylan.com).
+See [LICENSE](https://github.com/andreareginato/ng-oauth/blob/master/LICENSE.md) for details.

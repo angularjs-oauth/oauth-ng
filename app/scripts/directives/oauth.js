@@ -9,12 +9,12 @@ directives.directive('oauth', ['AccessToken', 'Endpoint', 'Profile', '$location'
     restrict: 'AE',
     replace: true,
     scope: {
-      site: '@',                    // (required) set the oauth2 server host (e.g. http://people.example.com)
-      clientId: '@clientId',        // (required) client id
-      redirectUri: '@redirectUri',  // (required) client redirect uri
-      scope: '@',                   // (optional) scope
-      profileUri: '@profileUri',    // (optional) user profile uri (e.g http://example.com/me)
-      template: '@'                 // (optional) template to render (e.g views/templates/default.html)
+      site: '@',         // (required) set the oauth2 server host (e.g. http://people.example.com)
+      clientId: '@',     // (required) client id
+      redirectUri: '@',  // (required) client redirect uri
+      scope: '@',        // (optional) scope
+      profileUri: '@',   // (optional) user profile uri (e.g http://example.com/me)
+      template: '@'      // (optional) template to render (e.g views/templates/default.html)
     }
   };
 

@@ -139,7 +139,7 @@ service.factory('AccessToken', ['$rootScope', '$location', '$http', '$sessionSto
 
   /*
    * Remove the fragment URI
-   * TODO we need to let the fragment live if it's not the access token
+   * TODO we need to remove only the access token
    */
 
   var removeFragment = function(scope) {

@@ -1,6 +1,6 @@
 /**
  * ng-oauth
- * @version v0.1.0 - 2013-10-28
+ * @version v0.1.0 - 2014-05-15
  * @link https://github.com/lelylan/oauth-ng
  * @author Andrea Reginato
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -9,41 +9,37 @@
 'use strict';
 
 // App libraries
-angular.module('oauth', [
-  'oauth.directive',       // login directive
-  'oauth.accessToken',     // access token service
-  'oauth.endpoint',        // oauth endpoint service
-  'oauth.requestWrapper',  // requests wrapper (inject the access token into the header)
-  'oauth.profile',         // profile model
-  'oauth.config'           // configurations
+var app = angular.module('oauth', [
+  'oauth.directive',      // login directive
+  'oauth.accessToken',    // access token service
+  'oauth.endpoint',       // oauth endpoint service
+  'oauth.profile',        // profile model
+  'oauth.interceptor'     // bearer token interceptor
 ])
 
-// HTML5 mode
-angular.module('oauth').config(['$locationProvider', function($locationProvider) {
-  $locationProvider.html5Mode(true).hashPrefix('!');
-}]);
-
+angular.module('oauth').config(['$locationProvider','$httpProvider',
+  function($locationProvider, $httpProvider) {
+    $locationProvider.html5Mode(true).hashPrefix('!');      // HTML5 mode
+    $httpProvider.interceptors.push('OAuthInterceptor');    // Authentication header
+  }]);
 
 'use strict';
 
 var directives = angular.module('oauth.directive', []);
 
-directives.directive('oauth', ['AccessToken', 'Endpoint', 'Profile' ,'oauth.config', '$location', '$rootScope', '$compile', '$http', '$templateCache',
-  function(AccessToken, Endpoint, Profile, config, $location, $rootScope, $compile, $http, $templateCache) {
+directives.directive('oauth', ['AccessToken', 'Endpoint', 'Profile', '$location', '$rootScope', '$compile', '$http', '$templateCache',
+  function(AccessToken, Endpoint, Profile, $location, $rootScope, $compile, $http, $templateCache) {
 
   var definition = {
     restrict: 'AE',
-    replace: false,
+    replace: true,
     scope: {
-      site: '@',       // (required) set the oauth2 server host (e.g. http://people.lelylan.com)
-      client: '@',     // (required) client id
-      redirect: '@',   // (required) client redirect uri
-      scope: '@',      // (optional) scope
-      flow: '@',       // (required) flow (e.g password, implicit)
-      view: '@',       // (optional) view (e.g standard, popup)
-      storage: '@',    // (optional) storage (e.g none, cookies)
-      profile: '@',    // (optional) user info uri (e.g http://example.com/me)
-      template: '@'    // (optional) template to render (e.g views/templates/default.html)
+      site: '@',         // (required) set the oauth2 server host (e.g. http://people.example.com)
+      clientId: '@',     // (required) client id
+      redirectUri: '@',  // (required) client redirect uri
+      scope: '@',        // (optional) scope
+      profileUri: '@',   // (optional) user profile uri (e.g http://example.com/me)
+      template: '@'      // (optional) template to render (e.g views/templates/default.html)
     }
   };
 
@@ -54,17 +50,14 @@ directives.directive('oauth', ['AccessToken', 'Endpoint', 'Profile' ,'oauth.conf
       init();                    // set defaults
       compile();                 // compile the desired layout
       Endpoint.set(scope);       // set the oauth client url for authorization
-      AccessToken.set(scope);    // set the access token object (from fragment or cookies)
-      initProfile();             // get the profile info
+      AccessToken.set(scope);    // set the access token object (from fragment or session)
+      initProfile(scope);        // get the profile info
       initView();                // set the actual visualization status for the widget
     });
 
     var init = function() {
       scope.authorizePath = scope.authorizePath || '/oauth/authorize';
       scope.tokenPath     = scope.tokenPath     || '/oauth/token';
-      scope.flow          = scope.flow          || 'implicit';
-      scope.view          = scope.view          || 'standard';
-      scope.storage       = scope.storage       || 'none';
       scope.template      = scope.template      || 'views/templates/default.html';
     }
 
@@ -75,10 +68,12 @@ directives.directive('oauth', ['AccessToken', 'Endpoint', 'Profile' ,'oauth.conf
       });
     };
 
-    var initProfile = function() {
+    var initProfile = function(scope) {
       var token = AccessToken.get();
-      if (token && token.access_token && config.profile)
-        scope.profile = Profile.get();
+
+      if (token && token.access_token && scope.profileUri) {
+        Profile.get(scope.profileUri).success(function(response) { scope.profile = response })
+      }
     }
 
     var initView = function(token) {
@@ -98,21 +93,25 @@ directives.directive('oauth', ['AccessToken', 'Endpoint', 'Profile' ,'oauth.conf
       loggedOut();
     }
 
+    // set the oauth2 directive to the logged-in status
     var loggedIn = function() {
       $rootScope.$broadcast('oauth:success', AccessToken.get());
-      scope.show = 'logout';
+      scope.show = 'logged-in';
     }
 
+    // set the oauth2 directive to the logged-out status
     var loggedOut = function() {
       $rootScope.$broadcast('oauth:logout');
-      scope.show = 'login';
+      scope.show = 'logged-out';
     }
 
+    // set the oauth2 directive to the denied status
     var denied = function() {
       scope.show = 'denied';
       $rootScope.$broadcast('oauth:denied');
     }
 
+    // Updates the template at runtime
     scope.$on('oauth:template', function(event, template) {
       scope.template = template;
       compile(scope);
@@ -124,13 +123,13 @@ directives.directive('oauth', ['AccessToken', 'Endpoint', 'Profile' ,'oauth.conf
 
 'use strict';
 
-var service = angular.module('oauth.accessToken', ['ngCookies']);
+var service = angular.module('oauth.accessToken', ['ngStorage']);
 
-service.factory('AccessToken', ['$location', '$http', '$cookies', '$rootScope',
-  function($location, $http, $cookies, $rootScope) {
+service.factory('AccessToken', ['$rootScope', '$location', '$http', '$sessionStorage',
+  function($rootScope, $location, $http, $sessionStorage) {
 
   var service = {};
-  var token = null;
+  var token   = null;
 
 
   /*
@@ -143,30 +142,30 @@ service.factory('AccessToken', ['$location', '$http', '$cookies', '$rootScope',
 
 
   /*
-   * Sets and returns the access token taking it from the fragment URI or eventually
-   * from the cookies. Use `AccessToken.init()` to load (at boot time) the access token.
+   * Sets and returns the access token. It tries (in order) the following strategies:
+   * - takes the token from the fragment URI
+   * - takes the token from the sessionStorage
    */
 
-  service.set = function(scope) {
-    setTokenFromString(scope);    // take the token from the query string and eventually save it in the cookies
-    setTokenFromCookies(scope);   // take the from the cookies
+  service.set = function() {
+    setTokenFromString();
+    setTokenFromSession();
     return token
   }
 
 
   /*
-   *  Delete the access token and remove the cookies.
+   *  Delete the access token and remove the session.
    */
 
-  service.destroy = function(scope) {
-    token = null;
-    delete $cookies[scope.client];
-    return token;
+  service.destroy = function() {
+    delete $sessionStorage.token;
+    return token = null;
   }
 
 
   /*
-   * Tells when the access token is expired.
+   * Tells if the access token is expired.
    */
 
   service.expired = function() {
@@ -174,27 +173,28 @@ service.factory('AccessToken', ['$location', '$http', '$cookies', '$rootScope',
   }
 
 
-  /* --------------- */
-  /* Private methods */
-  /* --------------- */
+
+  /* * * * * * * * * *
+   * PRIVATE METHODS *
+   * * * * * * * * * */
 
 
   /*
    * Get the access token from a string and save it
    */
 
-  var setTokenFromString = function(scope) {
+  var setTokenFromString = function() {
     var token = getTokenFromString($location.hash());
 
     if (token) {
       removeFragment();
-      setToken(token, scope);
+      setToken(token);
     }
   };
 
 
   /*
-   * Parse the fragment URI into an object
+   * Parse the fragment URI and return an object
    */
 
   var getTokenFromString = function(hash) {
@@ -214,31 +214,23 @@ service.factory('AccessToken', ['$location', '$http', '$cookies', '$rootScope',
 
 
   /*
-   * Set the access token from the cookies.
-   * Returns the access token only when the storage attribute is set to 'cookies'.
+   * Set the access token from the sessionStorage.
    */
 
-  var setTokenFromCookies = function(scope) {
-    if (scope.storage == 'cookies') {
-      if ($cookies[scope.client]) {
-        var params = JSON.parse($cookies[scope.client]);
-        setToken(params, scope);
-      }
+  var setTokenFromSession = function() {
+    if ($sessionStorage.token) {
+      var params = $sessionStorage.token;
+      setToken(params);
     }
   }
 
 
   /*
-   * Save the access token into a cookie identified by the application ID
-   * Save the access token only when the storage attribute is set to 'cookies'.
+   * Save the access token into the session
    */
 
-  var setTokenInCookies = function(scope, params) {
-    if (scope.storage == 'cookies') {
-      if (params && params.access_token) {
-        $cookies[scope.client] = JSON.stringify(params);
-      }
-    }
+  var setTokenInSession = function() {
+    $sessionStorage.token = token;
   }
 
 
@@ -246,12 +238,11 @@ service.factory('AccessToken', ['$location', '$http', '$cookies', '$rootScope',
    * Set the access token.
    */
 
-  var setToken = function(params, scope) {
+  var setToken = function(params) {
     token = token || {}                 // init the token
     angular.extend(token, params);      // set the access token params
     setExpiresAt();                     // set the expiring time
-    setTokenInCookies(scope, params);   // save the token into a cookie
-
+    setTokenInSession();                // save the token into the session
     return token;
   };
 
@@ -271,7 +262,7 @@ service.factory('AccessToken', ['$location', '$http', '$cookies', '$rootScope',
 
   /*
    * Remove the fragment URI
-   * TODO we need to let the fragment live if it's not the access token
+   * TODO we need to remove only the access token
    */
 
   var removeFragment = function(scope) {
@@ -302,8 +293,8 @@ client.factory('Endpoint', ['AccessToken', '$location',
     url = scope.site +
       scope.authorizePath +
       '?response_type=token&' +
-      'client_id=' + scope.client + '&' +
-      'redirect_uri=' + scope.redirect + '&' +
+      'client_id=' + scope.clientId + '&' +
+      'redirect_uri=' + scope.redirectUri + '&' +
       'scope=' + scope.scope + '&' +
       'state=' + $location.url()
 
@@ -333,71 +324,43 @@ client.factory('Endpoint', ['AccessToken', '$location',
 
 'use strict';
 
-var client = angular.module('oauth.requestWrapper', ['ngResource']);
+var client = angular.module('oauth.profile', [])
 
-client.factory('RequestWrapper', ['AccessToken', 'Endpoint', '$http', function(AccessToken, Endpoint, $http) {
-  var service = {};
-  var token;
+client.factory('Profile', ['$http', function($http) {
+  var service = {}
 
-
-  /*
-   * Wrap every request
-   */
-
-  service.wrap = function(resource, actions, options) {
-    var wrappedResource = resource;
-    for (var i=0; i < actions.length; i++) { request(wrappedResource, actions[i]); };
-    return wrappedResource;
-  };
-
-
-  /*
-   * Verify if the acces token exists and based on it set or unset the header request
-   */
-
-  var request = function(resource, action) {
-    resource['_' + action] = resource[action];
-
-    resource[action] = function(params, data, success, error) {
-      var token = AccessToken.get();
-      if (token && AccessToken.expired()) { Endpoint.redirect() }
-
-      setAuthorizationHeader(token);
-      return resource['_' + action].call(this, params, data, success, error);
-    };
-  };
-
-
-  /*
-   * Set the oauth request header
-   */
-
-  var setAuthorizationHeader = function(token) {
-    if (token)
-      $http.defaults.headers.common['Authorization'] = 'Bearer ' + token.access_token;
-    else
-      delete $http.defaults.headers.common['Authorization']
-  };
-
+  service.get = function(uri) {
+    return $http.get(uri);
+  }
 
   return service;
 }]);
 
 'use strict';
 
-var client = angular.module('oauth.profile', ['ngResource'])
+var service = angular.module('oauth.interceptor', []);
 
-client.factory('Profile', ['RequestWrapper', '$resource', 'oauth.config',
-  function(RequestWrapper, $resource, config) {
+service.factory('OAuthInterceptor', ['$rootScope', '$q', '$sessionStorage',
+  function ($rootScope, $q, $sessionStorage) {
 
-    var resource = $resource(config.profile, {}, {
-      //get: { method: 'JSONP', params: { callback: 'JSON_CALLBACK' } }
-    });
-    return RequestWrapper.wrap(resource, ['get']);
-}]);
+    var service = {};
 
-'use strict';
+    service.request = function(config) {
+      var token = $sessionStorage.token;
 
-angular.module('oauth.config', []).value('oauth.config', {
-  profile: null
-});
+      if (token)
+        config.headers.Authorization = 'Bearer ' + token.access_token;
+
+      if (token && expired(token))
+        $rootScope.$broadcast('oauth:expired', token);
+
+      return config;
+    };
+
+    var expired = function(token) {
+      return (token && token.expires_at && new Date(token.expires_at) < new Date())
+    }
+
+    return service;
+  }]);
+
