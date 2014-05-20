@@ -253,7 +253,7 @@ describe('oauth', function() {
     });
 
     it('shows the button template', function() {
-      expect(element.find('.btn-oauth').text()).not.toBe('');
+      expect(element.find('.oauth .logged-out').text()).toBe('Login Button');
     });
   });
 });
