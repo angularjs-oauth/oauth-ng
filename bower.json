@@ -1,8 +1,9 @@
 {
-  "name": "ng-oauth",
-  "version": "0.1.1",
+  "name": "oauth-ng",
+  "version": "0.1.1-beta",
   "main": [
-    "dist/ng-oauth.js"
+    "dist/oauth-ng.js",
+    "dist/views/templates/default"
   ],
   "ignore": [
     "app",
