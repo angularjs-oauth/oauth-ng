@@ -1,63 +1,36 @@
-# Angular OAuth 2.0 Directive
+# AngularJS directive for OAuth 2.0
 
-AngularJS directive for [OAuth 2.0 Implicit Flow](http://tools.ietf.org/html/rfc6749#section-1.3.2).
-
-
-## Documentation
+Source code for the AngularJS directive for OAuth 2.0 [website](http://andreareginato.github.com/oauth-ng).
+[![lelylan-ng](http://i.imgur.com/dLN4isF.png)](http://andreareginato.github.com/oauth-ng)
 
 
 ## Contributing
 
 Fork the repo on github and send a pull requests with topic branches.
-Do not forget to provide specs to your contribution.
 
-### Setup
-
-* Fork and clone the repository
-* Run `npm install`
-
-### Unit tests (karma)
-
-* `grunt karma:unit`
-
-### Creating your own distribution
-
-* Fork and clone the repository
-* Run `npm install`
-* Run `grunt build`
-
-The new distribution files will be created in the `dist/` folder.
-
-### Coding guidelines
-
-Follow [github](https://github.com/styleguide/) guidelines.
 
 ### Feedback
 
 Use the [issue tracker](http://github.com/andreareginato/oauth-ng/issues) for bugs.
-[Mail](mailto:touch@lelylan.com) or [Tweet](http://twitter.com/lelylan) us for any idea
-that can improve the project.
+[Mail](mailto:andreareginato@gmail.com) or [Tweet](http://twitter.com/andreareginato)
+us for any idea that can improve the project.
 
-### Links
+## Links
 
 * [GIT Repository](http://github.com/andreareginato/oauth-ng)
-* [Lelylan Dev Center](http://dev.lelylan.com)
-
+* [The OAuth Bible](http://oauthbible.com/)
+* [Lelylan](http://lelylan.com)
 
 ## Authors
 
 [Andrea Reginato](http://twitter.com/andreareginato)
+[Lelylan Dev Team](http://twitter.com/lelylan)
 
 ## Contributors
 
-Special thanks to all [contributors](https://github.com/andreareginato/oauth-ng/contributors)
+Special thanks to all [contributors](https://github.com/lelylan/lelylan-ng/contributors)
 for submitting patches.
 
-## Changelog
+## License
 
-See [CHANGELOG](https://github.com/andreareginato/oauth-ng/blob/master/CHANGELOG.md)
-
-## Copyright
-
-Copyright (c) 2014 [Lelylan](http://lelylan.com).
-See [LICENSE](https://github.com/andreareginato/oauth-ng/blob/master/LICENSE.md) for details.
+See [license](https://github.com/lelylan/lelylan-ng/blob/master/LICENSE.md).
