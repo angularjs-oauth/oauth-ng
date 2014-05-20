@@ -248,7 +248,7 @@ describe('oauth', function() {
     });
 
     beforeEach(function() {
-      $rootScope.$broadcast('oauth:template', 'views/templates/button.html');
+      $rootScope.$broadcast('oauth:template:update', 'views/templates/button.html');
       $rootScope.$apply();
     });
 

@@ -9,7 +9,7 @@ directives.directive('oauth', ['AccessToken', 'Endpoint', 'Profile', '$location'
     restrict: 'AE',
     replace: true,
     scope: {
-      site: '@',         // (required) set the oauth2 server host (e.g. http://people.example.com)
+      site: '@',         // (required) set the oauth server host (e.g. http://oauth.example.com)
       clientId: '@',     // (required) client id
       redirectUri: '@',  // (required) client redirect uri
       scope: '@',        // (optional) scope
@@ -22,12 +22,12 @@ directives.directive('oauth', ['AccessToken', 'Endpoint', 'Profile', '$location'
     scope.show = 'none';
 
     scope.$watch('client', function(value) {
-      init();                    // set defaults
-      compile();                 // compile the desired layout
-      Endpoint.set(scope);       // set the oauth client url for authorization
-      AccessToken.set(scope);    // set the access token object (from fragment or session)
-      initProfile(scope);        // get the profile info
-      initView();                // set the actual visualization status for the widget
+      init();                    // sets defaults
+      compile();                 // compiles the desired layout
+      Endpoint.set(scope);       // sets the oauth authorization url
+      AccessToken.set(scope);    // sets the access token object (if existing, from fragment or session)
+      initProfile(scope);        // gets the profile resource (if existing the access token)
+      initView();                // sets the view (logged in or out)
     });
 
     var init = function() {
@@ -59,6 +59,7 @@ directives.directive('oauth', ['AccessToken', 'Endpoint', 'Profile', '$location'
       if (token.error)        { return denied() }      // if the request has been denied we fire the denied event
     }
 
+
     scope.login = function() {
       Endpoint.redirect();
     }
@@ -68,26 +69,26 @@ directives.directive('oauth', ['AccessToken', 'Endpoint', 'Profile', '$location'
       loggedOut();
     }
 
-    // set the oauth2 directive to the logged-in status
+    // set the oauth directive to the logged-in status
     var loggedIn = function() {
       $rootScope.$broadcast('oauth:success', AccessToken.get());
       scope.show = 'logged-in';
     }
 
-    // set the oauth2 directive to the logged-out status
+    // set the oauth directive to the logged-out status
     var loggedOut = function() {
       $rootScope.$broadcast('oauth:logout');
       scope.show = 'logged-out';
     }
 
-    // set the oauth2 directive to the denied status
+    // set the oauth directive to the denied status
     var denied = function() {
       scope.show = 'denied';
       $rootScope.$broadcast('oauth:denied');
     }
 
     // Updates the template at runtime
-    scope.$on('oauth:template', function(event, template) {
+    scope.$on('oauth:template:update', function(event, template) {
       scope.template = template;
       compile(scope);
     });

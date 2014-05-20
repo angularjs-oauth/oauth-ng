@@ -1,7 +1,9 @@
 {
   "name": "ng-oauth",
   "version": "0.1.1",
-  "main": ["dist/ng-oauth.js"],
+  "main": [
+    "dist/ng-oauth.js"
+  ],
   "ignore": [
     "app",
     "test",
@@ -11,7 +13,7 @@
     "package.json"
   ],
   "dependencies": {
-    "angular": "1.2.14",
+    "angular": "~1.2.16",
     "ngstorage": "~0.3.0"
   },
   "devDependencies": {
@@ -20,10 +22,6 @@
     "timecop": "~0.1.1",
     "bootstrap-sass": "~3.0.2",
     "jquery": "~1.9.1",
-    "angular-mocks": "~1.0.7",
-    "angular-scenario": "~1.0.7"
-  },
-  "resolutions": {
-    "angular": "1.2.14"
+    "angular-mocks": "~1.2.16"
   }
 }
