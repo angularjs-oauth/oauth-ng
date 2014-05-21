@@ -1,10 +1,10 @@
-# Angular OAuth 2.0 Directive
+# AngularJS directive for OAuth 2.0
 
-AngularJS directive for [OAuth 2.0 Implicit Flow](http://tools.ietf.org/html/rfc6749#section-1.3.2).
-
+AngularJS directive for the [OAuth 2.0 Implicit Flow](http://tools.ietf.org/html/rfc6749#section-1.3.2).
 
 ## Documentation
 
+[![oauth-ng](http://i.imgur.com/C0xCJcr.png)](https://andreareginato.github.com/oauth-ng)
 
 ## Contributing
 
@@ -35,18 +35,21 @@ Follow [github](https://github.com/styleguide/) guidelines.
 ### Feedback
 
 Use the [issue tracker](http://github.com/andreareginato/oauth-ng/issues) for bugs.
-[Mail](mailto:touch@lelylan.com) or [Tweet](http://twitter.com/lelylan) us for any idea
+[Mail](mailto:andrea.reginato@gmail.com) or [Tweet](http://twitter.com/andreareginato) us for any idea
 that can improve the project.
 
 ### Links
 
 * [GIT Repository](http://github.com/andreareginato/oauth-ng)
-* [Lelylan Dev Center](http://dev.lelylan.com)
+* [Website](https://andreareginato.github.com/oauth-ng)
 
 
 ## Authors
 
-[Andrea Reginato](http://twitter.com/andreareginato)
+Project created and released as open-source thanks to [Lelylan](http://lelylan.com).
+
+* [Andrea Reginato](http://twitter.com/andreareginato)
+
 
 ## Contributors
 
