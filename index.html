@@ -64,13 +64,13 @@
       </p>
 
       <pre><code><xmp><body ng-app="app">
-  <oauth2
+  <oauth
     site="<oauth-server-uri>"
     client-id="<client-id>"
     redirect-uri="<redirect-uri>"
-    scope="<your-scope>"
-    profile="<profile-uri>">
-  </oauth2>
+    profile-uri="<profile-uri>"
+    scope="<scope>">
+  </oauth>
 
   <script>angular.module('app', ['ng-oauth']);</script>
 </body></xmp></code></pre>
@@ -185,13 +185,11 @@
       <h2>AngularJS app definition</h2>
 
       <p>
-      Inject the oauth-ng module into your application and remember its initialization in your
-      index page using the <code>ng-app</code> directive.
+      Inject the oauth-ng module into your application.
       </p>
 
       <pre><code><xmp>// app/scripts/app.js
-angular.module('newProjectApp', ['oauth'])</xmp></code></pre>
-
+angular.module('newProjectApp', ['oauth', ... ])</xmp></code></pre>
 
       <h2 id="server">OAuth 2.0 Server</h2>
 
@@ -216,7 +214,7 @@ angular.module('newProjectApp', ['oauth'])</xmp></code></pre>
       </p>
 
       <ul>
-        <li><strong>client-id</strong> - 017b9f702a904869a6e52bd39b147bb912.</li>
+        <li><strong>client-id</strong> - 017b9f702a904869a6e52bd39b147bb912</li>
         <li><strong>redirect-uri</strong> - http://localhost:9000</li>
       </ul>
 
@@ -229,16 +227,16 @@ angular.module('newProjectApp', ['oauth'])</xmp></code></pre>
       <h2>Add the oauth-ng directive</h2>
 
       <p>
-      Open the main.html view and place the <code>oauth</code> tag with the needed configurations.
+      Open your main.html view and place the <code>oauth</code> tag with the needed configurations.
       </p>
 
-      <pre><code><xmp>// apps/views/main.html
-<oauth2
+      <pre><code><xmp><oauth
   site="http://oauth-ng-server.herokuapp.com"
   client-id="017b9f702a904869a6e52bd39b147bb912"
   redirect-uri="http://localhost:9000"
-  profile="http://oauth-ng-server.herokuapp.com/profile">
-</oauth2></xmp></code></pre>
+  profile-uri="http://oauth-ng-server.herokuapp.com/profile"
+  scope="profile">
+</oauth></xmp></code></pre>
 
       <p>
       Here a description for the used attributes.
@@ -251,7 +249,7 @@ angular.module('newProjectApp', ['oauth'])</xmp></code></pre>
               <span>site</span>
             </td>
             <td>
-              The URI representing the OAuth 2.0 authorization server.
+               OAuth 2.0 authorization server URI.
             </td>
           </tr>
           <tr>
@@ -267,7 +265,7 @@ angular.module('newProjectApp', ['oauth'])</xmp></code></pre>
               <span>redirect-uri</span>
             </td>
             <td>
-              Registered application URI. Where the user is redirected after the authorization.
+              Registered application URI. <br>Where the user is redirected after the authorization.
             </td>
           </tr>
           <tr>
@@ -275,7 +273,15 @@ angular.module('newProjectApp', ['oauth'])</xmp></code></pre>
               <span>profile-uri</span>
             </td>
             <td>
-              API endpoint returning the authenticated profile resource.
+              API endpoint to get the authenticated profile resource.
+            </td>
+          </tr>
+          <tr>
+            <td class="parameter">
+              <span>scope</span>
+            </td>
+            <td>
+              Application privileges.
             </td>
           </tr>
         </tbody>
@@ -593,13 +599,13 @@ angular.module('newProjectApp', ['oauth'])</xmp></code></pre>
       Set the template path (or uri) as value for the template attribute.
       </p>
 
-      <pre><code><xmp><oauth2
+      <pre><code><xmp><oauth
   template="views/templates/custom.html"
   client-id="<client-id>"
   redirect-uri="<redirect-uri>"
-  scope="<your-scope>"
-  profile="<profile-uri>">
-</oauth2></xmp></code></pre>
+  profile-uri="<profile-uri>"
+  scope="<your-scope>">
+</oauth></xmp></code></pre>
 
       <h2>2 - Template event</h2>
 
@@ -768,9 +774,15 @@ $scope.$on('oauth:expired', function(event) {
       <h1 id="thanks">Thanks</h1>
 
       <p>
-      Project created and released as open-source thanks to <a href="http://lelylan.com" target="_blank">Lelylan</a>.<br>
-      <a href="mailto:andrea.reginato@gmail.com" target="_blank">Mail</a> or <a href="http://twitter.com/andreareginato" target="_blank">Tweet</a>
+      <a href="mailto:andrea.reginato@gmail.com" target="_blank">Mail</a> or
+      <a href="http://twitter.com/andreareginato" target="_blank">Tweet</a>
       me for any idea that can improve the project.</p>
+      </p>
+
+      <p>
+      This project was created and released as open-source thanks to <a href="http://lelylan.com" target="_blank">Lelylan</a>,
+      a new platform to monitor and control your devices through a simple, open and robust REST API.
+      <br>
       </p>
 
     </div>
