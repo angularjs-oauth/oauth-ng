@@ -38,7 +38,7 @@
       <h1 id="introduction">Introduction</h1>
       <p>
       Create AngularJS apps that connects to any OAuth 2.0 server using the client side
-      flow (aka <a href="http://tools.ietf.org/html/rfc6749#section-1.3.2">OAuth 2.0 Implicit Grant</a>)
+      flow (aka <a href="http://tools.ietf.org/html/rfc6749#section-1.3.2" target="_blank">OAuth 2.0 Implicit Grant</a>)
       </p>
     </div>
     </section>
@@ -51,7 +51,7 @@
       <h2>Installation</h2>
 
       <p>
-      Install oauth-ng using <a href="http://bower.io/">Bower</a>
+      Install oauth-ng using <a href="http://bower.io/" target="_blank">Bower</a>
       </p>
 
       <pre><code>$ bower install oauth-ng --save</code></pre>
@@ -75,7 +75,7 @@
 </body></xmp></code></pre>
 
       <p>
-      To fully understand how it works read the <a href="#howto">how to</a> section.
+      To fully understand how it works read the next <a href="#howto">section</a>.
       </p>
 
     </div>
@@ -86,10 +86,10 @@
     <div class="content">
 
 
-      <h1 id="howto">How To</h1>
+      <h1 id="howto">Create your first app with oauth-ng</h1>
       <p>
       In this section you will learn how to use the directive to authorize an OAuth 2.0 server
-      through the creation of a real project (in 10 minutues).
+      through the creation of a real project. It will take less than 15 minutues.
       </p>
 
 
@@ -97,7 +97,7 @@
 
       <p>
       To build our app we'll use <a href="http://yeoman.io" target="blank">Yeoman</a>, a collection of tools
-      and frameworks that can help developers quickly build web applications.
+      and frameworks helping developers to quickly build web applications.
       </p>
 
       <ul>
@@ -170,8 +170,8 @@
       <pre><code>$ bower install oauth-ng --save</code></pre>
 
       <p>
-      With this command oauth-ng and all its dependencies are downloaded. To automatically
-      add them to your index page stop and restart the server.
+      Now you have <code>oauth-ng</code> and all its dependencies ready to be used.
+      To automatically add them to your index page, stop and restart the server.
       </p>
 
       <pre><code>$ grunt serve</code></pre>
@@ -195,11 +195,10 @@ angular.module('newProjectApp', ['oauth'])</xmp></code></pre>
       <h2 id="server">OAuth 2.0 Server</h2>
 
       <p>
-      To test the directive we created a basic OAuth 2.0 authorization server (using
-      <a href="https://github.com/doorkeeper-gem/doorkeeper">Ruby</a>).
+      To test the directive we created a basic OAuth 2.0 authorization server.
 
       <ul>
-        <li><strong>uri</strong> - http://oauth-ng-server.herokuapp.com</li>
+        <li>http://oauth-ng-server.herokuapp.com</li>
       </ul>
       </p>
 
@@ -211,7 +210,8 @@ angular.module('newProjectApp', ['oauth'])</xmp></code></pre>
       <h2>Identify your application</h2>
 
       <p>
-      To make the directive work you need a registered application. Here one.
+      To make the directive work you need a registered application to get its
+      <code>client-id</code> and <code>redirect-uri</code>.
       </p>
 
       <ul>
@@ -220,15 +220,15 @@ angular.module('newProjectApp', ['oauth'])</xmp></code></pre>
       </ul>
 
       <p>
-      Use the <code>client-id</code> and the <code>redirect-uri</code> above or
-      <a href="" target="blank">register a new one</a>.
+      Use the credentials above or <a href="" target="blank">register</a>
+      a new application.
       </p>
 
 
       <h2>Add the oauth-ng directive</h2>
 
       <p>
-      Open the main.html view and place the oauth directive.
+      Open the main.html view and place the <code>oauth</code> tag with the needed configurations.
       </p>
 
       <pre><code><xmp>// apps/views/main.html
@@ -240,7 +240,7 @@ angular.module('newProjectApp', ['oauth'])</xmp></code></pre>
 </oauth2></xmp></code></pre>
 
       <p>
-      Follows a description for the used attributes.
+      Here a description for the used attributes.
       </p>
 
       <table class="table table-labeled">
@@ -287,7 +287,7 @@ angular.module('newProjectApp', ['oauth'])</xmp></code></pre>
       <p>
       Nothing else to do. Open your index page, click the <code>Login</code> link,
       authorize your app and get the authenticated user info. You are now ready to
-      access to your API in a secure way.
+      access to your API using OAuth 2.0 and AngularJS.
       </p>
 
       <p>
@@ -395,7 +395,7 @@ angular.module('newProjectApp', ['oauth'])</xmp></code></pre>
 
     <section>
     <div class="content">
-      <h1 id="templates">Customizations</h1>
+      <h1 id="customizations">Customizations</h1>
 
       <p>
         The oauth directive comes to life with customization in mind. You can easily define
@@ -523,8 +523,9 @@ angular.module('newProjectApp', ['oauth'])</xmp></code></pre>
       <h1>Custom Template</h1>
 
       <p>
-      If the custom template does not fit for you, you can create a personalized one.
-      Below you can see the default template used from the directive.
+      When the custom template does not satisfy your needs (e.g. you want to show the user email
+      when logged in), you can create a new one. To have an idea of what a template looks like,
+      see the code below (related to the default template).
       </p>
 
       <pre><code><xmp><span class="oauth">
@@ -534,8 +535,7 @@ angular.module('newProjectApp', ['oauth'])</xmp></code></pre>
 </span></xmp></code></pre>
 
       <p>
-      To create a new one create your personalized HTML and make it interact with the oauth
-      internal API.
+      To create your new template, define the HTML and make it work using the following internal API.
       </p>
 
       <table class="table smaller-titles">
@@ -572,8 +572,8 @@ angular.module('newProjectApp', ['oauth'])</xmp></code></pre>
       </table>
 
       <p>
-      Suppose you defined a new template in <code>views/templates/custom.html</code>.
-      Now you need to let the directive know about the new template. You can do it in two ways.
+      Now, supposing you have defined a new template in <code>views/templates/custom.html</code>,
+      you need to let the directive know about its existence. You can do this in two ways.
       </p>
 
       <ul>
@@ -581,7 +581,7 @@ angular.module('newProjectApp', ['oauth'])</xmp></code></pre>
         <li>Firing the template event</li>
       </ul>
 
-      <h2>Template attribute</h2>
+      <h2>1 - Template attribute</h2>
 
       <p>
       Set the template path (or uri) as value for the template attribute.
@@ -595,7 +595,7 @@ angular.module('newProjectApp', ['oauth'])</xmp></code></pre>
   profile="<profile-uri>">
 </oauth2></xmp></code></pre>
 
-      <h2>Template event</h2>
+      <h2>2 - Template event</h2>
 
       <p>
       Fires the update template event passing the template path (or uri) as param.
@@ -604,8 +604,8 @@ angular.module('newProjectApp', ['oauth'])</xmp></code></pre>
       <pre><code><xmp>$rootScope.$broadcast('oauth:template:update', 'views/templates/custom.html');</xmp></code></pre>
 
       <p>
-      The main advantage of using the update template event is that it can change the
-      HTML view of your directive at any moment of its life.
+      Use this solution when you need to update the directive at runtime. For all
+      other cases, use the template attribute.
       </p>
 
     </div>
@@ -665,7 +665,7 @@ angular.module('newProjectApp', ['oauth'])</xmp></code></pre>
             </td>
             <td>
               Listening for runtime the template change.<br>
-              See examples in the <a href="#customization">customization</a> section.
+              See examples in the <a href="#customizations">customization</a> section.
             </td>
           </tr>
         </tbody>
@@ -688,9 +688,54 @@ $scope.$on('oauth:denied', function(event) {
 });
 
 $scope.$on('oauth:expired', function(event) {
-  console.log('The access token is expired. Please refresh the login');
+  console.log('The access token is expired. Please refresh.');
 });</xmp></code></pre>
 
+
+    </div>
+    </section>
+
+
+    <section>
+    <div class="content">
+      <h1 id="profile">Logged in or logged out?</h1>
+
+      <p>
+      Inject the <code>AccessToken.get()</code> service to understand if the user is logged in or out.
+      </p>
+
+      <pre><code><xmp>$scope.logged = !!AccessToken.get();</xmp></code></pre>
+
+      <p>
+      The <code>AccessToken.get()</code> method returns <code>null</code> when the user is logged
+      out and the access token representation when the user is logged in (see below).
+      </p>
+
+
+<pre><code><xmp>{
+  "access_token": "9ce03e06f037180c2dcfa8b278217eb56d747730c69xxx",
+  "token_type": "bearer",
+  "expires_in": 7200,
+  "state": "remember-me"
+}</xmp></code></pre>
+
+    </div>
+    </section>
+
+
+    <section>
+    <div class="content">
+      <h1 id="profile">Profile resource</h1>
+
+      <p>
+      When a user signs in, the profile is accessible through the <code>Profile</code> service.
+      </p>
+
+      <pre><code><xmp>$scope.profile = Profile.get();</xmp></code></pre>
+
+      <p>
+      This profile is accessible only when the <code>profile-uri</code> attribute is defined.
+      </p>
 
     </div>
     </section>
@@ -702,21 +747,26 @@ $scope.$on('oauth:expired', function(event) {
 
       <ul>
         <li>
-        <a href="https://github.com/lelylan/lelylan-ng/" target="blank">Github Repository</a>
+        <a href="https://github.com/andreareginato/oauth-ng/" target="blank">Github Repository</a>
         </li>
         <li>
-        <a href="https://dev.lelylan.com" target="blank">Lelylan Dev Center</a>
-        </li>
-        <li>
-        <a href="https://lelylan.com" target="blank">Lelylan website</a>
-        </li>
-        <li>
-        <a href="https://twitter.com/lelylan" target="blank">Twitter @lelylan</a>
+        <a href="https://twitter.com/andreareginato" target="blank">@andreareginato</a>
         </li>
       </ul>
     </div>
     </section>
 
+
+    <section>
+    <div class="content">
+      <h1 id="thanks">Thanks</h1>
+
+      <p>
+      Project created and released as open-source thanks to <a href="http://lelylan.com">Lelylan</a>.
+      </p>
+
+    </div>
+    </section>
 
 
   </body>
