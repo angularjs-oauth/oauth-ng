@@ -225,3 +225,72 @@ ul.task-list .task-list-item-checkbox {
     font-size: 13px;
   }
 }
+
+/* * * * * * * * */
+/* Table Listing */
+/* * * * * * * * */
+
+table {
+  margin: 40px 0;
+}
+
+table tr th {
+  border-bottom: 1px solid #dddddd !important;
+  text-transform: uppercase;
+  font-style: italic;
+}
+
+table tr td,
+table tr th {
+  color: #333;
+  font-weight: 200;
+  line-height: 1.5 !important;
+  border-bottom: 1px solid #eee;
+  padding: 12px 0;
+  vertical-align: top;
+}
+
+table .parameter {
+  width: 35%;
+}
+
+table .smaller-titles .parameter {
+  width: 25%;
+}
+
+table .extra {
+  width: 30% !important;
+}
+
+table .nested {
+  padding-left: 30px !important;
+}
+
+table span.info {
+  display: block;
+  color: #888;
+  font-weight: 200;
+}
+
+
+.table-labeled .label {
+  padding: 0;
+}
+
+.table-labeled .label {
+  border-radius: 2px;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 23px;
+  padding: 3px 6px 2px;
+  text-transform: uppercase;
+  background: #eee;
+  border: 1px solid #ddd;
+  color: #333;
+}
+
+.table-labeled .link {
+  background: #E5F4FF;
+  border: 1px solid #C5EAFF;
+}
+
