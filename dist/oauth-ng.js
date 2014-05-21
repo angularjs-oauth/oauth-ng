@@ -1,4 +1,4 @@
-/* ng-oauth - v0.1.1 - 2014-05-20 */
+/* oauth-ng - v0.1.1-alpha - 2014-05-21 */
 
 'use strict';
 
