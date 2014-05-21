@@ -18,13 +18,14 @@
       <ul>
         <li><a href="#introduction">Introduction</a></li>
         <li><a href="#getting-started">Getting Started</a></li>
-        <li><a href="#tutorial">Tutorial</a></li>
-        <li><a href="#services">Services</a></li>
-        <li><a href="#requests">Requests</a></li>
-        <li><a href="#realtime">Realtime Services</a></li>
-        <li><a href="#user">Signed in User</a></li>
+        <li><a href="#howto">How To</a></li>
         <li><a href="#configurations">Configurations</a></li>
+        <li><a href="#customizations">Customizations</a></li>
+        <li><a href="#events">Events</a></li>
+        <li><a href="#logged">OAuth status</a></li>
+        <li><a href="#profile">Profile resource</a></li>
         <li><a href="#links">Links</a></li>
+        <li><a href="#thanks">Thanks To</a></li>
       </ul>
     </div>
     <div id="heading">
@@ -75,7 +76,7 @@
 </body></xmp></code></pre>
 
       <p>
-      To fully understand how it works read the next <a href="#howto">section</a>.
+      To fully understand how it works read the <a href="#howto">next section</a>.
       </p>
 
     </div>
@@ -402,7 +403,7 @@ angular.module('newProjectApp', ['oauth'])</xmp></code></pre>
         personalized CSS styles or create brand new templates.
       </p>
 
-      <h1>Custom CSS</h1>
+      <h1 id="curstomization-css">Custom CSS</h1>
 
       <p>
       By default the directive is shown as a simple link. To improve its visual style
@@ -520,7 +521,7 @@ angular.module('newProjectApp', ['oauth'])</xmp></code></pre>
       </p>
 
 
-      <h1>Custom Template</h1>
+      <h1 id="customization-template">Custom Template</h1>
 
       <p>
       When the custom template does not satisfy your needs (e.g. you want to show the user email
@@ -698,7 +699,7 @@ $scope.$on('oauth:expired', function(event) {
 
     <section>
     <div class="content">
-      <h1 id="profile">Logged in or logged out?</h1>
+      <h1 id="logged">Logged in or logged out?</h1>
 
       <p>
       Inject the <code>AccessToken.get()</code> service to understand if the user is logged in or out.
@@ -767,7 +768,5 @@ $scope.$on('oauth:expired', function(event) {
 
     </div>
     </section>
-
-
   </body>
 </html>
