@@ -398,14 +398,15 @@ angular.module('newProjectApp', ['oauth'])</xmp></code></pre>
       <h1 id="templates">Customizations</h1>
 
       <p>
-        The oauth directive comes to life with customisazion in mind. You can easily define
+        The oauth directive comes to life with customization in mind. You can easily define
         personalized CSS styles or create brand new templates.
       </p>
 
-      <h2>Custom CSS</h2>
+      <h1>Custom CSS</h1>
 
       <p>
-      By default the directive is a simple link. To improve its visual style add some CSS.
+      By default the directive is shown as a simple link. To improve its visual style
+      add some CSS rules.
       </p>
 
       <table class="table button">
@@ -519,13 +520,93 @@ angular.module('newProjectApp', ['oauth'])</xmp></code></pre>
       </p>
 
 
-      <h2>Custom Template</h2>
+      <h1>Custom Template</h1>
 
       <p>
-      If the custom template does not fit for you, you can create a personalized one. Below you
-      can see the default one.
+      If the custom template does not fit for you, you can create a personalized one.
+      Below you can see the default template used from the directive.
       </p>
 
+      <pre><code><xmp><span class="oauth">
+  <a href="#" class="logged-out" ng-show="show=='logged-out'" ng-click="login()">Sign In</a>
+  <a href="#" class="logged-in"  ng-show="show=='logged-in'"  ng-click="logout()">Logout {{profile.full_name}}</a>
+  <a href="#" class="denied"     ng-show="show=='denied'"     ng-click="login()">Access denied. Try again.</a>
+</span></xmp></code></pre>
+
+      <p>
+      To create a new one create your personalized HTML and make it interact with the oauth
+      internal API.
+      </p>
+
+      <table class="table smaller-titles">
+        <tbody>
+          <tr>
+            <td class="parameter">
+              <span>show</span>
+              <span class="info">variable</span>
+            </td>
+            <td>
+              Defines the oauth status. <br>
+              Valid values are <code>logged-out</code>, <code>logged-in</code> and <code>denied</code>.
+            </td>
+          </tr>
+          <tr>
+            <td class="parameter">
+              <span>login()</span>
+              <span class="info">method</span>
+            </td>
+            <td>
+              Logs in redirecting the app to the OAuth 2.0 authorization server.
+            </td>
+          </tr>
+          <tr>
+            <td class="parameter">
+              <span>logout()</span>
+              <span class="info">method</span>
+            </td>
+            <td>
+              Logs out deleting the access token.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>
+      Suppose you defined a new template in <code>views/templates/custom.html</code>.
+      Now you need to let the directive know about the new template. You can do it in two ways.
+      </p>
+
+      <ul>
+        <li>Setting the template attribute</li>
+        <li>Firing the template event</li>
+      </ul>
+
+      <h2>Template attribute</h2>
+
+      <p>
+      Set the template path (or uri) as value for the template attribute.
+      </p>
+
+      <pre><code><xmp><oauth2
+  template="views/templates/custom.html"
+  client-id="<client-id>"
+  redirect-uri="<redirect-uri>"
+  scope="<your-scope>"
+  profile="<profile-uri>">
+</oauth2></xmp></code></pre>
+
+      <h2>Template event</h2>
+
+      <p>
+      Fires the update template event passing the template path (or uri) as param.
+      </p>
+
+      <pre><code><xmp>$rootScope.$broadcast('oauth:template:update', 'views/templates/custom.html');</xmp></code></pre>
+
+      <p>
+      The main advantage of using the update template event is that it can change the
+      HTML view of your directive at any moment of its life.
+      </p>
 
     </div>
     </section>
