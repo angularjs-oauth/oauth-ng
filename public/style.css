@@ -282,3 +282,9 @@ table.button .title {
 table.button .parameter {
   width: 100px;
 }
+
+.notice {
+  background-color: #f4f4f4;
+  padding: 1em;
+  border: 1px solid #e4e4e4;
+}
