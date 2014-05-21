@@ -232,6 +232,7 @@ ul.task-list .task-list-item-checkbox {
 
 table {
   margin: 40px 0;
+  width: 100%;
 }
 
 table tr th {
@@ -272,25 +273,12 @@ table span.info {
   font-weight: 200;
 }
 
-
-.table-labeled .label {
-  padding: 0;
-}
-
-.table-labeled .label {
-  border-radius: 2px;
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 23px;
-  padding: 3px 6px 2px;
+table.button .title {
   text-transform: uppercase;
-  background: #eee;
-  border: 1px solid #ddd;
-  color: #333;
+  font-weight: 600;
 }
 
-.table-labeled .link {
-  background: #E5F4FF;
-  border: 1px solid #C5EAFF;
+table.button .parameter {
+  width: 100px;
 }
 

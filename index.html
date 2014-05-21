@@ -3,6 +3,7 @@
   <head>
     <title>oauth-ng | AngularJS directive for OAuth 2.0</title>
     <link rel="stylesheet" href="public/style.css">
+    <link rel="stylesheet" href="public/oauth-buttons.css">
     <link rel="stylesheet" href="public/icons/css/slate.css">
     <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Italiana&amp;subset=latin">
     <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0">
@@ -404,39 +405,120 @@ angular.module('newProjectApp', ['oauth'])</xmp></code></pre>
       <h2>Custom CSS</h2>
 
       <p>
-      By default the directive is visible as a link. To improve its visual style add some
-      custom CSS. Below you can find a couple of predefined styles you can copy and past
-      to your project.
+      By default the directive is a simple link. To improve its visual style add some CSS.
       </p>
 
-      <table class="table table-labeled">
-        <tbody class="smaller-titles">
+      <table class="table button">
+        <tbody>
           <tr>
             <td class="parameter">
-              <span>Default</span>
+              <span class="title">
+                Default
+              </span>
+            </td>
+            <td class="parameter" style="text-align:right;">
+              <span>
+                 (no extra CSS required)
+               </span>
+             </td>
+          </tr>
+          <tr>
+            <td class="parameter">
+              <span>Logged out</span>
             </td>
             <td>
-            </td>
-            <td>
-              Source Code &lt;&gt;
+              <span class="oauth">
+                <a href="javascript:void(0)" class="logged-out">Sign In</a> <br>
+              </span>
             </td>
           </tr>
           <tr>
             <td class="parameter">
-              <span>Blue Button</span>
+              <span>Logged in</span>
             </td>
             <td>
+              <span class="oauth">
+                <a href="javascript:void(0)" class="logged-in">Logout Alice</a>
+              </span>
+            </td>
+          </tr>
+          <tr>
+            <td class="parameter">
+              <span>Access denied</span>
             </td>
             <td>
-              Source Code &lt;&gt;
+              <span class="oauth">
+                <a href="javascript:void(0)" class="denied">Access denied. Try again.</a>
+              </span>
             </td>
           </tr>
          </tbody>
-      </table>
+       </table>
+
+       <table class="table button blue-button">
+         <tbody>
+           <tr>
+             <td class="parameter">
+               <span class="title">
+                 Blue button style
+               </span>
+             </td>
+             <td class="parameter" style="text-align:right;">
+               <span>
+                 <a href="https://gist.github.com/andreareginato/06a454d76ad619bb4f9f" target="blank">&lt;Download CSS&gt;</a>
+               </span>
+             </td>
+           </tr>
+           <tr>
+             <td class="parameter">
+               <span>Logged out</span>
+             </td>
+             <td>
+               <span class="oauth">
+                 <a href="javascript:void(0)" class="logged-out">Sign In</a>
+               </span>
+             </td>
+           </tr>
+           <tr>
+             <td class="parameter">
+               <span>Logged in</span>
+             </td>
+             <td>
+               <span class="oauth">
+                 <a href="javascript:void(0)" class="logged-in">Logout Alice</a> <br>
+               </span>
+             </td>
+           </tr>
+           <tr>
+             <td class="parameter">
+               <span>Access denied</span>
+             </td>
+             <td>
+               <span class="oauth">
+                 <a href="javascript:void(0)" class="denied">Access denied. Try again.</a>
+               </span>
+             </td>
+           </tr>
+         </tbody>
+       </table>
 
       <p>
-      If you have a new one add it to the <a href="">docs repository</a>.
+      All CSS rules applies to the following HTML structure.
       </p>
+
+      <pre><code><xmp><span class="oauth">
+  <a href="#" class="logged-out">Sign In</a>
+  <a href="#" class="logged-in">Logout Alice</a>
+  <a href="#" class="denied">Access denied. Try again.</a>
+</span></xmp></code></pre>
+
+      <p>
+      It's easy to create your own. Base all of your rules on the <code>oauth</code> class
+      or checkout existing CSS definitions to better understand how it works
+      (e.g. the <a href="https://gist.github.com/andreareginato/06a454d76ad619bb4f9f" target="blank">blue button CSS</a>).
+      </p>
+
+
 
     </div>
     </section>

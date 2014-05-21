@@ -1,4 +1,5 @@
 .blue-button .oauth a {
+  text-decoration: none;
   background: #239cbb;
   box-sizing: border-box;
   min-height: 35px;
