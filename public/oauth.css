@@ -1,0 +1,29 @@
+.blue-button .oauth a {
+  background: #239cbb;
+  box-sizing: border-box;
+  min-height: 35px;
+  width: auto;
+  display: inline-block;
+  padding: 0.9em 1.37em;
+  cursor: pointer;
+  color: #fff !important;
+  font-size: 12px;
+  line-height: 13px;
+  font-weight: 300;
+  text-align: center;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-shadow: none;
+  border-radius: 0.2em;
+  border: rgba(0,0,0,0.05) 0.1em solid;
+  -webkit-transition: background 0.3s ease, border-color 0.3s ease;
+  -moz-transition: background 0.3s ease, border-color 0.3s ease;
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.blue-button .oauth a:hover {
+  background: #01cf9e;
+  color: #fff;
+  text-decoration: none;
+}
+
