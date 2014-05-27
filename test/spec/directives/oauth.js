@@ -54,7 +54,7 @@ describe('oauth', function() {
     });
 
     beforeEach(function() {
-      $rootScope.$on('oauth:success', callback);
+      $rootScope.$on('oauth:login', callback);
     });
 
     beforeEach(function() {

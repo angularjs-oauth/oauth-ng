@@ -71,7 +71,7 @@ directives.directive('oauth', ['AccessToken', 'Endpoint', 'Profile', '$location'
 
     // set the oauth directive to the logged-in status
     var loggedIn = function() {
-      $rootScope.$broadcast('oauth:success', AccessToken.get());
+      $rootScope.$broadcast('oauth:login', AccessToken.get());
       scope.show = 'logged-in';
     }
 
