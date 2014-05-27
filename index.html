@@ -82,6 +82,18 @@
       To fully understand how it works read the <a href="#howto">next section</a>.
       </p>
 
+      <h2>What does it do?</h2>
+
+      <p>
+      It renders a Login link that redirects you to the authorization page. When authorized and
+      redirected back to your app, the directive takes the access token from the fragment,
+      saves it in the <a href="https://developer.mozilla.org/en-US/docs/Web/Guide/API/DOM/Storage#sessionStorage" target="_blank">SessionStorage</a>
+      and add it to all HTTP requests made in AngularJS.
+      </p>
+
+      <pre><code><xmp>// example header
+Authorization:Bearer 9e5c6bf5da8b10223babcb2f6776af5d2a05b3c7988be008eb956b290018464a</xmp></code></pre>
+
     </div>
     </section>
 
@@ -378,7 +390,7 @@ angular.module('newProjectApp', ['oauth', ... ])</xmp></code></pre>
             </td>
             <td>
               Custom template you want to render. <br>
-              Default to <code>default.html</code>
+              Default to <code>default.html</code>.
             </td>
           </tr>
           <tr>
@@ -388,7 +400,17 @@ angular.module('newProjectApp', ['oauth', ... ])</xmp></code></pre>
             </td>
             <td>
               Authorization URL for the OAuth2 Implicit Flow. <br>
-              Default to <code>/oauth/authorize</code>
+              Default to <code>/oauth/authorize</code>.
+            </td>
+          </tr>
+          <tr>
+            <td class="parameter">
+              <span>text</span>
+              <span class="info">optional</span>
+            </td>
+            <td>
+              Visible text when the user has to login.<br>
+              Default to <code>Sign in</code>.
             </td>
           </tr>
         </tbody>
@@ -539,8 +561,8 @@ angular.module('newProjectApp', ['oauth', ... ])</xmp></code></pre>
       </p>
 
       <pre><code><xmp><span class="oauth">
-  <a href="#" class="logged-out" ng-show="show=='logged-out'" ng-click="login()">Sign In</a>
-  <a href="#" class="logged-in"  ng-show="show=='logged-in'"  ng-click="logout()">Logout {{profile.full_name}}</a>
+  <a href="#" class="logged-out" ng-show="show=='logged-out'" ng-click="login()">{{text}}</a>
+  <a href="#" class="logged-in"  ng-show="show=='logged-in'"  ng-click="logout()">Logout {{profile.email}}</a>
   <a href="#" class="denied"     ng-show="show=='denied'"     ng-click="login()">Access denied. Try again.</a>
 </span></xmp></code></pre>
 
@@ -549,7 +571,7 @@ angular.module('newProjectApp', ['oauth', ... ])</xmp></code></pre>
       </p>
 
       <table class="table smaller-titles">
-        <tbody>
+        <tbody class="smaller-titles">
           <tr>
             <td class="parameter">
               <span>show</span>
@@ -558,6 +580,16 @@ angular.module('newProjectApp', ['oauth', ... ])</xmp></code></pre>
             <td>
               Defines the oauth status. <br>
               Valid values are <code>logged-out</code>, <code>logged-in</code> and <code>denied</code>.
+            </td>
+          </tr>
+          <tr>
+            <td class="parameter">
+              <span>text</span>
+              <span class="info">variable</span>
+            </td>
+            <td>
+              Visible text when the widget is logged out.<br>
+              Default to <code>Sign in</code>.
             </td>
           </tr>
           <tr>
