@@ -22,19 +22,17 @@ describe('oauth', function() {
   beforeEach(inject(function($injector) { Endpoint        = $injector.get('Endpoint') }));
   beforeEach(inject(function($injector) { callback        = jasmine.createSpy('callback') }));
 
-  beforeEach(inject(function($rootScope, $compile) {
+  beforeEach(function() {
     element = angular.element(
       '<span class="xyze-widget">' +
         '<oauth ng-cloak site="http://example.com"' +
           'client="client-id"' +
           'redirect="http://example.com/redirect"' +
           'scope="scope"' +
-          'profile-uri="http://example.com/me"' +
-          'template="views/templates/default.html"' +
-          'storage="cookies">Sign In</oauth>' +
+          'profile-uri="http://example.com/me">Sign In</oauth>' +
       '</span>'
     );
-  }));
+  });
 
   var compile = function() {
     scope = $rootScope;
@@ -65,7 +63,7 @@ describe('oauth', function() {
       $rootScope.$apply();
       $httpBackend.flush();
       result = element.find('.logged-in').text();
-      expect(result).toBe('Logout Alice Wonderland');
+      expect(result).toBe('Logout alice@example.com');
     });
 
     it('removes the fragment', function() {
@@ -82,6 +80,7 @@ describe('oauth', function() {
       var token = AccessToken.get();
       expect(callback).toHaveBeenCalledWith(event, token);
     });
+
 
     describe('when refreshes the page', function() {
 
@@ -101,7 +100,7 @@ describe('oauth', function() {
         $rootScope.$apply();
         $httpBackend.flush();
         result = element.find('.logged-in').text();
-        expect(result).toBe('Logout Alice Wonderland');
+        expect(result).toBe('Logout alice@example.com');
       });
 
       it('shows the logout link', function() {
@@ -254,6 +253,32 @@ describe('oauth', function() {
 
     it('shows the button template', function() {
       expect(element.find('.oauth .logged-out').text()).toBe('Login Button');
+    });
+  });
+
+
+
+  describe('with custom authorize path', function() {
+
+    beforeEach(function() {
+      element = angular.element(
+        '<oauth ng-cloak site="http://example.com"' +
+          'client="client-id"' +
+          'redirect="http://example.com/redirect"' +
+          'authorize-path="/new-authorize-path">Sign In</oauth>'
+      );
+    });
+
+    beforeEach(function() {
+      AccessToken.destroy();
+    });
+
+    beforeEach(function() {
+      compile($rootScope, $compile)
+    });
+
+    it('shows the text "Denied"', function() {
+      expect(Endpoint.get()).toMatch('new-authorize-path');
     });
   });
 });

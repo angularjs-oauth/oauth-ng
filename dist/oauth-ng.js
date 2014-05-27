@@ -1,4 +1,4 @@
-/* oauth-ng - v0.1.1-alpha - 2014-05-21 */
+/* oauth-ng - v0.1.1-alpha.1 - 2014-05-27 */
 
 'use strict';
 
@@ -28,12 +28,14 @@ directives.directive('oauth', ['AccessToken', 'Endpoint', 'Profile', '$location'
     restrict: 'AE',
     replace: true,
     scope: {
-      site: '@',         // (required) set the oauth server host (e.g. http://oauth.example.com)
-      clientId: '@',     // (required) client id
-      redirectUri: '@',  // (required) client redirect uri
-      scope: '@',        // (optional) scope
-      profileUri: '@',   // (optional) user profile uri (e.g http://example.com/me)
-      template: '@'      // (optional) template to render (e.g bower_components/oauth-ng/dist/views/templates/default.html)
+      site: '@',          // (required) set the oauth server host (e.g. http://oauth.example.com)
+      clientId: '@',      // (required) client id
+      redirectUri: '@',   // (required) client redirect uri
+      scope: '@',         // (optional) scope
+      profileUri: '@',    // (optional) user profile uri (e.g http://example.com/me)
+      template: '@',      // (optional) template to render (e.g bower_components/oauth-ng/dist/views/templates/default.html)
+      text: '@',          // (optional) login text
+      authorizePath: '@'  // (optional) authorization url
     }
   };
 
@@ -53,6 +55,7 @@ directives.directive('oauth', ['AccessToken', 'Endpoint', 'Profile', '$location'
       scope.authorizePath = scope.authorizePath || '/oauth/authorize';
       scope.tokenPath     = scope.tokenPath     || '/oauth/token';
       scope.template      = scope.template      || 'bower_components/oauth-ng/dist/views/templates/default.html';
+      scope.text          = scope.text          || 'Sign In';
     }
 
     var compile = function() {
@@ -90,7 +93,7 @@ directives.directive('oauth', ['AccessToken', 'Endpoint', 'Profile', '$location'
 
     // set the oauth directive to the logged-in status
     var loggedIn = function() {
-      $rootScope.$broadcast('oauth:success', AccessToken.get());
+      $rootScope.$broadcast('oauth:login', AccessToken.get());
       scope.show = 'logged-in';
     }
 

@@ -9,12 +9,14 @@ directives.directive('oauth', ['AccessToken', 'Endpoint', 'Profile', '$location'
     restrict: 'AE',
     replace: true,
     scope: {
-      site: '@',         // (required) set the oauth server host (e.g. http://oauth.example.com)
-      clientId: '@',     // (required) client id
-      redirectUri: '@',  // (required) client redirect uri
-      scope: '@',        // (optional) scope
-      profileUri: '@',   // (optional) user profile uri (e.g http://example.com/me)
-      template: '@'      // (optional) template to render (e.g views/templates/default.html)
+      site: '@',          // (required) set the oauth server host (e.g. http://oauth.example.com)
+      clientId: '@',      // (required) client id
+      redirectUri: '@',   // (required) client redirect uri
+      scope: '@',         // (optional) scope
+      profileUri: '@',    // (optional) user profile uri (e.g http://example.com/me)
+      template: '@',      // (optional) template to render (e.g views/templates/default.html)
+      text: '@',          // (optional) login text
+      authorizePath: '@'  // (optional) authorization url
     }
   };
 
@@ -34,6 +36,7 @@ directives.directive('oauth', ['AccessToken', 'Endpoint', 'Profile', '$location'
       scope.authorizePath = scope.authorizePath || '/oauth/authorize';
       scope.tokenPath     = scope.tokenPath     || '/oauth/token';
       scope.template      = scope.template      || 'views/templates/default.html';
+      scope.text          = scope.text          || 'Sign In';
     }
 
     var compile = function() {
