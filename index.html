@@ -31,6 +31,9 @@
     <div id="heading">
       <div id="logo">oauth-ng</div>
       <div id="tagline">AngularJS directive for OAuth 2.0</a></div>
+      <p class="btn-group">
+      <a href="https://github.com/andreareginato/oauth-ng" class="btn" target="_blank">See on Github</a>
+      </p>
     </div>
     </section>
 
@@ -72,7 +75,7 @@
     scope="<scope>">
   </oauth>
 
-  <script>angular.module('app', ['ng-oauth']);</script>
+  <script>angular.module('app', ['oauth-ng']);</script>
 </body></xmp></code></pre>
 
       <p>
@@ -90,7 +93,12 @@
       <h1 id="howto">Create your first app with oauth-ng</h1>
       <p>
       In this section you will learn how to use the directive to authorize an OAuth 2.0 server
-      through the creation of a real project. It will take less than 15 minutues.
+      through the creation of a real project. It will take less than 10 minutues.
+      </p>
+
+      <p class="btn-group">
+      <a href="https://oauth-ng-demo.herokuapp.com/" class="btn" target="_blank">View Demo</a>
+      <a href="https://github.com/andreareginato/oauth-ng-demo" class="btn" target="_blank">Demo Github Repository</a>
       </p>
 
 
@@ -172,7 +180,7 @@
 
       <p>
       Now you have <code>oauth-ng</code> and all its dependencies ready to be used.
-      To automatically add them to your index page, stop and restart the server.
+      Restart the server to automatically add them to your index page.
       </p>
 
       <pre><code>$ grunt serve</code></pre>
@@ -194,15 +202,8 @@ angular.module('newProjectApp', ['oauth', ... ])</xmp></code></pre>
       <h2 id="server">OAuth 2.0 Server</h2>
 
       <p>
-      To test the directive we created a basic OAuth 2.0 authorization server.
-
-      <ul>
-        <li>http://oauth-ng-server.herokuapp.com</li>
-      </ul>
-      </p>
-
-      <p>
-      The source code is available on <a href="#" target="blank">Github</a>.
+      To test the directive we created a basic OAuth 2.0 authorization server at the address
+      <code>http://oauth-ng-server.herokuapp.com</code>.
       </p>
 
 
@@ -210,18 +211,14 @@ angular.module('newProjectApp', ['oauth', ... ])</xmp></code></pre>
 
       <p>
       To make the directive work you need a registered application to get its
-      <code>client-id</code> and <code>redirect-uri</code>.
+      <code>client-id</code> and <code>redirect-uri</code>. For this example we
+      created a demo app with the following credentials.
       </p>
 
       <ul>
         <li><strong>client-id</strong> - 017b9f702a904869a6e52bd39b147bb912</li>
         <li><strong>redirect-uri</strong> - http://localhost:9000</li>
       </ul>
-
-      <p>
-      Use the credentials above or <a href="" target="blank">register</a>
-      a new application.
-      </p>
 
 
       <h2>Add the oauth-ng directive</h2>
@@ -232,14 +229,14 @@ angular.module('newProjectApp', ['oauth', ... ])</xmp></code></pre>
 
       <pre><code><xmp><oauth
   site="http://oauth-ng-server.herokuapp.com"
-  client-id="017b9f702a904869a6e52bd39b147bb912"
+  client-id="d6d2b510d18471d2e22aa202216e86c42beac80f9a6ac2da505dcb79c7b2fd99"
   redirect-uri="http://localhost:9000"
-  profile-uri="http://oauth-ng-server.herokuapp.com/profile"
-  scope="profile">
+  profile-uri="http://oauth-ng-server.herokuapp.com/api/v1/me"
+  scope="public">
 </oauth></xmp></code></pre>
 
       <p>
-      Here a description for the used attributes.
+      Here a description for what these settings are about.
       </p>
 
       <table class="table table-labeled">
@@ -288,22 +285,24 @@ angular.module('newProjectApp', ['oauth', ... ])</xmp></code></pre>
       </table>
 
 
-
       <h2>You're done!</h2>
 
       <p>
-      Nothing else to do. Open your index page, click the <code>Login</code> link,
-      authorize your app and get the authenticated user info. You are now ready to
-      access to your API using OAuth 2.0 and AngularJS.
+      Open your index page, click to the Login link and authorize your application
+      to get a new access token. You are now ready to access your API using OAuth
+      2.0 and AngularJS.
       </p>
 
-      <p>
-      #TODO See Demo.
+      <p class="btn-group">
+      <a href="https://oauth-ng-demo.herokuapp.com/" class="btn" target="_blank">View Demo</a>
+      <a href="https://github.com/andreareginato/oauth-ng-demo" class="btn" target="_blank">Demo Github Repository</a>
       </p>
 
-      <p>
-      #TODO See Github Repository.
-      </p>
+
+      <a href="https://oauth-ng-demo.herokuapp.com/"target="_blank">
+        <img src="public/images/demo.png"></img>
+      </a>
+
     </div>
     </section>
 

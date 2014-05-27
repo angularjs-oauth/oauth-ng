@@ -288,3 +288,15 @@ table.button .parameter {
   padding: 1em;
   border: 1px solid #e4e4e4;
 }
+
+.btn {
+  display: inline-block;
+  text-decoration: none;
+  border: 1px solid #000;
+  padding: 0.5em 1em;
+  margin-right: 0.5em;
+}
+
+.btn-group {
+  margin-top: 2em;
+}
