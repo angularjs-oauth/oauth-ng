@@ -68,11 +68,11 @@
 
       <pre><code><xmp><body ng-app="app">
   <oauth
-    site="<oauth-server-uri>"
-    client-id="<client-id>"
-    redirect-uri="<redirect-uri>"
-    profile-uri="<profile-uri>"
-    scope="<scope>">
+    site="OAUTH_SERVER_URI_HERE"
+    client-id="CLIENT_ID_HERE"
+    redirect-uri="REDIRECT_URI_HERE"
+    profile-uri="PROFILE_URI_HERE"
+    scope="SCOPE_HERE">
   </oauth>
 
   <script>angular.module('app', ['oauth-ng']);</script>
@@ -88,11 +88,10 @@
       It renders a Login link that redirects you to the authorization page. When authorized and
       redirected back to your app, the directive takes the access token from the fragment,
       saves it in the <a href="https://developer.mozilla.org/en-US/docs/Web/Guide/API/DOM/Storage#sessionStorage" target="_blank">SessionStorage</a>
-      and add it to all HTTP requests made in AngularJS.
+      and sets the Authorization header to all HTTP requests made with AngularJS.
       </p>
 
-      <pre><code><xmp>// example header
-Authorization:Bearer 9e5c6bf5da8b10223babcb2f6776af5d2a05b3c7988be008eb956b290018464a</xmp></code></pre>
+      <pre><code><xmp>Authorization:Bearer 9e5c6bf5da8b10223babcb2f6776af5d2a05b3c7988be008eb956b290018464a</xmp></code></pre>
 
     </div>
     </section>
