@@ -2,16 +2,13 @@
 
 var service = angular.module('oauth.interceptor', []);
 
-service.factory('OAuthInterceptor', ['$rootScope', '$q', '$sessionStorage',
+service.factory('ExpiredInterceptor', ['$rootScope', '$q', '$sessionStorage',
   function ($rootScope, $q, $sessionStorage) {
 
     var service = {};
 
     service.request = function(config) {
       var token = $sessionStorage.token;
-
-      if (token)
-        config.headers.Authorization = 'Bearer ' + token.access_token;
 
       if (token && expired(token))
         $rootScope.$broadcast('oauth:expired', token);

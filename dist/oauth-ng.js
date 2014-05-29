@@ -1,4 +1,4 @@
-/* oauth-ng - v0.2.0-beta - 2014-05-27 */
+/* oauth-ng - v0.2.0-beta.1 - 2014-05-29 */
 
 'use strict';
 
@@ -13,8 +13,8 @@ var app = angular.module('oauth', [
 
 angular.module('oauth').config(['$locationProvider','$httpProvider',
   function($locationProvider, $httpProvider) {
-    $locationProvider.html5Mode(true).hashPrefix('!');      // HTML5 mode
-    $httpProvider.interceptors.push('OAuthInterceptor');    // Authentication header
+    $locationProvider.html5Mode(true).hashPrefix('!');
+    $httpProvider.interceptors.push('ExpiredInterceptor');
   }]);
 
 'use strict';
@@ -123,16 +123,13 @@ directives.directive('oauth', ['AccessToken', 'Endpoint', 'Profile', '$location'
 
 var service = angular.module('oauth.interceptor', []);
 
-service.factory('OAuthInterceptor', ['$rootScope', '$q', '$sessionStorage',
+service.factory('ExpiredInterceptor', ['$rootScope', '$q', '$sessionStorage',
   function ($rootScope, $q, $sessionStorage) {
 
     var service = {};
 
     service.request = function(config) {
       var token = $sessionStorage.token;
-
-      if (token)
-        config.headers.Authorization = 'Bearer ' + token.access_token;
 
       if (token && expired(token))
         $rootScope.$broadcast('oauth:expired', token);
@@ -215,7 +212,7 @@ service.factory('AccessToken', ['$rootScope', '$location', '$http', '$sessionSto
 
     if (token) {
       removeFragment();
-      setToken(token);
+      service.setToken(token);
     }
   };
 
@@ -247,7 +244,7 @@ service.factory('AccessToken', ['$rootScope', '$location', '$http', '$sessionSto
   var setTokenFromSession = function() {
     if ($sessionStorage.token) {
       var params = $sessionStorage.token;
-      setToken(params);
+      service.setToken(params);
     }
   }
 
@@ -265,7 +262,7 @@ service.factory('AccessToken', ['$rootScope', '$location', '$http', '$sessionSto
    * Set the access token.
    */
 
-  var setToken = function(params) {
+  service.setToken = function(params) {
     token = token || {}                 // init the token
     angular.extend(token, params);      // set the access token params
     setExpiresAt();                     // set the expiring time
@@ -353,11 +350,15 @@ client.factory('Endpoint', ['AccessToken', '$location',
 
 var client = angular.module('oauth.profile', [])
 
-client.factory('Profile', ['$http', function($http) {
+client.factory('Profile', ['$http', 'AccessToken', function($http, AccessToken) {
   var service = {}
 
   service.get = function(uri) {
-    return $http.get(uri);
+    return $http.get(uri, { headers: headers() });
+  }
+
+  var headers = function() {
+    return { Authorization: 'Bearer ' + AccessToken.get().access_token };
   }
 
   return service;

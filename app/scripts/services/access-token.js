@@ -65,7 +65,7 @@ service.factory('AccessToken', ['$rootScope', '$location', '$http', '$sessionSto
 
     if (token) {
       removeFragment();
-      setToken(token);
+      service.setToken(token);
     }
   };
 
@@ -97,7 +97,7 @@ service.factory('AccessToken', ['$rootScope', '$location', '$http', '$sessionSto
   var setTokenFromSession = function() {
     if ($sessionStorage.token) {
       var params = $sessionStorage.token;
-      setToken(params);
+      service.setToken(params);
     }
   }
 
@@ -115,7 +115,7 @@ service.factory('AccessToken', ['$rootScope', '$location', '$http', '$sessionSto
    * Set the access token.
    */
 
-  var setToken = function(params) {
+  service.setToken = function(params) {
     token = token || {}                 // init the token
     angular.extend(token, params);      // set the access token params
     setExpiresAt();                     // set the expiring time
