@@ -85,13 +85,14 @@
       <h2>What does it do?</h2>
 
       <p>
-      It renders a Login link that redirects you to the authorization page. When authorized and
-      redirected back to your app, the directive takes the access token from the fragment,
-      saves it in the <a href="https://developer.mozilla.org/en-US/docs/Web/Guide/API/DOM/Storage#sessionStorage" target="_blank">SessionStorage</a>
-      and sets the Authorization header to all HTTP requests made with AngularJS.
+      It renders a Login link that lets you authorize a third party app through OAuth 2.0.
+      When the flow is completed, the access token is saved in the <a href="https://developer.mozilla.org/en-US/docs/Web/Guide/API/DOM/Storage#sessionStorage" target="_blank">SessionStorage</a>.
       </p>
 
-      <pre><code><xmp>Authorization:Bearer 9e5c6bf5da8b10223babcb2f6776af5d2a05b3c7988be008eb956b290018464a</xmp></code></pre>
+      <p class="notice">
+      The oauth directive only works in HTML5 mode (automatically activated). <br>
+      We are working on fixing this <a href="https://github.com/andreareginato/oauth-ng/issues/13">bug</a>.
+      </p>
 
     </div>
     </section>
@@ -775,8 +776,11 @@ $scope.$on('oauth:expired', function(event) {
       <pre><code><xmp>$scope.profile = Profile.get();</xmp></code></pre>
 
       <p>
-      This profile is accessible only when the <code>profile-uri</code> attribute is defined.
+      This profile is accessible only when the <code>profile-uri</code> attribute is defined and
+      it sets the Authorization header with the access token to authenticate the request.
       </p>
+
+      <pre><code><xmp>Authorization:Bearer {token}</xmp></code></pre>
 
     </div>
     </section>
