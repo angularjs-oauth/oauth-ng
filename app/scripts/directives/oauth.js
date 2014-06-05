@@ -23,7 +23,7 @@ directives.directive('oauth', ['AccessToken', 'Endpoint', 'Profile', '$location'
   definition.link = function postLink(scope, element, attrs) {
     scope.show = 'none';
 
-    scope.$watch('client', function(value) {
+    scope.$watch('clientId', function(value) {
       init();                    // sets defaults
       compile();                 // compiles the desired layout
       Endpoint.set(scope);       // sets the oauth authorization url
@@ -50,7 +50,7 @@ directives.directive('oauth', ['AccessToken', 'Endpoint', 'Profile', '$location'
       var token = AccessToken.get();
 
       if (token && token.access_token && scope.profileUri) {
-        Profile.get(scope.profileUri).success(function(response) { scope.profile = response })
+        Profile.find(scope.profileUri).success(function(response) { scope.profile = response })
       }
     }
 

@@ -14,7 +14,7 @@ Do not forget to provide specs to your contribution.
 ### Setup
 
 * Fork and clone the repository
-* Run `npm install`
+* Run `npm install && bower install`
 
 ### Unit tests (karma)
 
@@ -22,9 +22,7 @@ Do not forget to provide specs to your contribution.
 
 ### Creating your own distribution
 
-* Fork and clone the repository
-* Run `npm install`
-* Run `grunt build`
+* `grunt build`
 
 The new distribution files will be created in the `dist/` folder.
 

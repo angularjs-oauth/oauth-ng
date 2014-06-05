@@ -357,7 +357,7 @@ module.exports = function (grunt) {
         options: {
           replacements: [{
             pattern: /views\/templates\/default\.html/g,
-            replacement: 'bower_components/oauth-ng/dist/views/templates/default.html'
+            replacement: 'bower_components/<%= yeoman.name %>/dist/views/templates/default.html'
           }]
         }
       }

@@ -4,9 +4,21 @@ var client = angular.module('oauth.profile', [])
 
 client.factory('Profile', ['$http', 'AccessToken', function($http, AccessToken) {
   var service = {}
+  var profile;
+
+  service.find = function(uri) {
+    var promise = $http.get(uri, { headers: headers() });
+    promise.success(function(response) { profile = response });
+    return promise;
+  }
 
   service.get = function(uri) {
-    return $http.get(uri, { headers: headers() });
+    return profile;
+  }
+
+  service.set = function(resource) {
+    profile = resource;
+    return profile;
   }
 
   var headers = function() {
