@@ -1,4 +1,4 @@
-/* oauth-ng - v0.2.0-beta.1 - 2014-05-29 */
+/* oauth-ng - v0.2.0-beta.2 - 2014-06-05 */
 
 'use strict';
 
@@ -42,7 +42,7 @@ directives.directive('oauth', ['AccessToken', 'Endpoint', 'Profile', '$location'
   definition.link = function postLink(scope, element, attrs) {
     scope.show = 'none';
 
-    scope.$watch('client', function(value) {
+    scope.$watch('clientId', function(value) {
       init();                    // sets defaults
       compile();                 // compiles the desired layout
       Endpoint.set(scope);       // sets the oauth authorization url
@@ -69,7 +69,7 @@ directives.directive('oauth', ['AccessToken', 'Endpoint', 'Profile', '$location'
       var token = AccessToken.get();
 
       if (token && token.access_token && scope.profileUri) {
-        Profile.get(scope.profileUri).success(function(response) { scope.profile = response })
+        Profile.find(scope.profileUri).success(function(response) { scope.profile = response })
       }
     }
 
@@ -352,9 +352,21 @@ var client = angular.module('oauth.profile', [])
 
 client.factory('Profile', ['$http', 'AccessToken', function($http, AccessToken) {
   var service = {}
+  var profile;
+
+  service.find = function(uri) {
+    var promise = $http.get(uri, { headers: headers() });
+    promise.success(function(response) { profile = response });
+    return promise;
+  }
 
   service.get = function(uri) {
-    return $http.get(uri, { headers: headers() });
+    return profile;
+  }
+
+  service.set = function(resource) {
+    profile = resource;
+    return profile;
   }
 
   var headers = function() {
