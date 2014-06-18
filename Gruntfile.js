@@ -158,20 +158,6 @@ module.exports = function (grunt) {
       }
     },
 
-    // Renames files for browser caching purposes
-    rev: {
-      dist: {
-        files: {
-          src: [
-            '<%= yeoman.dist %>/scripts/{,*/}*.js',
-            '<%= yeoman.dist %>/styles/{,*/}*.css',
-            '<%= yeoman.dist %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}',
-            '<%= yeoman.dist %>/styles/fonts/*'
-          ]
-        }
-      }
-    },
-
     // Reads HTML for usemin blocks to enable smart builds that automatically
     // concat, minify and revision files. Creates configurations in memory so
     // additional tasks can operate on them
@@ -190,53 +176,6 @@ module.exports = function (grunt) {
       }
     },
 
-    // Performs rewrites based on rev and the useminPrepare configuration
-    usemin: {
-      html: ['<%= yeoman.dist %>/{,*/}*.html'],
-      css: ['<%= yeoman.dist %>/styles/{,*/}*.css'],
-      options: {
-        assetsDirs: ['<%= yeoman.dist %>']
-      }
-    },
-
-    // The following *-min tasks produce minified files in the dist folder
-    imagemin: {
-      dist: {
-        files: [{
-          //expand: true,
-          //cwd: '<%= yeoman.app %>/images',
-          //src: '{,*/}*.{png,jpg,jpeg,gif}',
-          //dest: '<%= yeoman.dist %>/images'
-        }]
-      }
-    },
-    svgmin: {
-      dist: {
-        files: [{
-          expand: true,
-          cwd: '<%= yeoman.app %>/images',
-          src: '{,*/}*.svg',
-          dest: '<%= yeoman.dist %>/images'
-        }]
-      }
-    },
-    htmlmin: {
-      dist: {
-        options: {
-          collapseWhitespace: true,
-          collapseBooleanAttributes: true,
-          removeCommentsFromCDATA: true,
-          removeOptionalTags: true
-        },
-        files: [{
-          expand: true,
-          cwd: '<%= yeoman.dist %>',
-          src: ['*.html', 'views/{,*/}*.html'],
-          dest: '<%= yeoman.dist %>'
-        }]
-      }
-    },
-
     // Allow the use of non-minsafe AngularJS files. Automatically makes it
     // minsafe compatible so Uglify does not destroy the ng references
     ngmin: {
@@ -250,13 +189,6 @@ module.exports = function (grunt) {
       }
     },
 
-    // Replace Google CDN references
-    cdnify: {
-      dist: {
-        html: ['<%= yeoman.dist %>/*.html']
-      }
-    },
-
     // Copies remaining files to places other tasks can use
     copy: {
       dist: {
@@ -266,26 +198,11 @@ module.exports = function (grunt) {
           cwd: '<%= yeoman.app %>',
           dest: '<%= yeoman.dist %>',
           src: [
-            //'*.{ico,png,txt}',
-            //'.htaccess',
-            //'*.html',
             'views/{,*/}*.html',
-            //'bower_components/**/*',
-            //'images/{,*/}*.{webp}',
-            //'fonts/*'
           ]
-        }, {
-          //expand: true,
-          //cwd: '.tmp/images',
-          //dest: '<%= yeoman.dist %>/images',
-          //src: ['generated/*']
         }]
       },
       styles: {
-        //expand: true,
-        //cwd: '<%= yeoman.app %>/styles',
-        //dest: '.tmp/styles/',
-        //src: '{,*/}*.css'
       }
     },
 
@@ -317,6 +234,8 @@ module.exports = function (grunt) {
         singleRun: false
       }
     },
+
+    // replace pieces of string
     'string-replace': {
       dist: {
         files: {
