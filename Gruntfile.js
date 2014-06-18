@@ -178,7 +178,15 @@ module.exports = function (grunt) {
     useminPrepare: {
       html: '<%= yeoman.app %>/index.html',
       options: {
-        dest: '<%= yeoman.dist %>'
+        dest: '<%= yeoman.dist %>',
+        flow: {
+          html: {
+            steps: {
+              js: ['concat']
+            },
+            post: {}
+          }
+        }
       }
     },
 
@@ -296,49 +304,9 @@ module.exports = function (grunt) {
       ]
     },
 
-    // By default, your `index.html`'s <!-- Usemin block --> will take care of
-    // minification. These next options are pre-configured if you do not wish
-    // to use the Usemin blocks.
-    // cssmin: {
-    //   dist: {
-    //     files: {
-    //       '<%= yeoman.dist %>/styles/main.css': [
-    //         '.tmp/styles/{,*/}*.css',
-    //         '<%= yeoman.app %>/styles/{,*/}*.css'
-    //       ]
-    //     }
-    //   }
-    // },
-
-    //uglify: {
-      //options: {
-        //banner: '/* <%= yeoman.name %> - v<%= yeoman.version %> - ' + '<%= grunt.template.today("yyyy-mm-dd") %> */\n\n'
-      //}
-    //},
-
-    uglify: {
-      options: {
-        banner: '/* <%= yeoman.name %> - v<%= yeoman.version %> - ' + '<%= grunt.template.today("yyyy-mm-dd") %> */\n'
-      },
-      dist: {
-        files: {
-          '<%= yeoman.dist %>/<%= yeoman.name %>.min.js': [
-            '<%= yeoman.dist %>/<%= yeoman.name %>.js'
-          ]
-        }
-      }
-    },
     concat: {
       options: {
         banner: '/* <%= yeoman.name %> - v<%= yeoman.version %> - ' + '<%= grunt.template.today("yyyy-mm-dd") %> */\n\n'
-      },
-      dist: {
-        files: {
-          '<%= yeoman.dist %>/<%= yeoman.name %>.js': [
-            '.tmp/scripts/{,*/}*.js',
-            '<%= yeoman.app %>/scripts/{,*/}*.js'
-          ]
-        }
       }
     },
 
@@ -398,9 +366,6 @@ module.exports = function (grunt) {
     'clean:dist',
     'copy',
     'useminPrepare',
-    'concat',
-    'ngmin',
-    'uglify',
     'concat',
     'string-replace',
   ]);
