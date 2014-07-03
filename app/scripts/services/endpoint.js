@@ -15,17 +15,18 @@ client.factory('Endpoint', ['AccessToken', '$location',
    */
 
   service.set = function(scope) {
+    var state = scope.state || $location.url();
+
     url = scope.site +
       scope.authorizePath +
       '?response_type=token&' +
-      'client_id=' + scope.clientId + '&' +
-      'redirect_uri=' + scope.redirectUri + '&' +
-      'scope=' + scope.scope + '&' +
-      'state=' + $location.url()
+      'client_id=' + encodeURIComponent(scope.clientId) + '&' +
+      'redirect_uri=' + encodeURIComponent(scope.redirectUri) + '&' +
+      'scope=' + encodeURIComponent(scope.scope) + '&' +
+      'state=' + encodeURIComponent(state)
 
     return url;
   }
-
 
   /*
    * Returns the authorization URL
