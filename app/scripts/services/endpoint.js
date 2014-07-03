@@ -6,7 +6,6 @@ client.factory('Endpoint', ['AccessToken', '$location',
   function(AccessToken, $location) {
 
   var service = {};
-  var params;
   var url;
 
 
