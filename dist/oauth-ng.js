@@ -279,10 +279,6 @@ accessTokenService.factory('AccessToken', ['$rootScope', '$location', '$http', '
    */
 
   var setExpiresAt = function() {
-    if(!token.expires_in) { //some providers have tokens that don't expire
-      token.expires_at = undefined;
-      return;
-    }
     if (token) {
       var expires_at = new Date();
       expires_at.setSeconds(expires_at.getSeconds() + parseInt(token.expires_in) - 60); // 60 seconds less to secure browser and response latency
