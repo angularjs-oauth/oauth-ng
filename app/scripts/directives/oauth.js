@@ -16,7 +16,8 @@ directives.directive('oauth', ['AccessToken', 'Endpoint', 'Profile', '$location'
       profileUri: '@',    // (optional) user profile uri (e.g http://example.com/me)
       template: '@',      // (optional) template to render (e.g views/templates/default.html)
       text: '@',          // (optional) login text
-      authorizePath: '@'  // (optional) authorization url
+      authorizePath: '@', // (optional) authorization url
+      state: '@'          // (optional) An arbitrary unique string created by your app to guard against Cross-site Request Forgery
     }
   };
 
@@ -37,6 +38,7 @@ directives.directive('oauth', ['AccessToken', 'Endpoint', 'Profile', '$location'
       scope.tokenPath     = scope.tokenPath     || '/oauth/token';
       scope.template      = scope.template      || 'views/templates/default.html';
       scope.text          = scope.text          || 'Sign In';
+      scope.state         = scope.state         || undefined;   //default to $location.url() of redirectUri. @see Endpoint::service.set()
     }
 
     var compile = function() {
