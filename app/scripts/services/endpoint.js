@@ -15,15 +15,17 @@ endpointClient.factory('Endpoint', ['AccessToken', '$location',
 
   service.set = function(scope) {
     var oAuthScope = (scope.scope)?encodeURIComponent(scope.scope):'',
-        state = (scope.state)?encodeURIComponent(scope.state):'';
+          state = (scope.state)?encodeURIComponent(scope.state):'',
+          authPathHasQuery = (scope.authorizePath.indexOf('?') == -1)?false:true,
+          appendChar = (authPathHasQuery)?'&':'?';    //if authorizePath has ? already append oAuth2 params
 
     url = scope.site +
-      scope.authorizePath +
-      '?response_type=token&' +
-      'client_id=' + encodeURIComponent(scope.clientId) + '&' +
-      'redirect_uri=' + encodeURIComponent(scope.redirectUri) + '&' +
-      'scope=' + oAuthScope + '&' +
-      'state=' + state;
+          scope.authorizePath +
+          appendChar + 'response_type=token&' +
+          'client_id=' + encodeURIComponent(scope.clientId) + '&' +
+          'redirect_uri=' + encodeURIComponent(scope.redirectUri) + '&' +
+          'scope=' + oAuthScope + '&' +
+          'state=' + state;
 
     return url;
   };

@@ -279,6 +279,10 @@ accessTokenService.factory('AccessToken', ['$rootScope', '$location', '$http', '
    */
 
   var setExpiresAt = function() {
+    if(!token.expires_in) { //some providers have tokens that don't expire
+      token.expires_at = undefined;
+      return;
+    }
     if (token) {
       var expires_at = new Date();
       expires_at.setSeconds(expires_at.getSeconds() + parseInt(token.expires_in) - 60); // 60 seconds less to secure browser and response latency
@@ -317,15 +321,17 @@ endpointClient.factory('Endpoint', ['AccessToken', '$location',
 
   service.set = function(scope) {
     var oAuthScope = (scope.scope)?encodeURIComponent(scope.scope):'',
-        state = (scope.state)?encodeURIComponent(scope.state):'';
+          state = (scope.state)?encodeURIComponent(scope.state):'',
+          authPathHasQuery = (scope.authorizePath.indexOf('?') == -1)?false:true,
+          appendChar = (authPathHasQuery)?'&':'?';    //if authorizePath has ? already append oAuth2 params
 
     url = scope.site +
-      scope.authorizePath +
-      '?response_type=token&' +
-      'client_id=' + encodeURIComponent(scope.clientId) + '&' +
-      'redirect_uri=' + encodeURIComponent(scope.redirectUri) + '&' +
-      'scope=' + oAuthScope + '&' +
-      'state=' + state;
+          scope.authorizePath +
+          appendChar + 'response_type=token&' +
+          'client_id=' + encodeURIComponent(scope.clientId) + '&' +
+          'redirect_uri=' + encodeURIComponent(scope.redirectUri) + '&' +
+          'scope=' + oAuthScope + '&' +
+          'state=' + state;
 
     return url;
   };
