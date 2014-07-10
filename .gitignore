@@ -27,7 +27,6 @@ docs
 
 # Yeoman
 app/bower_components
-.bowerrc
 .editorconfig
 .gitattributes
 .jshintrc
