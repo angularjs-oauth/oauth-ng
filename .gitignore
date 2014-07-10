@@ -38,3 +38,7 @@ app/index-dev.html
 
 # Dist
 #dist
+
+#IDE
+.idea
+

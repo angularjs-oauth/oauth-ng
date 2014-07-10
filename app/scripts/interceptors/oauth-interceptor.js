@@ -1,8 +1,8 @@
 'use strict';
 
-var service = angular.module('oauth.interceptor', []);
+var interceptorService = angular.module('oauth.interceptor', []);
 
-service.factory('ExpiredInterceptor', ['$rootScope', '$q', '$sessionStorage',
+interceptorService.factory('ExpiredInterceptor', ['$rootScope', '$q', '$sessionStorage',
   function ($rootScope, $q, $sessionStorage) {
 
     var service = {};
@@ -18,7 +18,7 @@ service.factory('ExpiredInterceptor', ['$rootScope', '$q', '$sessionStorage',
 
     var expired = function(token) {
       return (token && token.expires_at && new Date(token.expires_at) < new Date())
-    }
+    };
 
     return service;
   }]);

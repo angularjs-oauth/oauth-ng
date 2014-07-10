@@ -38,8 +38,9 @@ directives.directive('oauth', ['AccessToken', 'Endpoint', 'Profile', '$location'
       scope.tokenPath     = scope.tokenPath     || '/oauth/token';
       scope.template      = scope.template      || 'views/templates/default.html';
       scope.text          = scope.text          || 'Sign In';
-      scope.state         = scope.state         || undefined;   //default to $location.url() of redirectUri. @see Endpoint::service.set()
-    }
+      scope.state         = scope.state         || undefined;
+      scope.scope         = scope.scope         || undefined;
+    };
 
     var compile = function() {
       $http.get(scope.template, { cache: $templateCache }).success(function(html) {
@@ -54,43 +55,43 @@ directives.directive('oauth', ['AccessToken', 'Endpoint', 'Profile', '$location'
       if (token && token.access_token && scope.profileUri) {
         Profile.find(scope.profileUri).success(function(response) { scope.profile = response })
       }
-    }
+    };
 
-    var initView = function(token) {
+    var initView = function() {
       var token = AccessToken.get();
 
       if (!token)             { return loggedOut() }   // without access token it's logged out
       if (token.access_token) { return loggedIn() }    // if there is the access token we are done
       if (token.error)        { return denied() }      // if the request has been denied we fire the denied event
-    }
+    };
 
 
     scope.login = function() {
       Endpoint.redirect();
-    }
+    };
 
     scope.logout = function() {
       AccessToken.destroy(scope);
       loggedOut();
-    }
+    };
 
     // set the oauth directive to the logged-in status
     var loggedIn = function() {
       $rootScope.$broadcast('oauth:login', AccessToken.get());
       scope.show = 'logged-in';
-    }
+    };
 
     // set the oauth directive to the logged-out status
     var loggedOut = function() {
       $rootScope.$broadcast('oauth:logout');
       scope.show = 'logged-out';
-    }
+    };
 
     // set the oauth directive to the denied status
     var denied = function() {
       scope.show = 'denied';
       $rootScope.$broadcast('oauth:denied');
-    }
+    };
 
     // Updates the template at runtime
     scope.$on('oauth:template:update', function(event, template) {

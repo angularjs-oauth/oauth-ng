@@ -1,8 +1,8 @@
 'use strict';
 
-var client = angular.module('oauth.endpoint', []);
+var endpointClient = angular.module('oauth.endpoint', []);
 
-client.factory('Endpoint', ['AccessToken', '$location',
+endpointClient.factory('Endpoint', ['AccessToken', '$location',
   function(AccessToken, $location) {
 
   var service = {};
@@ -14,18 +14,19 @@ client.factory('Endpoint', ['AccessToken', '$location',
    */
 
   service.set = function(scope) {
-    var state = scope.state || $location.url();
+    var oAuthScope = (scope.scope)?encodeURIComponent(scope.scope):'',
+        state = (scope.state)?encodeURIComponent(scope.state):'';
 
     url = scope.site +
       scope.authorizePath +
       '?response_type=token&' +
       'client_id=' + encodeURIComponent(scope.clientId) + '&' +
       'redirect_uri=' + encodeURIComponent(scope.redirectUri) + '&' +
-      'scope=' + encodeURIComponent(scope.scope) + '&' +
-      'state=' + encodeURIComponent(state)
+      'scope=' + oAuthScope + '&' +
+      'state=' + state;
 
     return url;
-  }
+  };
 
   /*
    * Returns the authorization URL
@@ -33,7 +34,7 @@ client.factory('Endpoint', ['AccessToken', '$location',
 
   service.get = function() {
     return url;
-  }
+  };
 
 
   /*
@@ -42,7 +43,7 @@ client.factory('Endpoint', ['AccessToken', '$location',
 
   service.redirect = function() {
     window.location.replace(url);
-  }
+  };
 
   return service;
 }]);
