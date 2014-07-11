@@ -64,8 +64,11 @@ accessTokenService.factory('AccessToken', ['$rootScope', '$location', '$http', '
     var token = getTokenFromString($location.hash());
 
     if (token) {
+      // user has just logged in. Broadcast before removing fragment in case consumers want access to raw hash
+      token = service.setToken(token);
+      $rootScope.$broadcast('oauth:login', token);
+
       removeFragment();
-      service.setToken(token);
     }
   };
 

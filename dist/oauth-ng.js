@@ -1,4 +1,4 @@
-/* oauth-ng - v0.2.1 - 2014-07-10 */
+/* oauth-ng - v0.2.2 - 2014-07-10 */
 
 'use strict';
 
@@ -83,8 +83,11 @@ accessTokenService.factory('AccessToken', ['$rootScope', '$location', '$http', '
     var token = getTokenFromString($location.hash());
 
     if (token) {
+      // user has just logged in. Broadcast before removing fragment in case consumers want access to raw hash
+      token = service.setToken(token);
+      $rootScope.$broadcast('oauth:login', token);
+
       removeFragment();
-      service.setToken(token);
     }
   };
 
@@ -340,10 +343,9 @@ directives.directive('oauth', ['AccessToken', 'Endpoint', 'Profile', '$location'
       var token = AccessToken.get();
 
       if (!token)             { return loggedOut() }   // without access token it's logged out
-      if (token.access_token) { return loggedIn() }    // if there is the access token we are done
+      if (token.access_token) { return authorized() }  // if there is the access token we are done
       if (token.error)        { return denied() }      // if the request has been denied we fire the denied event
     };
-
 
     scope.login = function() {
       Endpoint.redirect();
@@ -354,9 +356,9 @@ directives.directive('oauth', ['AccessToken', 'Endpoint', 'Profile', '$location'
       loggedOut();
     };
 
-    // set the oauth directive to the logged-in status
-    var loggedIn = function() {
-      $rootScope.$broadcast('oauth:login', AccessToken.get());
+    // user is authorized
+    var authorized = function() {
+      $rootScope.$broadcast('oauth:authorized', AccessToken.get());
       scope.show = 'logged-in';
     };
 
