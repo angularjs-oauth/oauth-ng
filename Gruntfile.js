@@ -158,74 +158,21 @@ module.exports = function (grunt) {
       }
     },
 
-    // Renames files for browser caching purposes
-    rev: {
-      dist: {
-        files: {
-          src: [
-            '<%= yeoman.dist %>/scripts/{,*/}*.js',
-            '<%= yeoman.dist %>/styles/{,*/}*.css',
-            '<%= yeoman.dist %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}',
-            '<%= yeoman.dist %>/styles/fonts/*'
-          ]
-        }
-      }
-    },
-
     // Reads HTML for usemin blocks to enable smart builds that automatically
     // concat, minify and revision files. Creates configurations in memory so
     // additional tasks can operate on them
     useminPrepare: {
       html: '<%= yeoman.app %>/index.html',
       options: {
-        dest: '<%= yeoman.dist %>'
-      }
-    },
-
-    // Performs rewrites based on rev and the useminPrepare configuration
-    usemin: {
-      html: ['<%= yeoman.dist %>/{,*/}*.html'],
-      css: ['<%= yeoman.dist %>/styles/{,*/}*.css'],
-      options: {
-        assetsDirs: ['<%= yeoman.dist %>']
-      }
-    },
-
-    // The following *-min tasks produce minified files in the dist folder
-    imagemin: {
-      dist: {
-        files: [{
-          //expand: true,
-          //cwd: '<%= yeoman.app %>/images',
-          //src: '{,*/}*.{png,jpg,jpeg,gif}',
-          //dest: '<%= yeoman.dist %>/images'
-        }]
-      }
-    },
-    svgmin: {
-      dist: {
-        files: [{
-          expand: true,
-          cwd: '<%= yeoman.app %>/images',
-          src: '{,*/}*.svg',
-          dest: '<%= yeoman.dist %>/images'
-        }]
-      }
-    },
-    htmlmin: {
-      dist: {
-        options: {
-          collapseWhitespace: true,
-          collapseBooleanAttributes: true,
-          removeCommentsFromCDATA: true,
-          removeOptionalTags: true
-        },
-        files: [{
-          expand: true,
-          cwd: '<%= yeoman.dist %>',
-          src: ['*.html', 'views/{,*/}*.html'],
-          dest: '<%= yeoman.dist %>'
-        }]
+        dest: '<%= yeoman.dist %>',
+        flow: {
+          html: {
+            steps: {
+              js: ['concat']
+            },
+            post: {}
+          }
+        }
       }
     },
 
@@ -242,13 +189,6 @@ module.exports = function (grunt) {
       }
     },
 
-    // Replace Google CDN references
-    cdnify: {
-      dist: {
-        html: ['<%= yeoman.dist %>/*.html']
-      }
-    },
-
     // Copies remaining files to places other tasks can use
     copy: {
       dist: {
@@ -258,26 +198,11 @@ module.exports = function (grunt) {
           cwd: '<%= yeoman.app %>',
           dest: '<%= yeoman.dist %>',
           src: [
-            //'*.{ico,png,txt}',
-            //'.htaccess',
-            //'*.html',
             'views/{,*/}*.html',
-            //'bower_components/**/*',
-            //'images/{,*/}*.{webp}',
-            //'fonts/*'
           ]
-        }, {
-          //expand: true,
-          //cwd: '.tmp/images',
-          //dest: '<%= yeoman.dist %>/images',
-          //src: ['generated/*']
         }]
       },
       styles: {
-        //expand: true,
-        //cwd: '<%= yeoman.app %>/styles',
-        //dest: '.tmp/styles/',
-        //src: '{,*/}*.css'
       }
     },
 
@@ -296,49 +221,9 @@ module.exports = function (grunt) {
       ]
     },
 
-    // By default, your `index.html`'s <!-- Usemin block --> will take care of
-    // minification. These next options are pre-configured if you do not wish
-    // to use the Usemin blocks.
-    // cssmin: {
-    //   dist: {
-    //     files: {
-    //       '<%= yeoman.dist %>/styles/main.css': [
-    //         '.tmp/styles/{,*/}*.css',
-    //         '<%= yeoman.app %>/styles/{,*/}*.css'
-    //       ]
-    //     }
-    //   }
-    // },
-
-    //uglify: {
-      //options: {
-        //banner: '/* <%= yeoman.name %> - v<%= yeoman.version %> - ' + '<%= grunt.template.today("yyyy-mm-dd") %> */\n\n'
-      //}
-    //},
-
-    uglify: {
-      options: {
-        banner: '/* <%= yeoman.name %> - v<%= yeoman.version %> - ' + '<%= grunt.template.today("yyyy-mm-dd") %> */\n'
-      },
-      dist: {
-        files: {
-          '<%= yeoman.dist %>/<%= yeoman.name %>.min.js': [
-            '<%= yeoman.dist %>/<%= yeoman.name %>.js'
-          ]
-        }
-      }
-    },
     concat: {
       options: {
         banner: '/* <%= yeoman.name %> - v<%= yeoman.version %> - ' + '<%= grunt.template.today("yyyy-mm-dd") %> */\n\n'
-      },
-      dist: {
-        files: {
-          '<%= yeoman.dist %>/<%= yeoman.name %>.js': [
-            '.tmp/scripts/{,*/}*.js',
-            '<%= yeoman.app %>/scripts/{,*/}*.js'
-          ]
-        }
       }
     },
 
@@ -349,6 +234,8 @@ module.exports = function (grunt) {
         singleRun: false
       }
     },
+
+    // replace pieces of string
     'string-replace': {
       dist: {
         files: {
@@ -398,9 +285,6 @@ module.exports = function (grunt) {
     'clean:dist',
     'copy',
     'useminPrepare',
-    'concat',
-    'ngmin',
-    'uglify',
     'concat',
     'string-replace',
   ]);
