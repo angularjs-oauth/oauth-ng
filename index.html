@@ -670,9 +670,18 @@ angular.module('newProjectApp', ['oauth', ... ])</xmp></code></pre>
               <span class="info">fired</span>
             </td>
             <td>
-              Fired when the user has authorized the third party app.
+              Fired when the user has completed the login flow, and authorized the third party app.
             </td>
           </tr>
+          <tr>
+            <td class="parameter">
+              <span>oauth:authorized(token)</span>
+              <span class="info">fired</span>
+            </td>
+            <td>
+              Fired when the view is initializing and user has a non-expired auth token in the local session storage.
+            </td>
+          </tr>          
           <tr>
             <td class="parameter">
               <span>oauth:logout</span>
