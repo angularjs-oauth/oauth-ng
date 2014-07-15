@@ -1,4 +1,4 @@
-/* oauth-ng - v0.2.0-beta.2 - 2014-06-18 */
+/* oauth-ng - v0.2.2 - 2014-07-10 */
 
 'use strict';
 
@@ -19,9 +19,9 @@ angular.module('oauth').config(['$locationProvider','$httpProvider',
 
 'use strict';
 
-var service = angular.module('oauth.accessToken', ['ngStorage']);
+var accessTokenService = angular.module('oauth.accessToken', ['ngStorage']);
 
-service.factory('AccessToken', ['$rootScope', '$location', '$http', '$sessionStorage',
+accessTokenService.factory('AccessToken', ['$rootScope', '$location', '$http', '$sessionStorage',
   function($rootScope, $location, $http, $sessionStorage) {
 
   var service = {};
@@ -34,7 +34,7 @@ service.factory('AccessToken', ['$rootScope', '$location', '$http', '$sessionSto
 
   service.get = function() {
     return token
-  }
+  };
 
 
   /*
@@ -47,7 +47,7 @@ service.factory('AccessToken', ['$rootScope', '$location', '$http', '$sessionSto
     setTokenFromString();
     setTokenFromSession();
     return token
-  }
+  };
 
 
   /*
@@ -57,7 +57,7 @@ service.factory('AccessToken', ['$rootScope', '$location', '$http', '$sessionSto
   service.destroy = function() {
     delete $sessionStorage.token;
     return token = null;
-  }
+  };
 
 
   /*
@@ -66,7 +66,7 @@ service.factory('AccessToken', ['$rootScope', '$location', '$http', '$sessionSto
 
   service.expired = function() {
     return (token && token.expires_at && token.expires_at < new Date())
-  }
+  };
 
 
 
@@ -83,8 +83,11 @@ service.factory('AccessToken', ['$rootScope', '$location', '$http', '$sessionSto
     var token = getTokenFromString($location.hash());
 
     if (token) {
+      // user has just logged in. Broadcast before removing fragment in case consumers want access to raw hash
+      token = service.setToken(token);
+      $rootScope.$broadcast('oauth:login', token);
+
       removeFragment();
-      service.setToken(token);
     }
   };
 
@@ -106,7 +109,7 @@ service.factory('AccessToken', ['$rootScope', '$location', '$http', '$sessionSto
 
     if (params.access_token || params.error)
       return params;
-  }
+  };
 
 
   /*
@@ -118,7 +121,7 @@ service.factory('AccessToken', ['$rootScope', '$location', '$http', '$sessionSto
       var params = $sessionStorage.token;
       service.setToken(params);
     }
-  }
+  };
 
 
   /*
@@ -127,7 +130,7 @@ service.factory('AccessToken', ['$rootScope', '$location', '$http', '$sessionSto
 
   var setTokenInSession = function() {
     $sessionStorage.token = token;
-  }
+  };
 
 
   /*
@@ -135,7 +138,7 @@ service.factory('AccessToken', ['$rootScope', '$location', '$http', '$sessionSto
    */
 
   service.setToken = function(params) {
-    token = token || {}                 // init the token
+    token = token || {};                // init the token
     angular.extend(token, params);      // set the access token params
     setExpiresAt();                     // set the expiring time
     setTokenInSession();                // save the token into the session
@@ -163,7 +166,7 @@ service.factory('AccessToken', ['$rootScope', '$location', '$http', '$sessionSto
 
   var removeFragment = function(scope) {
     $location.hash('');
-  }
+  };
 
 
   return service;
@@ -171,13 +174,12 @@ service.factory('AccessToken', ['$rootScope', '$location', '$http', '$sessionSto
 
 'use strict';
 
-var client = angular.module('oauth.endpoint', []);
+var endpointClient = angular.module('oauth.endpoint', []);
 
-client.factory('Endpoint', ['AccessToken', '$location',
+endpointClient.factory('Endpoint', ['AccessToken', '$location',
   function(AccessToken, $location) {
 
   var service = {};
-  var params;
   var url;
 
 
@@ -186,17 +188,21 @@ client.factory('Endpoint', ['AccessToken', '$location',
    */
 
   service.set = function(scope) {
+    var oAuthScope = (scope.scope)?encodeURIComponent(scope.scope):'',
+          state = (scope.state)?encodeURIComponent(scope.state):'',
+          authPathHasQuery = (scope.authorizePath.indexOf('?') == -1)?false:true,
+          appendChar = (authPathHasQuery)?'&':'?';    //if authorizePath has ? already append oAuth2 params
+
     url = scope.site +
-      scope.authorizePath +
-      '?response_type=token&' +
-      'client_id=' + scope.clientId + '&' +
-      'redirect_uri=' + scope.redirectUri + '&' +
-      'scope=' + scope.scope + '&' +
-      'state=' + $location.url()
+          scope.authorizePath +
+          appendChar + 'response_type=token&' +
+          'client_id=' + encodeURIComponent(scope.clientId) + '&' +
+          'redirect_uri=' + encodeURIComponent(scope.redirectUri) + '&' +
+          'scope=' + oAuthScope + '&' +
+          'state=' + state;
 
     return url;
-  }
-
+  };
 
   /*
    * Returns the authorization URL
@@ -204,7 +210,7 @@ client.factory('Endpoint', ['AccessToken', '$location',
 
   service.get = function() {
     return url;
-  }
+  };
 
 
   /*
@@ -213,46 +219,46 @@ client.factory('Endpoint', ['AccessToken', '$location',
 
   service.redirect = function() {
     window.location.replace(url);
-  }
+  };
 
   return service;
 }]);
 
 'use strict';
 
-var client = angular.module('oauth.profile', [])
+var profileClient = angular.module('oauth.profile', [])
 
-client.factory('Profile', ['$http', 'AccessToken', function($http, AccessToken) {
-  var service = {}
+profileClient.factory('Profile', ['$http', 'AccessToken', function($http, AccessToken) {
+  var service = {};
   var profile;
 
   service.find = function(uri) {
     var promise = $http.get(uri, { headers: headers() });
     promise.success(function(response) { profile = response });
     return promise;
-  }
+  };
 
   service.get = function(uri) {
     return profile;
-  }
+  };
 
   service.set = function(resource) {
     profile = resource;
     return profile;
-  }
+  };
 
   var headers = function() {
     return { Authorization: 'Bearer ' + AccessToken.get().access_token };
-  }
+  };
 
   return service;
 }]);
 
 'use strict';
 
-var service = angular.module('oauth.interceptor', []);
+var interceptorService = angular.module('oauth.interceptor', []);
 
-service.factory('ExpiredInterceptor', ['$rootScope', '$q', '$sessionStorage',
+interceptorService.factory('ExpiredInterceptor', ['$rootScope', '$q', '$sessionStorage',
   function ($rootScope, $q, $sessionStorage) {
 
     var service = {};
@@ -268,7 +274,7 @@ service.factory('ExpiredInterceptor', ['$rootScope', '$q', '$sessionStorage',
 
     var expired = function(token) {
       return (token && token.expires_at && new Date(token.expires_at) < new Date())
-    }
+    };
 
     return service;
   }]);
@@ -292,7 +298,8 @@ directives.directive('oauth', ['AccessToken', 'Endpoint', 'Profile', '$location'
       profileUri: '@',    // (optional) user profile uri (e.g http://example.com/me)
       template: '@',      // (optional) template to render (e.g bower_components/oauth-ng/dist/views/templates/default.html)
       text: '@',          // (optional) login text
-      authorizePath: '@'  // (optional) authorization url
+      authorizePath: '@', // (optional) authorization url
+      state: '@'          // (optional) An arbitrary unique string created by your app to guard against Cross-site Request Forgery
     }
   };
 
@@ -313,7 +320,9 @@ directives.directive('oauth', ['AccessToken', 'Endpoint', 'Profile', '$location'
       scope.tokenPath     = scope.tokenPath     || '/oauth/token';
       scope.template      = scope.template      || 'bower_components/oauth-ng/dist/views/templates/default.html';
       scope.text          = scope.text          || 'Sign In';
-    }
+      scope.state         = scope.state         || undefined;
+      scope.scope         = scope.scope         || undefined;
+    };
 
     var compile = function() {
       $http.get(scope.template, { cache: $templateCache }).success(function(html) {
@@ -328,43 +337,42 @@ directives.directive('oauth', ['AccessToken', 'Endpoint', 'Profile', '$location'
       if (token && token.access_token && scope.profileUri) {
         Profile.find(scope.profileUri).success(function(response) { scope.profile = response })
       }
-    }
+    };
 
-    var initView = function(token) {
+    var initView = function() {
       var token = AccessToken.get();
 
       if (!token)             { return loggedOut() }   // without access token it's logged out
-      if (token.access_token) { return loggedIn() }    // if there is the access token we are done
+      if (token.access_token) { return authorized() }  // if there is the access token we are done
       if (token.error)        { return denied() }      // if the request has been denied we fire the denied event
-    }
-
+    };
 
     scope.login = function() {
       Endpoint.redirect();
-    }
+    };
 
     scope.logout = function() {
       AccessToken.destroy(scope);
       loggedOut();
-    }
+    };
 
-    // set the oauth directive to the logged-in status
-    var loggedIn = function() {
-      $rootScope.$broadcast('oauth:login', AccessToken.get());
+    // user is authorized
+    var authorized = function() {
+      $rootScope.$broadcast('oauth:authorized', AccessToken.get());
       scope.show = 'logged-in';
-    }
+    };
 
     // set the oauth directive to the logged-out status
     var loggedOut = function() {
       $rootScope.$broadcast('oauth:logout');
       scope.show = 'logged-out';
-    }
+    };
 
     // set the oauth directive to the denied status
     var denied = function() {
       scope.show = 'denied';
       $rootScope.$broadcast('oauth:denied');
-    }
+    };
 
     // Updates the template at runtime
     scope.$on('oauth:template:update', function(event, template) {

@@ -1,8 +1,8 @@
 'use strict';
 
-var service = angular.module('oauth.accessToken', ['ngStorage']);
+var accessTokenService = angular.module('oauth.accessToken', ['ngStorage']);
 
-service.factory('AccessToken', ['$rootScope', '$location', '$http', '$sessionStorage',
+accessTokenService.factory('AccessToken', ['$rootScope', '$location', '$http', '$sessionStorage',
   function($rootScope, $location, $http, $sessionStorage) {
 
   var service = {};
@@ -15,7 +15,7 @@ service.factory('AccessToken', ['$rootScope', '$location', '$http', '$sessionSto
 
   service.get = function() {
     return token
-  }
+  };
 
 
   /*
@@ -28,7 +28,7 @@ service.factory('AccessToken', ['$rootScope', '$location', '$http', '$sessionSto
     setTokenFromString();
     setTokenFromSession();
     return token
-  }
+  };
 
 
   /*
@@ -38,7 +38,7 @@ service.factory('AccessToken', ['$rootScope', '$location', '$http', '$sessionSto
   service.destroy = function() {
     delete $sessionStorage.token;
     return token = null;
-  }
+  };
 
 
   /*
@@ -47,7 +47,7 @@ service.factory('AccessToken', ['$rootScope', '$location', '$http', '$sessionSto
 
   service.expired = function() {
     return (token && token.expires_at && token.expires_at < new Date())
-  }
+  };
 
 
 
@@ -64,8 +64,11 @@ service.factory('AccessToken', ['$rootScope', '$location', '$http', '$sessionSto
     var token = getTokenFromString($location.hash());
 
     if (token) {
+      // user has just logged in. Broadcast before removing fragment in case consumers want access to raw hash
+      token = service.setToken(token);
+      $rootScope.$broadcast('oauth:login', token);
+
       removeFragment();
-      service.setToken(token);
     }
   };
 
@@ -87,7 +90,7 @@ service.factory('AccessToken', ['$rootScope', '$location', '$http', '$sessionSto
 
     if (params.access_token || params.error)
       return params;
-  }
+  };
 
 
   /*
@@ -99,7 +102,7 @@ service.factory('AccessToken', ['$rootScope', '$location', '$http', '$sessionSto
       var params = $sessionStorage.token;
       service.setToken(params);
     }
-  }
+  };
 
 
   /*
@@ -108,7 +111,7 @@ service.factory('AccessToken', ['$rootScope', '$location', '$http', '$sessionSto
 
   var setTokenInSession = function() {
     $sessionStorage.token = token;
-  }
+  };
 
 
   /*
@@ -116,7 +119,7 @@ service.factory('AccessToken', ['$rootScope', '$location', '$http', '$sessionSto
    */
 
   service.setToken = function(params) {
-    token = token || {}                 // init the token
+    token = token || {};                // init the token
     angular.extend(token, params);      // set the access token params
     setExpiresAt();                     // set the expiring time
     setTokenInSession();                // save the token into the session
@@ -144,7 +147,7 @@ service.factory('AccessToken', ['$rootScope', '$location', '$http', '$sessionSto
 
   var removeFragment = function(scope) {
     $location.hash('');
-  }
+  };
 
 
   return service;

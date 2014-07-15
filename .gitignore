@@ -37,3 +37,8 @@ app/index-dev.html
 
 # Dist
 #dist
+
+#IDE
+.idea
+
+bower_components

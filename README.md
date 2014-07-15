@@ -9,7 +9,8 @@ AngularJS directive for the [OAuth 2.0 Implicit Flow](http://tools.ietf.org/html
 ## Contributing
 
 Fork the repo on github and send a pull requests with topic branches.
-Do not forget to provide specs to your contribution.
+Do not forget to provide specs and test cases to your contribution.
+Please also update `gh-pages` branch with documentation when applicable.
 
 ### Setup
 
@@ -18,6 +19,9 @@ Do not forget to provide specs to your contribution.
 
 ### Unit tests (karma)
 
+`npm install && bower install`
+
+* Install [PhantomJS](http://phantomjs.org/download.html) then run `sudo ln -s ~/phantomjs-VERSION/bin/phantomjs /usr/bin/phantomjs`
 * `grunt karma:unit`
 
 ### Creating your own distribution
