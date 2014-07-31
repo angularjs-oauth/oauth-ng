@@ -1,4 +1,4 @@
-/* oauth-ng - v0.2.2 - 2014-07-10 */
+/* oauth-ng - v0.2.2 - 2014-07-18 */
 
 'use strict';
 
@@ -21,8 +21,8 @@ angular.module('oauth').config(['$locationProvider','$httpProvider',
 
 var accessTokenService = angular.module('oauth.accessToken', ['ngStorage']);
 
-accessTokenService.factory('AccessToken', ['$rootScope', '$location', '$http', '$sessionStorage',
-  function($rootScope, $location, $http, $sessionStorage) {
+accessTokenService.factory('AccessToken', ['$rootScope', '$location', '$sessionStorage',
+  function($rootScope, $location, $sessionStorage) {
 
   var service = {};
   var token   = null;
