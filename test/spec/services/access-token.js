@@ -177,7 +177,7 @@ describe('AccessToken', function() {
 
       beforeEach(function() {
         Timecop.install();
-        Timecop.travel(date); // go to the future for one day
+        Timecop.travel(date); // go to the future (one day)
       });
 
       beforeEach(function() {

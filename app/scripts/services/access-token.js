@@ -2,8 +2,7 @@
 
 var accessTokenService = angular.module('oauth.accessToken', ['ngStorage']);
 
-accessTokenService.factory('AccessToken', ['$rootScope', '$location', '$sessionStorage',
-  function($rootScope, $location, $sessionStorage) {
+accessTokenService.factory('AccessToken', function($rootScope, $location, $sessionStorage, $timeout) {
 
   var service = {};
   var token   = null;
@@ -15,7 +14,7 @@ accessTokenService.factory('AccessToken', ['$rootScope', '$location', '$sessionS
 
   service.get = function() {
     return token
-  };
+  }
 
 
   /*
@@ -25,10 +24,10 @@ accessTokenService.factory('AccessToken', ['$rootScope', '$location', '$sessionS
    */
 
   service.set = function() {
-    setTokenFromString();
-    setTokenFromSession();
+    service.setTokenFromString($location.hash());
+    service.setTokenFromSession();
     return token
-  };
+  }
 
 
   /*
@@ -38,7 +37,7 @@ accessTokenService.factory('AccessToken', ['$rootScope', '$location', '$sessionS
   service.destroy = function() {
     delete $sessionStorage.token;
     return token = null;
-  };
+  }
 
 
   /*
@@ -46,8 +45,8 @@ accessTokenService.factory('AccessToken', ['$rootScope', '$location', '$sessionS
    */
 
   service.expired = function() {
-    return (token && token.expires_at && token.expires_at < new Date())
-  };
+    return (token && token.expires_at && token.expires_at < new Date());
+  }
 
 
 
@@ -60,15 +59,14 @@ accessTokenService.factory('AccessToken', ['$rootScope', '$location', '$sessionS
    * Get the access token from a string and save it
    */
 
-  var setTokenFromString = function() {
-    var token = getTokenFromString($location.hash());
+  service.setTokenFromString = function(hash) {
+    var token = getTokenFromString(hash);
 
     if (token) {
-      // user has just logged in. Broadcast before removing fragment in case consumers want access to raw hash
-      token = service.setToken(token);
-      $rootScope.$broadcast('oauth:login', token);
-
       removeFragment();
+      service.setToken(token);
+      setExpiresAt();
+      $rootScope.$broadcast('oauth:login', token);
     }
   };
 
@@ -90,19 +88,19 @@ accessTokenService.factory('AccessToken', ['$rootScope', '$location', '$sessionS
 
     if (params.access_token || params.error)
       return params;
-  };
+  }
 
 
   /*
    * Set the access token from the sessionStorage.
    */
 
-  var setTokenFromSession = function() {
+  service.setTokenFromSession = function() {
     if ($sessionStorage.token) {
       var params = $sessionStorage.token;
       service.setToken(params);
     }
-  };
+  }
 
 
   /*
@@ -111,7 +109,7 @@ accessTokenService.factory('AccessToken', ['$rootScope', '$location', '$sessionS
 
   var setTokenInSession = function() {
     $sessionStorage.token = token;
-  };
+  }
 
 
   /*
@@ -119,10 +117,11 @@ accessTokenService.factory('AccessToken', ['$rootScope', '$location', '$sessionS
    */
 
   service.setToken = function(params) {
-    token = token || {};                // init the token
+    token = token || {}                 // init the token
     angular.extend(token, params);      // set the access token params
-    setExpiresAt();                     // set the expiring time
     setTokenInSession();                // save the token into the session
+    setExpiresAtEvent();                // event to fire when the token expires
+
     return token;
   };
 
@@ -141,14 +140,24 @@ accessTokenService.factory('AccessToken', ['$rootScope', '$location', '$sessionS
 
 
   /*
+   * Set the timeout at which the expired event is fired
+   */
+
+  var setExpiresAtEvent = function() {
+    var time  = (new Date(token.expires_at)) - (new Date())
+    if (time) { $timeout(function() { $rootScope.$broadcast('oauth:expired', token) }, time) }
+  }
+
+
+  /*
    * Remove the fragment URI
    * TODO we need to remove only the access token
    */
 
   var removeFragment = function(scope) {
     $location.hash('');
-  };
+  }
 
 
   return service;
-}]);
+});

@@ -2,8 +2,7 @@
 
 var endpointClient = angular.module('oauth.endpoint', []);
 
-endpointClient.factory('Endpoint', ['AccessToken', '$location',
-  function(AccessToken, $location) {
+endpointClient.factory('Endpoint', function(AccessToken, $location) {
 
   var service = {};
   var url;
@@ -14,10 +13,10 @@ endpointClient.factory('Endpoint', ['AccessToken', '$location',
    */
 
   service.set = function(scope) {
-    var oAuthScope = (scope.scope)?encodeURIComponent(scope.scope):'',
-          state = (scope.state)?encodeURIComponent(scope.state):'',
-          authPathHasQuery = (scope.authorizePath.indexOf('?') == -1)?false:true,
-          appendChar = (authPathHasQuery)?'&':'?';    //if authorizePath has ? already append oAuth2 params
+    var oAuthScope = (scope.scope) ? encodeURIComponent(scope.scope) : '',
+        state = (scope.state) ? encodeURIComponent(scope.state) : '',
+        authPathHasQuery = (scope.authorizePath.indexOf('?') == -1) ? false : true,
+        appendChar = (authPathHasQuery) ? '&' : '?';    //if authorizePath has ? already append OAuth2 params
 
     url = scope.site +
           scope.authorizePath +
@@ -48,4 +47,4 @@ endpointClient.factory('Endpoint', ['AccessToken', '$location',
   };
 
   return service;
-}]);
+});

@@ -2,8 +2,7 @@
 
 var directives = angular.module('oauth.directive', []);
 
-directives.directive('oauth', ['AccessToken', 'Endpoint', 'Profile', '$location', '$rootScope', '$compile', '$http', '$templateCache',
-  function(AccessToken, Endpoint, Profile, $location, $rootScope, $compile, $http, $templateCache) {
+directives.directive('oauth', function(AccessToken, Endpoint, Profile, $location, $rootScope, $compile, $http, $templateCache) {
 
   var definition = {
     restrict: 'AE',
@@ -24,16 +23,18 @@ directives.directive('oauth', ['AccessToken', 'Endpoint', 'Profile', '$location'
   definition.link = function postLink(scope, element, attrs) {
     scope.show = 'none';
 
-    scope.$watch('clientId', function(value) {
-      init();                    // sets defaults
+    scope.$watch('clientId', function(value) { init() });
+
+    var init = function() {
+      initAttributes();          // sets defaults
       compile();                 // compiles the desired layout
       Endpoint.set(scope);       // sets the oauth authorization url
       AccessToken.set(scope);    // sets the access token object (if existing, from fragment or session)
       initProfile(scope);        // gets the profile resource (if existing the access token)
       initView();                // sets the view (logged in or out)
-    });
+    };
 
-    var init = function() {
+    var initAttributes = function() {
       scope.authorizePath = scope.authorizePath || '/oauth/authorize';
       scope.tokenPath     = scope.tokenPath     || '/oauth/token';
       scope.template      = scope.template      || 'views/templates/default.html';
@@ -53,16 +54,18 @@ directives.directive('oauth', ['AccessToken', 'Endpoint', 'Profile', '$location'
       var token = AccessToken.get();
 
       if (token && token.access_token && scope.profileUri) {
-        Profile.find(scope.profileUri).success(function(response) { scope.profile = response })
+        Profile.find(scope.profileUri).success(function(response) {
+          scope.profile = response
+        })
       }
     };
 
     var initView = function() {
       var token = AccessToken.get();
 
-      if (!token)             { return loggedOut() }   // without access token it's logged out
+      if (!token)             { return loggedOut()  }  // without access token it's logged out
       if (token.access_token) { return authorized() }  // if there is the access token we are done
-      if (token.error)        { return denied() }      // if the request has been denied we fire the denied event
+      if (token.error)        { return denied()     }  // if the request has been denied we fire the denied event
     };
 
     scope.login = function() {
@@ -97,7 +100,13 @@ directives.directive('oauth', ['AccessToken', 'Endpoint', 'Profile', '$location'
       scope.template = template;
       compile(scope);
     });
+
+    // Hack to update the directive content on logout
+    // TODO think to a cleaner solution
+    scope.$on('$routeChangeSuccess', function () {
+      init();
+    });
   };
 
   return definition
-}]);
+});

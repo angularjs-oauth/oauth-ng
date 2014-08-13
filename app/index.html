@@ -26,6 +26,16 @@
       </a>
     </div>
 
+    <div style="display:none">
+    <oauth
+    site="OAUTH_SERVER_URI_HERE"
+    client-id="CLIENT_ID_HERE"
+    redirect-uri="REDIRECT_URI_HERE"
+    profile-uri="PROFILE_URI_HERE"
+    scope="SCOPE_HERE">
+    </oauth>
+    </div>
+
     <!-- bower:js -->
     <script src="bower_components/angular/angular.js"></script>
     <script src="bower_components/ngstorage/ngStorage.js"></script>
@@ -42,6 +52,10 @@
 
     <script>
       var app = angular.module('app', ['oauth']);
+
+      angular.module('app').config(function($locationProvider) {
+        $locationProvider.html5Mode(true).hashPrefix('!');
+      });
     </script>
 
 </body>

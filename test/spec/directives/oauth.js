@@ -20,7 +20,6 @@ describe('oauth', function() {
   beforeEach(inject(function($injector) { $httpBackend    = $injector.get('$httpBackend') }));
   beforeEach(inject(function($injector) { AccessToken     = $injector.get('AccessToken') }));
   beforeEach(inject(function($injector) { Endpoint        = $injector.get('Endpoint') }));
-  beforeEach(inject(function($injector) { callback        = jasmine.createSpy('callback') }));
 
   beforeEach(function() {
     element = angular.element(
@@ -44,11 +43,19 @@ describe('oauth', function() {
   describe('when logged in', function() {
 
     beforeEach(function() {
+      callback = jasmine.createSpy('callback');
+    });
+
+    beforeEach(function() {
       $location.hash(fragment);
     });
 
     beforeEach(function() {
       $httpBackend.whenGET('http://example.com/me', headers).respond(profile);
+    });
+
+    beforeEach(function() {
+      $rootScope.$on('oauth:authorized', callback);
     });
 
     beforeEach(function() {
@@ -75,17 +82,20 @@ describe('oauth', function() {
       expect(element.find('.logged-in').attr('class')).not.toMatch('ng-hide');
     });
 
-    it('fires the oauth:login event', function() {
-      var event = jasmine.any(Object);
+    it('fires the oauth:login and oauth:authorized event', function() {
       var token = AccessToken.get();
-      expect(callback).toHaveBeenCalledWith(event, token);
+      expect(callback.calls.count()).toBe(2);
     });
 
 
     describe('when refreshes the page', function() {
 
       beforeEach(function() {
-        $rootScope.$on('oauth:success', callback);
+        callback = jasmine.createSpy('callback');
+      });
+
+      beforeEach(function() {
+        $rootScope.$on('oauth:authorized', callback);
       });
 
       beforeEach(function() {
@@ -108,15 +118,24 @@ describe('oauth', function() {
         expect(element.find('.logged-in').attr('class')).not.toMatch('ng-hide');
       });
 
-      it('fires the oauth:login event', function() {
+      it('fires the oauth:authorized event', function() {
         var event = jasmine.any(Object);
         var token = AccessToken.get();
         expect(callback).toHaveBeenCalledWith(event, token);
+      });
+
+      it('does not fire the oauth:login event', function() {
+        var token = AccessToken.get();
+        expect(callback.calls.count()).toBe(1);
       });
     });
 
 
     describe('when logs out', function() {
+
+      beforeEach(function() {
+        callback = jasmine.createSpy('callback');
+      });
 
       beforeEach(function() {
         $rootScope.$on('oauth:logout', callback);
@@ -140,6 +159,10 @@ describe('oauth', function() {
 
 
   describe('when logged out', function() {
+
+    beforeEach(function() {
+      callback = jasmine.createSpy('callback');
+    });
 
     beforeEach(function() {
       $rootScope.$on('oauth:logout', callback);
@@ -180,6 +203,10 @@ describe('oauth', function() {
 
 
   describe('when denied', function() {
+
+    beforeEach(function() {
+      callback = jasmine.createSpy('callback');
+    });
 
     beforeEach(function() {
       $location.hash(denied);

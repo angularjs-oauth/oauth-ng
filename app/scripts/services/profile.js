@@ -2,7 +2,7 @@
 
 var profileClient = angular.module('oauth.profile', [])
 
-profileClient.factory('Profile', ['$http', 'AccessToken', function($http, AccessToken) {
+profileClient.factory('Profile', function($http, AccessToken) {
   var service = {};
   var profile;
 
@@ -26,4 +26,4 @@ profileClient.factory('Profile', ['$http', 'AccessToken', function($http, Access
   };
 
   return service;
-}]);
+});

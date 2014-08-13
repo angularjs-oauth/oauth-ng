@@ -11,6 +11,5 @@ var app = angular.module('oauth', [
 
 angular.module('oauth').config(['$locationProvider','$httpProvider',
   function($locationProvider, $httpProvider) {
-    $locationProvider.html5Mode(true).hashPrefix('!');
     $httpProvider.interceptors.push('ExpiredInterceptor');
   }]);
