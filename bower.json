@@ -1,6 +1,6 @@
 {
   "name": "oauth-ng",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "main": [
     "dist/oauth-ng.js",
     "dist/views/templates/default"
@@ -14,7 +14,7 @@
     "package.json"
   ],
   "dependencies": {
-    "angular": "~1.2.16",
+    "angular": "~1.2.22",
     "ngstorage": "~0.3.0"
   },
   "devDependencies": {
@@ -23,6 +23,9 @@
     "timecop": "~0.1.1",
     "bootstrap-sass": "~3.0.2",
     "jquery": "~1.9.1",
-    "angular-mocks": "~1.2.16"
+    "angular-mocks": "~1.2.22"
+  },
+  "resolutions": {
+    "angular": "~1.2.22"
   }
 }
