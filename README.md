@@ -1,7 +1,7 @@
 # AngularJS directive for OAuth 2.0
 
 Source code for the AngularJS directive for OAuth 2.0 [website](http://andreareginato.github.com/oauth-ng).
-[![lelylan-ng](http://i.imgur.com/dLN4isF.png)](http://andreareginato.github.com/oauth-ng)
+[![oauth-ng](http://i.imgur.com/C0xCJcr.png)](https://andreareginato.github.com/oauth-ng)
 
 
 ## Contributing
