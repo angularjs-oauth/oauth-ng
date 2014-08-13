@@ -24,7 +24,6 @@ us for any idea that can improve the project.
 ## Authors
 
 [Andrea Reginato](http://twitter.com/andreareginato)
-[Lelylan Dev Team](http://twitter.com/lelylan)
 
 ## Contributors
 
