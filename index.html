@@ -18,6 +18,7 @@
       <ul>
         <li><a href="#introduction">Introduction</a></li>
         <li><a href="#getting-started">Getting Started</a></li>
+        <li><a href="#html5">HTML5 mode</a></li>
         <li><a href="#howto">How To</a></li>
         <li><a href="#configurations">Configurations</a></li>
         <li><a href="#customizations">Customizations</a></li>
@@ -82,6 +83,7 @@
       To fully understand how it works read the <a href="#howto">next section</a>.
       </p>
 
+
       <h2>What does it do?</h2>
 
       <p>
@@ -89,9 +91,48 @@
       When the flow is completed, the access token is saved in the <a href="https://developer.mozilla.org/en-US/docs/Web/Guide/API/DOM/Storage#sessionStorage" target="_blank">SessionStorage</a>.
       </p>
 
-      <p class="notice">
-      The oauth directive only works in HTML5 mode (automatically activated). <br>
-      We are working on fixing this <a href="https://github.com/andreareginato/oauth-ng/issues/13">bug</a>.
+    </div>
+    </section>
+
+
+    <section>
+    <div class="content">
+
+      <h1 id="html5">HTML5 mode</h1>
+
+
+      <h2>HTML5 mode ON</h2>
+
+      <p>The oauth directive works just straight when the <a href="https://docs.angularjs.org/guide/$location#general-overview-of-the-api">HTML5 mode</a> is active.</p>
+
+      <pre><code><xmp><script>
+  angular.module('app').config(function($locationProvider) {
+    $locationProvider.html5Mode(true).hashPrefix('!');
+  });</script></xmp></code></pre>
+
+
+      <h2>HTML5 mode OFF</h2>
+
+      <p>When the HTML5 mode is off add the following snippet of code to your routing provider.</p>
+
+<pre><code><xmp>angular.module('app').config(function ($routeProvider) {
+  $routeProvider
+    .when('/access_token=:accessToken', {
+      template: '',
+      controller: function ($location, AccessToken) {
+        var hash = $location.path().substr(1);
+        AccessToken.setTokenFromString(hash);
+        $location.path('/');
+        $location.replace();
+      }
+    })
+    ...</xmp></code></pre>
+
+
+      <p>
+        This code is needed because the fragment that the OAuth 2.0 server returns is recognized
+        as the routing path <code>/access_token</code>. For this reason you need to add a routing
+        rule catching the access token, parse it and then redirect to the desired view of your app.
       </p>
 
     </div>
@@ -210,6 +251,17 @@
 
       <pre><code><xmp>// app/scripts/app.js
 angular.module('newProjectApp', ['oauth', ... ])</xmp></code></pre>
+
+      <h2>Activate the HTML5 mode</h2>
+
+      <p>
+      Activate the HTML5 mode to easily catch the access token.
+      </p>
+
+      <pre><code><xmp>// app/scripts/app.js
+angular.module('newProjectApp').config(function($locationProvider) {
+  $locationProvider.html5Mode(true).hashPrefix('!');
+});</xmp></code></pre>
 
       <h2 id="server">OAuth 2.0 Server</h2>
 
@@ -681,7 +733,7 @@ angular.module('newProjectApp', ['oauth', ... ])</xmp></code></pre>
             <td>
               Fired when the view is initializing and user has a non-expired auth token in the local session storage.
             </td>
-          </tr>          
+          </tr>
           <tr>
             <td class="parameter">
               <span>oauth:logout</span>
@@ -755,7 +807,9 @@ $scope.$on('oauth:expired', function(event) {
       Inject the <code>AccessToken.get()</code> service to understand if the user is logged in or out.
       </p>
 
-      <pre><code><xmp>$scope.logged = !!AccessToken.get();</xmp></code></pre>
+      <pre><code><xmp>$timeout(function() {
+  $scope.logged = !!AccessToken.get();
+}, 0)</xmp></code></pre>
 
       <p>
       The <code>AccessToken.get()</code> method returns <code>null</code> when the user is logged
