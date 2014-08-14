@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.2.5 (August 14, 2015)
+## 0.2.6 (August 14, 2015)
 
 * Removed encoding for OAuth 2.0 scope.
 
