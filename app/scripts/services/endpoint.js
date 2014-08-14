@@ -13,7 +13,7 @@ endpointClient.factory('Endpoint', function(AccessToken, $location) {
    */
 
   service.set = function(scope) {
-    var oAuthScope = (scope.scope) ? encodeURIComponent(scope.scope) : '',
+    var oAuthScope = (scope.scope) ? scope.scope : '',
         state = (scope.state) ? encodeURIComponent(scope.state) : '',
         authPathHasQuery = (scope.authorizePath.indexOf('?') == -1) ? false : true,
         appendChar = (authPathHasQuery) ? '&' : '?';    //if authorizePath has ? already append OAuth2 params

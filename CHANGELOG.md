@@ -1,6 +1,10 @@
 # Changelog
 
-## 0.2.3 (August 13, 2014)
+## 0.2.5 (August 14, 2015)
+
+* Removed encoding for OAuth 2.0 scope.
+
+## 0.2.4 (August 13, 2014)
 
 * Removed settings for HTML5 mode
 * Added logic to fire the oauth:expired event when the token expires. Before it was raised
