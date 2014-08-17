@@ -6,7 +6,8 @@ describe('AccessToken', function() {
 
   var fragment = 'access_token=token&token_type=bearer&expires_in=7200&state=/path';
   var denied   = 'error=access_denied&error_description=error';
-  var token    = { access_token: 'token', token_type: 'bearer', expires_in: 7200, state: '/path' };
+  var expires_at = '2014-08-17T17:38:37.584Z';
+  var token    = { access_token: 'token', token_type: 'bearer', expires_in: 7200, state: '/path', expires_at: expires_at };
 
   beforeEach(module('oauth'));
 
@@ -192,5 +193,21 @@ describe('AccessToken', function() {
         expect(result).toBe(true);
       });
     });
+
+    describe('with the access token stored in the session', function() {
+
+      beforeEach(function() {
+        $sessionStorage.token = token;
+      });
+
+      beforeEach(function() {
+        result = AccessToken.set().expires_at;
+      });
+
+      it('rehydrates the expires_at value', function() {
+          expect(result).toEqual(new Date(expires_at));
+      });
+    });
+
   });
 });
