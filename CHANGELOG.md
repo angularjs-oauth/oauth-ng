@@ -1,6 +1,10 @@
 # Changelog
 
-## 0.2.6 (August 14, 2015)
+## 0.2.7 (August 20, 2014)
+
+* Fixed `expires_at` not being set
+
+## 0.2.6 (August 14, 2014)
 
 * Removed encoding for OAuth 2.0 scope.
 
