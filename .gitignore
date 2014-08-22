@@ -40,5 +40,6 @@ app/index-dev.html
 
 #IDE
 .idea
+nbproject
 
 bower_components
