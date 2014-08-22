@@ -19,11 +19,13 @@ accessTokenService.factory('AccessToken', function($rootScope, $location, $sessi
 
   /*
    * Sets and returns the access token. It tries (in order) the following strategies:
+   * - checks for token parameters passed to this method
    * - takes the token from the fragment URI
    * - takes the token from the sessionStorage
    */
 
-  service.set = function() {
+  service.set = function(scope, tokenParams) {
+    if (service.setTokenFromParams(tokenParams)) { return token }
     service.setTokenFromString($location.hash());
     service.setTokenFromSession();
     return token
@@ -54,6 +56,17 @@ accessTokenService.factory('AccessToken', function($rootScope, $location, $sessi
    * PRIVATE METHODS *
    * * * * * * * * * */
 
+
+  /*
+   * Set the token directly when parameters are received and return the success status.
+   */
+  
+  service.setTokenFromParams = function(params) {
+    if (params) {
+        service.setToken(params);
+    }
+    return !!params;
+  };
 
   /*
    * Get the access token from a string and save it

@@ -1,0 +1,16 @@
+<form role="form" id="loginForm">
+    <alert ng-if="errorMsg" type="danger">{{errorMsg}}</alert>
+    <div class="form-group">
+        <label for="username">Username</label>
+        <input ng-model="username" type="text" class="form-control" id="username">
+    </div>
+    <div class="form-group">
+        <label for="password">Password</label>
+        <input ng-model="password" type="password" class="form-control" id="password">
+    </div>
+    <div><button type="submit" class="btn btn-default">Submit</button></div>
+    <div>
+        <br>
+        <span ng-if="registerUrl">Don't have an account? <a href="{{registerUrl}}">Register here</a></span>
+    </div>
+</form>
