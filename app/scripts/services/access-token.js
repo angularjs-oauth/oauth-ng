@@ -98,6 +98,7 @@ accessTokenService.factory('AccessToken', function($rootScope, $location, $sessi
   service.setTokenFromSession = function() {
     if ($sessionStorage.token) {
       var params = $sessionStorage.token;
+      params.expires_at = new Date(params.expires_at);
       service.setToken(params);
     }
   }
