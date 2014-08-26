@@ -1,4 +1,4 @@
-/* oauth-ng - v0.2.7 - 2014-08-20 */
+/* oauth-ng - v0.2.7 - 2014-08-26 */
 
 'use strict';
 
@@ -116,6 +116,7 @@ accessTokenService.factory('AccessToken', function($rootScope, $location, $sessi
   service.setTokenFromSession = function() {
     if ($sessionStorage.token) {
       var params = $sessionStorage.token;
+      params.expires_at = new Date(params.expires_at);
       service.setToken(params);
     }
   }
