@@ -65,7 +65,7 @@ accessTokenService.factory('AccessToken', function($rootScope, $location, $sessi
     if (token) {
       removeFragment();
       service.setToken(token);
-      setExpiresAt();
+      setExpiresAt(token);
       $rootScope.$broadcast('oauth:login', token);
     }
   };
@@ -118,7 +118,7 @@ accessTokenService.factory('AccessToken', function($rootScope, $location, $sessi
    */
 
   service.setToken = function(params) {
-    token = token || {}                 // init the token
+    token = token || {};                 // init the token
     angular.extend(token, params);      // set the access token params
     setTokenInSession();                // save the token into the session
     setExpiresAtEvent();                // event to fire when the token expires
@@ -131,7 +131,7 @@ accessTokenService.factory('AccessToken', function($rootScope, $location, $sessi
    * Set the access token expiration date (useful for refresh logics)
    */
 
-  var setExpiresAt = function() {
+  var setExpiresAt = function(token) {
     if (token) {
       var expires_at = new Date();
       expires_at.setSeconds(expires_at.getSeconds() + parseInt(token.expires_in) - 60); // 60 seconds less to secure browser and response latency
