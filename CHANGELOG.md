@@ -1,8 +1,9 @@
 # Changelog
 
-## 0.2.7 (August 20, 2014)
+## 0.2.7 (August 26, 2014)
 
 * Fixed `expires_at` not being set
+* Fixed `expired()` calculation
 
 ## 0.2.6 (August 14, 2014)
 
