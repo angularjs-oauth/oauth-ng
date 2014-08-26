@@ -65,7 +65,7 @@ accessTokenService.factory('AccessToken', function($rootScope, $location, $sessi
     if (token) {
       removeFragment();
       service.setToken(token);
-      setExpiresAt(token);
+      setExpiresAt();
       $rootScope.$broadcast('oauth:login', token);
     }
   };
@@ -131,7 +131,7 @@ accessTokenService.factory('AccessToken', function($rootScope, $location, $sessi
    * Set the access token expiration date (useful for refresh logics)
    */
 
-  var setExpiresAt = function(token) {
+  var setExpiresAt = function() {
     if (token) {
       var expires_at = new Date();
       expires_at.setSeconds(expires_at.getSeconds() + parseInt(token.expires_in) - 60); // 60 seconds less to secure browser and response latency
