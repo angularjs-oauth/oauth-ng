@@ -1,6 +1,6 @@
 {
   "name": "oauth-ng",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "main": [
     "dist/oauth-ng.js",
     "dist/views/templates/default"
@@ -24,8 +24,5 @@
     "bootstrap-sass": "~3.0.2",
     "jquery": "~1.9.1",
     "angular-mocks": "~1.2.22"
-  },
-  "resolutions": {
-    "angular": "~1.2.22"
   }
 }

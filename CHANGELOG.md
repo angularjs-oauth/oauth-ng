@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.8 (August 27, 2014)
+
+* Fixed `expries_at` not being set in some situations
+* Only use session storage when oAuth hash not in URL
+* Only remove oAuth2 tokens from hash
+
 ## 0.2.7 (August 26, 2014)
 
 * Fixed `expires_at` not being set
