@@ -123,15 +123,12 @@ accessTokenService.factory('AccessToken', function($rootScope, $location, $sessi
      * @returns {{}}
      */
     var getTokenFromString = function(hash){
-        var splitted = hash.split('&');
-        var params = {};
+        var params = {},
+            regex = /([^&=]+)=([^&]*)/g,
+            m;
 
-        //TODO: I think we should only parse out tokens in the oAuth spec (@see:oAuth2HashTokens)
-        for(var i = 0; i<splitted.length; i++){
-            var param = splitted[i].split('=');
-            var key = param[0];
-            var value = param[1];
-            params[key] = value
+        while (m = regex.exec(hash)) {
+            params[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
         }
 
         if(params.access_token || params.error){
