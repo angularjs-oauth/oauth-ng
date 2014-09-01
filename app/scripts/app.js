@@ -7,7 +7,7 @@ var app = angular.module('oauth', [
   'oauth.endpoint',       // oauth endpoint service
   'oauth.profile',        // profile model
   'oauth.interceptor'     // bearer token interceptor
-])
+]);
 
 angular.module('oauth').config(['$locationProvider','$httpProvider',
   function($locationProvider, $httpProvider) {

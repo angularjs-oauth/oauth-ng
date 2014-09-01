@@ -4,7 +4,7 @@ describe('AccessToken', function() {
 
   var result, $location, $sessionStorage, AccessToken, date;
 
-  var fragment = 'access_token=token&token_type=bearer&expires_in=7200&state=/path';
+  var fragment = 'access_token=token&token_type=bearer&expires_in=7200&state=/path&extra=stuff';
   var denied   = 'error=access_denied&error_description=error';
   var expires_at = '2014-08-17T17:38:37.584Z';
   var token    = { access_token: 'token', token_type: 'bearer', expires_in: 7200, state: '/path', expires_at: expires_at };
@@ -54,7 +54,7 @@ describe('AccessToken', function() {
       });
 
       it('removes the fragment string', function() {
-        expect($location.hash()).toEqual('');
+        expect($location.hash()).toEqual('extra=stuff');
       });
 
       it('stores the token in the session', function() {
@@ -193,21 +193,22 @@ describe('AccessToken', function() {
         expect(result).toBe(true);
       });
     });
-
-    describe('with the access token stored in the session', function() {
-
-      beforeEach(function() {
-        $sessionStorage.token = token;
-      });
-
-      beforeEach(function() {
-        result = AccessToken.set().expires_at;
-      });
-
-      it('rehydrates the expires_at value', function() {
-          expect(result).toEqual(new Date(expires_at));
-      });
-    });
-
   });
+
+    describe('#sessionExpired', function() {
+        describe('with the access token stored in the session', function() {
+
+            beforeEach(function() {
+                //It is an invalid test to have oAuth hash AND be getting token from session
+                //if hash is in URL it should always be used, cuz its coming from oAuth2 provider re-direct
+                $location.hash('');
+                $sessionStorage.token = token;
+                result = AccessToken.set().expires_at;
+            });
+
+            it('rehydrates the expires_at value', function() {
+                expect(result).toEqual(new Date(expires_at));
+            });
+        });
+    });
 });

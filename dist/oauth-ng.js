@@ -1,4 +1,4 @@
-/* oauth-ng - v0.2.7 - 2014-08-26 */
+/* oauth-ng - v0.2.8 - 2014-08-27 */
 
 'use strict';
 
@@ -9,7 +9,7 @@ var app = angular.module('oauth', [
   'oauth.endpoint',       // oauth endpoint service
   'oauth.profile',        // profile model
   'oauth.interceptor'     // bearer token interceptor
-])
+]);
 
 angular.module('oauth').config(['$locationProvider','$httpProvider',
   function($locationProvider, $httpProvider) {
@@ -20,165 +20,168 @@ angular.module('oauth').config(['$locationProvider','$httpProvider',
 
 var accessTokenService = angular.module('oauth.accessToken', ['ngStorage']);
 
-accessTokenService.factory('AccessToken', function($rootScope, $location, $sessionStorage, $timeout) {
+accessTokenService.factory('AccessToken', function($rootScope, $location, $sessionStorage, $timeout){
 
-  var service = {};
-  var token   = null;
+    var service = {
+            token: null
+        },
+        oAuth2HashTokens = [ //per http://tools.ietf.org/html/rfc6749#section-4.2.2
+            'access_token', 'token_type', 'expires_in', 'scope', 'state',
+            'error','error_description'
+        ];
 
+    /**
+     * Returns the access token.
+     */
+    service.get = function(){
+        return this.token;
+    };
 
-  /*
-   * Returns the access token.
-   */
+    /**
+     * Sets and returns the access token. It tries (in order) the following strategies:
+     * - takes the token from the fragment URI
+     * - takes the token from the sessionStorage
+     */
+    service.set = function(){
+        setTokenFromString($location.hash());
 
-  service.get = function() {
-    return token
-  }
+        //If hash is present in URL always use it, cuz its coming from oAuth2 provider redirect
+        if(null === service.token){
+            setTokenFromSession();
+        }
 
+        return this.token;
+    };
 
-  /*
-   * Sets and returns the access token. It tries (in order) the following strategies:
-   * - takes the token from the fragment URI
-   * - takes the token from the sessionStorage
-   */
-
-  service.set = function() {
-    service.setTokenFromString($location.hash());
-    service.setTokenFromSession();
-    return token
-  }
-
-
-  /*
-   *  Delete the access token and remove the session.
-   */
-
-  service.destroy = function() {
-    delete $sessionStorage.token;
-    return token = null;
-  }
-
-
-  /*
-   * Tells if the access token is expired.
-   */
-
-  service.expired = function() {
-    return (token && token.expires_at && token.expires_at < new Date());
-  }
+    /**
+     * Delete the access token and remove the session.
+     * @returns {null}
+     */
+    service.destroy = function(){
+        delete $sessionStorage.token;
+        this.token = null;
+        return this.token;
+    };
 
 
-
-  /* * * * * * * * * *
-   * PRIVATE METHODS *
-   * * * * * * * * * */
-
-
-  /*
-   * Get the access token from a string and save it
-   */
-
-  service.setTokenFromString = function(hash) {
-    var token = getTokenFromString(hash);
-
-    if (token) {
-      removeFragment();
-      service.setToken(token);
-      setExpiresAt(token);
-      $rootScope.$broadcast('oauth:login', token);
-    }
-  };
+    /**
+     * Tells if the access token is expired.
+     */
+    service.expired = function(){
+        return (this.token && this.token.expires_at && this.token.expires_at<new Date());
+    };
 
 
-  /*
-   * Parse the fragment URI and return an object
-   */
+    /* * * * * * * * * *
+     * PRIVATE METHODS *
+     * * * * * * * * * */
 
-  var getTokenFromString = function(hash) {
-    var splitted = hash.split('&');
-    var params = {};
+    /**
+     * Get the access token from a string and save it
+     * @param hash
+     */
+    var setTokenFromString = function(hash){
+        var params = getTokenFromString(hash);
 
-    for (var i = 0; i < splitted.length; i++) {
-      var param  = splitted[i].split('=');
-      var key    = param[0];
-      var value  = param[1];
-      params[key] = value
-    }
+        if(params){
+            removeFragment();
+            setToken(params);
+            setExpiresAt();
+            $rootScope.$broadcast('oauth:login', service.token);
+        }
+    };
 
-    if (params.access_token || params.error)
-      return params;
-  }
+    /**
+     * Set the access token from the sessionStorage.
+     */
+    var setTokenFromSession = function(){
+        if($sessionStorage.token){
+            var params = $sessionStorage.token;
+            params.expires_at = new Date(params.expires_at);
+            setToken(params);
+        }
+    };
 
+    /**
+     * Set the access token.
+     *
+     * @param params
+     * @returns {*|{}}
+     */
+    var setToken = function(params){
+        service.token = service.token || {};      // init the token
+        angular.extend(service.token, params);      // set the access token params
+        setTokenInSession();                // save the token into the session
+        setExpiresAtEvent();                // event to fire when the token expires
 
-  /*
-   * Set the access token from the sessionStorage.
-   */
+        return service.token;
+    };
 
-  service.setTokenFromSession = function() {
-    if ($sessionStorage.token) {
-      var params = $sessionStorage.token;
-      params.expires_at = new Date(params.expires_at);
-      service.setToken(params);
-    }
-  }
+    /**
+     * Parse the fragment URI and return an object
+     * @param hash
+     * @returns {{}}
+     */
+    var getTokenFromString = function(hash){
+        var params = {},
+            regex = /([^&=]+)=([^&]*)/g,
+            m;
 
+        while (m = regex.exec(hash)) {
+            params[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
+        }
 
-  /*
-   * Save the access token into the session
-   */
+        if(params.access_token || params.error){
+            return params;
+        }
+    };
 
-  var setTokenInSession = function() {
-    $sessionStorage.token = token;
-  }
+    /**
+     * Save the access token into the session
+     */
+    var setTokenInSession = function(){
+        $sessionStorage.token = service.token;
+    };
 
-
-  /*
-   * Set the access token.
-   */
-
-  service.setToken = function(params) {
-    token = token || {};                 // init the token
-    angular.extend(token, params);      // set the access token params
-    setTokenInSession();                // save the token into the session
-    setExpiresAtEvent();                // event to fire when the token expires
-
-    return token;
-  };
-
-
-  /*
-   * Set the access token expiration date (useful for refresh logics)
-   */
-
-  var setExpiresAt = function(token) {
-    if (token) {
-      var expires_at = new Date();
-      expires_at.setSeconds(expires_at.getSeconds() + parseInt(token.expires_in) - 60); // 60 seconds less to secure browser and response latency
-      token.expires_at = expires_at;
-    }
-  };
-
-
-  /*
-   * Set the timeout at which the expired event is fired
-   */
-
-  var setExpiresAtEvent = function() {
-    var time  = (new Date(token.expires_at)) - (new Date())
-    if (time) { $timeout(function() { $rootScope.$broadcast('oauth:expired', token) }, time) }
-  }
-
-
-  /*
-   * Remove the fragment URI
-   * TODO we need to remove only the access token
-   */
-
-  var removeFragment = function(scope) {
-    $location.hash('');
-  }
+    /**
+     * Set the access token expiration date (useful for refresh logics)
+     */
+    var setExpiresAt = function(){
+        if(service.token){
+            var expires_at = new Date();
+            expires_at.setSeconds(expires_at.getSeconds()+parseInt(service.token.expires_in)-60); // 60 seconds less to secure browser and response latency
+            service.token.expires_at = expires_at;
+        }
+    };
 
 
-  return service;
+    /**
+     * Set the timeout at which the expired event is fired
+     */
+    var setExpiresAtEvent = function(){
+        var time = (new Date(service.token.expires_at))-(new Date());
+        if(time){
+            $timeout(function(){
+                $rootScope.$broadcast('oauth:expired', service.token)
+            }, time)
+        }
+    };
+
+    /**
+     * Remove the oAuth2 pieces from the hash fragment
+     */
+    var removeFragment = function(){
+        var curHash = $location.hash();
+        angular.forEach(oAuth2HashTokens,function(hashKey){
+            var re = new RegExp('&'+hashKey+'(=[^&]*)?|^'+hashKey+'(=[^&]*)?&?');
+            curHash = curHash.replace(re,'');
+        });
+
+        $location.hash(curHash);
+    };
+
+
+    return service;
 });
 
 'use strict';
