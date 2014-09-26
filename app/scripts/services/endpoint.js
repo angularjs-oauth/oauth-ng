@@ -12,17 +12,17 @@ endpointClient.factory('Endpoint', function(AccessToken, $location) {
    * Defines the authorization URL
    */
 
-  service.set = function(scope) {
-    var oAuthScope = (scope.scope) ? scope.scope : '',
-        state = (scope.state) ? encodeURIComponent(scope.state) : '',
-        authPathHasQuery = (scope.authorizePath.indexOf('?') == -1) ? false : true,
+  service.set = function(params) {
+    var oAuthScope = (params.scope) ? params.scope : '',
+        state = (params.state) ? encodeURIComponent(params.state) : '',
+        authPathHasQuery = (params.authorizePath.indexOf('?') == -1) ? false : true,
         appendChar = (authPathHasQuery) ? '&' : '?';    //if authorizePath has ? already append OAuth2 params
 
-    url = scope.site +
-          scope.authorizePath +
+    url = params.site +
+          params.authorizePath +
           appendChar + 'response_type=token&' +
-          'client_id=' + encodeURIComponent(scope.clientId) + '&' +
-          'redirect_uri=' + encodeURIComponent(scope.redirectUri) + '&' +
+          'client_id=' + encodeURIComponent(params.clientId) + '&' +
+          'redirect_uri=' + encodeURIComponent(params.redirectUri) + '&' +
           'scope=' + oAuthScope + '&' +
           'state=' + state;
 
