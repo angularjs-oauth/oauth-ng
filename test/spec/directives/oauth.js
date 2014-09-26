@@ -5,7 +5,7 @@ describe('oauth', function() {
   var $rootScope, $location, $sessionStorage, $httpBackend, $compile, AccessToken, Endpoint, element, scope, result, callback;
 
   var uri      = 'http://example.com/oauth/authorize?response_type=token&client_id=client-id&redirect_uri=http://example.com/redirect&scope=scope&state=/';
-  var fragment = 'access_token=token&token_type=bearer&expires_in=7200&state=/path';
+  var fragment = 'access_token=token&token_type=bearer&expires_in=7200';
   var denied   = 'error=access_denied&error_description=error';
   var headers  = { 'Accept': 'application/json, text/plain, */*', 'Authorization': 'Bearer token' }
   var profile  = { id: '1', full_name: 'Alice Wonderland', email: 'alice@example.com' };

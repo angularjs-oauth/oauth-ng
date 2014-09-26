@@ -24,8 +24,8 @@ accessTokenService.factory('AccessToken', function($rootScope, $location, $sessi
      * - takes the token from the fragment URI
      * - takes the token from the sessionStorage
      */
-    service.set = function(){
-        setTokenFromString($location.hash());
+    service.set = function(params){
+        setTokenFromString($location.hash(), params.state);
 
         //If hash is present in URL always use it, cuz its coming from oAuth2 provider redirect
         if(null === service.token){
@@ -62,8 +62,8 @@ accessTokenService.factory('AccessToken', function($rootScope, $location, $sessi
      * Get the access token from a string and save it
      * @param hash
      */
-    var setTokenFromString = function(hash){
-        var params = getTokenFromString(hash);
+    var setTokenFromString = function(hash,state){
+        var params = getTokenFromString(hash,state);
 
         if(params){
             removeFragment();
@@ -104,7 +104,7 @@ accessTokenService.factory('AccessToken', function($rootScope, $location, $sessi
      * @param hash
      * @returns {{}}
      */
-    var getTokenFromString = function(hash){
+    var getTokenFromString = function(hash,state){
         var params = {},
             regex = /([^&=]+)=([^&]*)/g,
             m;
@@ -113,7 +113,7 @@ accessTokenService.factory('AccessToken', function($rootScope, $location, $sessi
             params[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
         }
 
-        if(params.access_token || params.error){
+        if((params.access_token && params.state === state) || params.error){
             return params;
         }
     };
