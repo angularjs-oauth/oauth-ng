@@ -328,12 +328,12 @@ directives.directive('oauth', function(AccessToken, Endpoint, Profile, $location
     * Check against undefined params, assign default if they are not present
     */
     var initAttributes = function() {
-        scope.authorizePath = typeof(scope.authorizePath)!=="undefined" ?scope.authorizePath : '/oauth/authorize';
-        scope.tokenPath     = typeof(scope.tokenPath)!=="undefined" ?scope.tokenPath: '/oauth/token';
-        scope.template	  = typeof(scope.template)!=="undefined"?  scope.template: 'bower_components/oauth-ngw/dist/views/templates/default.html';
-        scope.text          = typeof(scope.text)!=="undefined"?scope.text: 'Sign In';
-        scope.state         = typeof(scope.state)!=="undefined" ?scope.state : undefined;
-        scope.scope         = typeof(scope.scope)!=="undefined" ?scope.scope : undefined;
+      scope.authorizePath = typeof(scope.authorizePath)!=="undefined" ?scope.authorizePath : '/oauth/authorize';
+      scope.tokenPath     = typeof(scope.tokenPath)!=="undefined" ?scope.tokenPath: '/oauth/token';
+      scope.template	  = typeof(scope.template)!=="undefined"?  scope.template: 'bower_components/oauth-ngw/dist/views/templates/default.html';
+      scope.text          = typeof(scope.text)!=="undefined"?scope.text: 'Sign In';
+      scope.state         = typeof(scope.state)!=="undefined" ?scope.state : undefined;
+      scope.scope         = typeof(scope.scope)!=="undefined" ?scope.scope : undefined;
 
     };
 
