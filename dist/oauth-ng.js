@@ -350,6 +350,7 @@ directives.directive('oauth', function(AccessToken, Endpoint, Profile, $location
       if (token && token.access_token && scope.profileUri) {
         Profile.find(scope.profileUri).success(function(response) {
           scope.profile = response
+          $rootScope.$broadcast('oauth:profile', response);
         })
       }
     };
