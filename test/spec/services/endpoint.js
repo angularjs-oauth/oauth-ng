@@ -71,6 +71,23 @@ describe('Endpoint', function() {
           expect(result).toEqual(expectedUri);
       });
     });
+
+    describe('authorizePath can be empty', function() {
+      var paramsClone = JSON.parse(JSON.stringify(params));
+
+      beforeEach(function() {
+          paramsClone.authorizePath = '';
+      });
+
+      beforeEach(function() {
+          result = Endpoint.set(paramsClone);
+      });
+
+      it('uri should not be in state', function() {
+          var expectedUri = 'http://example.com?response_type=token&client_id=client-id&redirect_uri=http%3A%2F%2Fexample.com%2Fredirect&scope=scope&state=';
+          expect(result).toEqual(expectedUri);
+      });
+    });
   });
 
   describe('#get', function() {
