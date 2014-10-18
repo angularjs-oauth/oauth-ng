@@ -774,6 +774,16 @@ angular.module('newProjectApp').config(function($locationProvider) {
               See examples in the <a href="#customizations">customization</a> section.
             </td>
           </tr>
+          <tr>
+            <td class="parameter">
+              <span>oauth:profile(profile)</span>
+              <span class="info">fired</span>
+            </td>
+            <td>
+              Fired when the profile data has been retrieved.<br>
+              Does not fire if there is no <code>profile-uri</code> parameter.
+            </td>
+          </tr>
         </tbody>
       </table>
 
@@ -795,6 +805,10 @@ $scope.$on('oauth:denied', function(event) {
 
 $scope.$on('oauth:expired', function(event) {
   console.log('The access token is expired. Please refresh.');
+});
+
+$scope.$on('oauth:profile', function(profile) {
+  console.log('User profile data retrieved: ', profile);
 });</xmp></code></pre>
 
 
