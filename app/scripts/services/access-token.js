@@ -1,8 +1,8 @@
 'use strict';
 
-var accessTokenService = angular.module('oauth.accessToken', ['ngStorage']);
+var accessTokenService = angular.module('oauth.accessToken', ['LocalStorageModule']);
 
-accessTokenService.factory('AccessToken', function($rootScope, $location, $sessionStorage, $timeout){
+accessTokenService.factory('AccessToken', function($rootScope, $location, localStorageService, $timeout){
 
     var service = {
             token: null
@@ -40,7 +40,7 @@ accessTokenService.factory('AccessToken', function($rootScope, $location, $sessi
      * @returns {null}
      */
     service.destroy = function(){
-        delete $sessionStorage.token;
+        localStorageService.remove('token');
         this.token = null;
         return this.token;
     };
@@ -77,8 +77,8 @@ accessTokenService.factory('AccessToken', function($rootScope, $location, $sessi
      * Set the access token from the sessionStorage.
      */
     var setTokenFromSession = function(){
-        if($sessionStorage.token){
-            var params = $sessionStorage.token;
+        if(localStorageService.get('token')){
+            var params = localStorageService.get('token');
             params.expires_at = new Date(params.expires_at);
             setToken(params);
         }
@@ -122,7 +122,7 @@ accessTokenService.factory('AccessToken', function($rootScope, $location, $sessi
      * Save the access token into the session
      */
     var setTokenInSession = function(){
-        $sessionStorage.token = service.token;
+        localStorageService.set('token', service.token);
     };
 
     /**

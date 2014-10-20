@@ -1,4 +1,4 @@
-/* oauth-ng - v0.2.8 - 2014-08-27 */
+/* oauth-ng - v0.2.8 - 2014-10-20 */
 
 'use strict';
 
@@ -8,19 +8,21 @@ var app = angular.module('oauth', [
   'oauth.accessToken',    // access token service
   'oauth.endpoint',       // oauth endpoint service
   'oauth.profile',        // profile model
-  'oauth.interceptor'     // bearer token interceptor
+  'oauth.interceptor',    // bearer token interceptor
+  'LocalStorageModule'
 ]);
 
-angular.module('oauth').config(['$locationProvider','$httpProvider',
-  function($locationProvider, $httpProvider) {
+angular.module('oauth').config(['$locationProvider','$httpProvider','localStorageServiceProvider',
+  function($locationProvider, $httpProvider, localStorageServiceProvider) {
     $httpProvider.interceptors.push('ExpiredInterceptor');
+    localStorageServiceProvider.setStorageType('sessionStorage');
   }]);
 
 'use strict';
 
-var accessTokenService = angular.module('oauth.accessToken', ['ngStorage']);
+var accessTokenService = angular.module('oauth.accessToken', ['LocalStorageModule']);
 
-accessTokenService.factory('AccessToken', function($rootScope, $location, $sessionStorage, $timeout){
+accessTokenService.factory('AccessToken', function($rootScope, $location, localStorageService, $timeout){
 
     var service = {
             token: null
@@ -58,7 +60,7 @@ accessTokenService.factory('AccessToken', function($rootScope, $location, $sessi
      * @returns {null}
      */
     service.destroy = function(){
-        delete $sessionStorage.token;
+        localStorageService.remove('token');
         this.token = null;
         return this.token;
     };
@@ -95,8 +97,8 @@ accessTokenService.factory('AccessToken', function($rootScope, $location, $sessi
      * Set the access token from the sessionStorage.
      */
     var setTokenFromSession = function(){
-        if($sessionStorage.token){
-            var params = $sessionStorage.token;
+        if(localStorageService.get('token')){
+            var params = localStorageService.get('token');
             params.expires_at = new Date(params.expires_at);
             setToken(params);
         }
@@ -140,7 +142,7 @@ accessTokenService.factory('AccessToken', function($rootScope, $location, $sessi
      * Save the access token into the session
      */
     var setTokenInSession = function(){
-        $sessionStorage.token = service.token;
+        localStorageService.set('token', service.token);
     };
 
     /**
@@ -198,17 +200,17 @@ endpointClient.factory('Endpoint', function(AccessToken, $location) {
    * Defines the authorization URL
    */
 
-  service.set = function(scope) {
-    var oAuthScope = (scope.scope) ? scope.scope : '',
-        state = (scope.state) ? encodeURIComponent(scope.state) : '',
-        authPathHasQuery = (scope.authorizePath.indexOf('?') == -1) ? false : true,
+  service.set = function(params) {
+    var oAuthScope = (params.scope) ? params.scope : '',
+        state = (params.state) ? encodeURIComponent(params.state) : '',
+        authPathHasQuery = (params.authorizePath.indexOf('?') == -1) ? false : true,
         appendChar = (authPathHasQuery) ? '&' : '?';    //if authorizePath has ? already append OAuth2 params
 
-    url = scope.site +
-          scope.authorizePath +
+    url = params.site +
+          params.authorizePath +
           appendChar + 'response_type=token&' +
-          'client_id=' + encodeURIComponent(scope.clientId) + '&' +
-          'redirect_uri=' + encodeURIComponent(scope.redirectUri) + '&' +
+          'client_id=' + encodeURIComponent(params.clientId) + '&' +
+          'redirect_uri=' + encodeURIComponent(params.redirectUri) + '&' +
           'scope=' + oAuthScope + '&' +
           'state=' + state;
 
@@ -269,12 +271,12 @@ profileClient.factory('Profile', function($http, AccessToken) {
 
 var interceptorService = angular.module('oauth.interceptor', []);
 
-interceptorService.factory('ExpiredInterceptor', function ($rootScope, $q, $sessionStorage) {
+interceptorService.factory('ExpiredInterceptor', function ($rootScope, $q, localStorageService) {
 
   var service = {};
 
   service.request = function(config) {
-    var token = $sessionStorage.token;
+    var token = localStorageService.get('token');
 
     if (token && expired(token))
       $rootScope.$broadcast('oauth:expired', token);
@@ -324,17 +326,14 @@ directives.directive('oauth', function(AccessToken, Endpoint, Profile, $location
       initProfile(scope);        // gets the profile resource (if existing the access token)
       initView();                // sets the view (logged in or out)
     };
-    /**
-    * Check against undefined params, assign default if they are not present
-    */
-    var initAttributes = function() {
-      scope.authorizePath = typeof(scope.authorizePath)!=="undefined" ?scope.authorizePath : '/oauth/authorize';
-      scope.tokenPath     = typeof(scope.tokenPath)!=="undefined" ?scope.tokenPath: '/oauth/token';
-      scope.template	  = typeof(scope.template)!=="undefined"?  scope.template: 'bower_components/oauth-ngw/dist/views/templates/default.html';
-      scope.text          = typeof(scope.text)!=="undefined"?scope.text: 'Sign In';
-      scope.state         = typeof(scope.state)!=="undefined" ?scope.state : undefined;
-      scope.scope         = typeof(scope.scope)!=="undefined" ?scope.scope : undefined;
 
+    var initAttributes = function() {
+      scope.authorizePath = scope.authorizePath || '/oauth/authorize';
+      scope.tokenPath     = scope.tokenPath     || '/oauth/token';
+      scope.template      = scope.template      || 'bower_components/oauth-ng/dist/views/templates/default.html';
+      scope.text          = scope.text          || 'Sign In';
+      scope.state         = scope.state         || undefined;
+      scope.scope         = scope.scope         || undefined;
     };
 
     var compile = function() {
@@ -350,7 +349,6 @@ directives.directive('oauth', function(AccessToken, Endpoint, Profile, $location
       if (token && token.access_token && scope.profileUri) {
         Profile.find(scope.profileUri).success(function(response) {
           scope.profile = response
-          $rootScope.$broadcast('oauth:profile', response);
         })
       }
     };
