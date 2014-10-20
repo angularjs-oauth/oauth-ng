@@ -24,9 +24,10 @@ module.exports = function (grunt) {
 
   try {
     var component = require('./bower.json')
-    yeomanConfig.name    = component.name    || 'no-name';
+    yeomanConfig.name = component.name || 'no-name';
     yeomanConfig.version = component.version || '0.0.0.undefined';
-  } catch (e) {}
+  } catch (e) {
+  }
 
 
   // Define the configuration for all the tasks
@@ -123,14 +124,16 @@ module.exports = function (grunt) {
     // Empties folders to start fresh
     clean: {
       dist: {
-        files: [{
-          dot: true,
-          src: [
-            '.tmp',
-            '<%= yeoman.dist %>/*',
-            '!<%= yeoman.dist %>/.git*'
-          ]
-        }]
+        files: [
+          {
+            dot: true,
+            src: [
+              '.tmp',
+              '<%= yeoman.dist %>/*',
+              '!<%= yeoman.dist %>/.git*'
+            ]
+          }
+        ]
       },
       server: '.tmp'
     },
@@ -141,12 +144,14 @@ module.exports = function (grunt) {
         browsers: ['last 1 version']
       },
       dist: {
-        files: [{
-          expand: true,
-          cwd: '.tmp/styles/',
-          src: '{,*/}*.css',
-          dest: '.tmp/styles/'
-        }]
+        files: [
+          {
+            expand: true,
+            cwd: '.tmp/styles/',
+            src: '{,*/}*.css',
+            dest: '.tmp/styles/'
+          }
+        ]
       }
     },
 
@@ -180,27 +185,31 @@ module.exports = function (grunt) {
     // minsafe compatible so Uglify does not destroy the ng references
     ngmin: {
       dist: {
-        files: [{
-          expand: true,
-          cwd: '.tmp/concat/scripts',
-          src: '*.js',
-          dest: '.tmp/concat/scripts'
-        }]
+        files: [
+          {
+            expand: true,
+            cwd: '.tmp/concat/scripts',
+            src: '*.js',
+            dest: '.tmp/concat/scripts'
+          }
+        ]
       }
     },
 
     // Copies remaining files to places other tasks can use
     copy: {
       dist: {
-        files: [{
-          expand: true,
-          dot: true,
-          cwd: '<%= yeoman.app %>',
-          dest: '<%= yeoman.dist %>',
-          src: [
-            'views/{,*/}*.html',
-          ]
-        }]
+        files: [
+          {
+            expand: true,
+            dot: true,
+            cwd: '<%= yeoman.app %>',
+            dest: '<%= yeoman.dist %>',
+            src: [
+              'views/{,*/}*.html'
+            ]
+          }
+        ]
       },
       styles: {
       }
@@ -229,9 +238,17 @@ module.exports = function (grunt) {
 
     // Test settings
     karma: {
+      options: {
+        configFile: 'karma.conf.js'
+      },
       unit: {
-        configFile: 'karma.conf.js',
-        singleRun: false
+        singleRun: true
+      },
+      dev: {
+        singleRun: false,
+        reporters: 'dots',
+        autoWatch: true,
+        browsers: ['Chrome']
       }
     },
 
@@ -242,10 +259,12 @@ module.exports = function (grunt) {
           './': 'dist/**/*.*'
         },
         options: {
-          replacements: [{
-            pattern: /views\/templates\/default\.html/g,
-            replacement: 'bower_components/<%= yeoman.name %>/dist/views/templates/default.html'
-          }]
+          replacements: [
+            {
+              pattern: /views\/templates\/default\.html/g,
+              replacement: 'bower_components/<%= yeoman.name %>/dist/views/templates/default.html'
+            }
+          ]
         }
       }
     }
@@ -278,7 +297,7 @@ module.exports = function (grunt) {
     'concurrent:test',
     'autoprefixer',
     'connect:test',
-    'karma'
+    'karma:unit'
   ]);
 
   grunt.registerTask('build', [
@@ -286,7 +305,7 @@ module.exports = function (grunt) {
     'copy',
     'useminPrepare',
     'concat',
-    'string-replace',
+    'string-replace'
   ]);
 
   grunt.registerTask('default', [

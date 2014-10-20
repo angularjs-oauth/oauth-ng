@@ -2,7 +2,7 @@
 
 describe('oauth', function() {
 
-  var $rootScope, $location, $sessionStorage, $httpBackend, $compile, AccessToken, Endpoint, element, scope, result, callback;
+  var $rootScope, $location, localStorageService, $httpBackend, $compile, AccessToken, Endpoint, element, scope, result, callback;
 
   var uri      = 'http://example.com/oauth/authorize?response_type=token&client_id=client-id&redirect_uri=http://example.com/redirect&scope=scope&state=/';
   var fragment = 'access_token=token&token_type=bearer&expires_in=7200&state=/path';
@@ -16,7 +16,7 @@ describe('oauth', function() {
   beforeEach(inject(function($injector) { $rootScope      = $injector.get('$rootScope') }));
   beforeEach(inject(function($injector) { $compile        = $injector.get('$compile') }));
   beforeEach(inject(function($injector) { $location       = $injector.get('$location') }));
-  beforeEach(inject(function($injector) { $sessionStorage = $injector.get('$sessionStorage') }));
+  beforeEach(inject(function($injector) { localStorageService = $injector.get('localStorageService') }));
   beforeEach(inject(function($injector) { $httpBackend    = $injector.get('$httpBackend') }));
   beforeEach(inject(function($injector) { AccessToken     = $injector.get('AccessToken') }));
   beforeEach(inject(function($injector) { Endpoint        = $injector.get('Endpoint') }));

@@ -15,7 +15,7 @@
   ],
   "dependencies": {
     "angular": "~1.2.22",
-    "ngstorage": "~0.3.0"
+    "angular-local-storage": "~0.1.3"
   },
   "devDependencies": {
     "json3": "~3.2.4",
