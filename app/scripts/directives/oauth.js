@@ -74,6 +74,7 @@ directives.directive('oauth', function(AccessToken, Endpoint, Profile, $location
 
     scope.logout = function() {
       AccessToken.destroy(scope);
+      $rootScope.$broadcast('oauth:tokenDestroy');
       loggedOut();
     };
 

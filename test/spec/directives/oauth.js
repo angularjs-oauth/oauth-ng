@@ -138,6 +138,10 @@ describe('oauth', function() {
       });
 
       beforeEach(function() {
+        $rootScope.$on('oauth:tokenDestroy', callback);
+      });
+
+      beforeEach(function() {
         $rootScope.$on('oauth:logout', callback);
       });
 
@@ -150,9 +154,10 @@ describe('oauth', function() {
         expect(element.find('.logged-in').attr('class')).toMatch('ng-hide');
       });
 
-      it('fires the oauth:logout event', function() {
+      it('fires the oauth:tokenDestroy and oauth:logout event', function() {
         var event = jasmine.any(Object);
         expect(callback).toHaveBeenCalledWith(event);
+        expect(callback.calls.count()).toBe(2);
       });
     });
   });
@@ -198,6 +203,10 @@ describe('oauth', function() {
     it('fires the oauth:logout event', function() {
       var event = jasmine.any(Object);
       expect(callback).toHaveBeenCalledWith(event);
+    });
+
+    it('does not fire the oauth:tokenDestroy event', function() {
+      expect(callback.calls.count()).toBe(1);
     });
   });
 
