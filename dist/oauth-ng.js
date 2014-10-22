@@ -43,7 +43,7 @@ accessTokenService.factory('AccessToken', function($rootScope, $location, $sessi
      * - takes the token from the sessionStorage
      */
     service.set = function(){
-        setTokenFromString($location.hash());
+        setTokenFromString($location.path().substr(1));
 
         //If hash is present in URL always use it, cuz its coming from oAuth2 provider redirect
         if(null === service.token){
@@ -330,7 +330,7 @@ directives.directive('oauth', function(AccessToken, Endpoint, Profile, $location
     var initAttributes = function() {
       scope.authorizePath = typeof(scope.authorizePath)!=="undefined" ?scope.authorizePath : '/oauth/authorize';
       scope.tokenPath     = typeof(scope.tokenPath)!=="undefined" ?scope.tokenPath: '/oauth/token';
-      scope.template	  = typeof(scope.template)!=="undefined"?  scope.template: 'bower_components/oauth-ngw/dist/views/templates/default.html';
+      scope.template	  = typeof(scope.template)!=="undefined"?  scope.template: 'bower_components/oauth-ng/dist/views/templates/default.html';
       scope.text          = typeof(scope.text)!=="undefined"?scope.text: 'Sign In';
       scope.state         = typeof(scope.state)!=="undefined" ?scope.state : undefined;
       scope.scope         = typeof(scope.scope)!=="undefined" ?scope.scope : undefined;
