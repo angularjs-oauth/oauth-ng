@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.9 (August 27, 2014)
+
+* Correctly running tests with E2E protractor
+
 ## 0.2.8 (August 27, 2014)
 
 * Fixed `expries_at` not being set in some situations
