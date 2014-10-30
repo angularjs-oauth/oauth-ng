@@ -25,7 +25,7 @@ accessTokenService.factory('AccessToken', function($rootScope, $location, $sessi
      * - takes the token from the sessionStorage
      */
     service.set = function(){
-        setTokenFromString($location.hash());
+        this.setTokenFromString($location.hash());
 
         //If hash is present in URL always use it, cuz its coming from oAuth2 provider redirect
         if(null === service.token){
@@ -54,15 +54,11 @@ accessTokenService.factory('AccessToken', function($rootScope, $location, $sessi
     };
 
 
-    /* * * * * * * * * *
-     * PRIVATE METHODS *
-     * * * * * * * * * */
-
     /**
      * Get the access token from a string and save it
      * @param hash
      */
-    var setTokenFromString = function(hash){
+    service.setTokenFromString = function(hash){
         var params = getTokenFromString(hash);
 
         if(params){
@@ -73,6 +69,11 @@ accessTokenService.factory('AccessToken', function($rootScope, $location, $sessi
         }
     };
 
+   
+    /* * * * * * * * * *
+     * PRIVATE METHODS *
+     * * * * * * * * * */
+   
     /**
      * Set the access token from the sessionStorage.
      */
