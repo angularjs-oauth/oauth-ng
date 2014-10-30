@@ -5,16 +5,18 @@ describe('AccessToken', function() {
   var result, $location, $sessionStorage, AccessToken, date;
 
   var fragment = 'access_token=token&token_type=bearer&expires_in=7200&state=/path&extra=stuff';
+  var bad_fragment = 'access_token=token&token_type=bearer&expires_in=7200&state=/someOtherState&extra=stuff';
   var denied   = 'error=access_denied&error_description=error';
   var expires_at = '2014-08-17T17:38:37.584Z';
   var token    = { access_token: 'token', token_type: 'bearer', expires_in: 7200, state: '/path', expires_at: expires_at };
+  var params   = { site: 'http://example.com', clientId: 'client-id', redirectUri: 'http://example.com/redirect', state: '/path', scope: 'scope', authorizePath: '/oauth/authorize' };
 
   beforeEach(module('oauth'));
 
   beforeEach(inject(function($injector) { $location       = $injector.get('$location') }));
   beforeEach(inject(function($injector) { $sessionStorage = $injector.get('$sessionStorage') }));
   beforeEach(inject(function($injector) { AccessToken     = $injector.get('AccessToken') }));
-
+  beforeEach(function() { delete $sessionStorage.token; });
 
   describe('#set', function() {
 
@@ -25,7 +27,7 @@ describe('AccessToken', function() {
       });
 
       beforeEach(function() {
-        result = AccessToken.set();
+        result = AccessToken.set(params);
       });
 
       it('sets the access token', function() {
@@ -46,7 +48,7 @@ describe('AccessToken', function() {
       });
 
       beforeEach(function() {
-        result = AccessToken.set();
+        result = AccessToken.set(params);
       });
 
       it('sets the access token', function() {
@@ -59,7 +61,31 @@ describe('AccessToken', function() {
 
       it('stores the token in the session', function() {
         var stored_token = $sessionStorage.token;
-        expect(result.access_token).toEqual('token');
+        expect(stored_token.access_token).toEqual('token');
+      });
+    });
+
+    describe('with the access token in the fragment URI with mismatched state', function() {
+
+      beforeEach(function() {
+        $location.hash(bad_fragment);
+      });
+
+      beforeEach(function() {
+        result = AccessToken.set(params);
+      });
+
+      it('does not set the access token', function() {
+        expect(result).toBeNull();
+      });
+
+      it('preserve the fragment string', function() {
+        expect($location.hash()).toEqual(bad_fragment);
+      });
+
+      it('does not store the token in the session', function() {
+        var stored_token = $sessionStorage.token;
+        expect(stored_token).not.toBeDefined();
       });
     });
 
@@ -70,7 +96,7 @@ describe('AccessToken', function() {
       });
 
       beforeEach(function() {
-        result = AccessToken.set();
+        result = AccessToken.set(params);
       });
 
       it('sets the access token from session', function() {
@@ -85,7 +111,7 @@ describe('AccessToken', function() {
       });
 
       beforeEach(function() {
-        result = AccessToken.set();
+        result = AccessToken.set(params);
       });
 
       it('sets the access token', function() {
@@ -111,7 +137,7 @@ describe('AccessToken', function() {
     });
 
     beforeEach(function() {
-      AccessToken.set();
+      AccessToken.set(params);
     });
 
     beforeEach(function() {
@@ -131,7 +157,7 @@ describe('AccessToken', function() {
     });
 
     beforeEach(function() {
-      AccessToken.set();
+      AccessToken.set(params);
     });
 
     beforeEach(function() {
@@ -155,7 +181,7 @@ describe('AccessToken', function() {
     });
 
     beforeEach(function() {
-      AccessToken.set();
+      AccessToken.set(params);
     });
 
     describe('when not expired', function() {
@@ -203,7 +229,7 @@ describe('AccessToken', function() {
                 //if hash is in URL it should always be used, cuz its coming from oAuth2 provider re-direct
                 $location.hash('');
                 $sessionStorage.token = token;
-                result = AccessToken.set().expires_at;
+                result = AccessToken.set(params).expires_at;
             });
 
             it('rehydrates the expires_at value', function() {
