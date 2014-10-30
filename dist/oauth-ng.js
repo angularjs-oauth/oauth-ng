@@ -240,13 +240,16 @@ endpointClient.factory('Endpoint', function(AccessToken, $location) {
 
 var profileClient = angular.module('oauth.profile', [])
 
-profileClient.factory('Profile', function($http, AccessToken) {
+profileClient.factory('Profile', function($http, AccessToken, $rootScope) {
   var service = {};
   var profile;
 
   service.find = function(uri) {
     var promise = $http.get(uri, { headers: headers() });
-    promise.success(function(response) { profile = response });
+    promise.success(function(response) {
+        profile = response;
+        $rootScope.$broadcast('oauth:profile', profile);
+    });
     return promise;
   };
 
