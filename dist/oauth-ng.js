@@ -1,4 +1,4 @@
-/* oauth-ng - v0.2.8 - 2014-10-26 */
+/* oauth-ng - v0.3.0 - 2014-10-30 */
 
 'use strict';
 
@@ -43,7 +43,7 @@ accessTokenService.factory('AccessToken', function($rootScope, $location, $sessi
      * - takes the token from the sessionStorage
      */
     service.set = function(){
-        setTokenFromString($location.path().substr(1));
+        this.setTokenFromString($location.hash());
 
         //If hash is present in URL always use it, cuz its coming from oAuth2 provider redirect
         if(null === service.token){
@@ -72,15 +72,11 @@ accessTokenService.factory('AccessToken', function($rootScope, $location, $sessi
     };
 
 
-    /* * * * * * * * * *
-     * PRIVATE METHODS *
-     * * * * * * * * * */
-
     /**
      * Get the access token from a string and save it
      * @param hash
      */
-    var setTokenFromString = function(hash){
+    service.setTokenFromString = function(hash){
         var params = getTokenFromString(hash);
 
         if(params){
@@ -91,6 +87,11 @@ accessTokenService.factory('AccessToken', function($rootScope, $location, $sessi
         }
     };
 
+   
+    /* * * * * * * * * *
+     * PRIVATE METHODS *
+     * * * * * * * * * */
+   
     /**
      * Set the access token from the sessionStorage.
      */

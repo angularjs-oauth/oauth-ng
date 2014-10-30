@@ -1,7 +1,8 @@
 # Changelog
 
-## 0.2.9 (August 27, 2014)
+## 0.3.0 (October 30, 2014)
 
+* Solved bug on access token definition from hash
 * Correctly running tests with E2E protractor
 
 ## 0.2.8 (August 27, 2014)
