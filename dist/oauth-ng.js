@@ -20,7 +20,7 @@ angular.module('oauth').config(['$locationProvider','$httpProvider',
 
 var accessTokenService = angular.module('oauth.accessToken', ['ngStorage']);
 
-accessTokenService.factory('AccessToken', function($rootScope, $location, $sessionStorage, $timeout){
+accessTokenService.factory('AccessToken', function($rootScope, $location, $sessionStorage, $interval){
 
     var service = {
             token: null
@@ -162,9 +162,9 @@ accessTokenService.factory('AccessToken', function($rootScope, $location, $sessi
     var setExpiresAtEvent = function(){
         var time = (new Date(service.token.expires_at))-(new Date());
         if(time){
-            $timeout(function(){
+            $interval(function(){
                 $rootScope.$broadcast('oauth:expired', service.token)
-            }, time)
+            }, time, 1)
         }
     };
 
