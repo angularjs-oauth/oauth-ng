@@ -229,9 +229,14 @@ module.exports = function (grunt) {
 
     // Test settings
     karma: {
-      unit: {
+      options: {
         configFile: 'karma.conf.js',
+      },
+      unit: {
         singleRun: false
+      },
+      once: {
+        singleRun: true
       }
     },
 
@@ -278,7 +283,15 @@ module.exports = function (grunt) {
     'concurrent:test',
     'autoprefixer',
     'connect:test',
-    'karma'
+    'karma:once'
+  ]);
+
+  grunt.registerTask('test:unit', [
+    'clean:server',
+    'concurrent:test',
+    'autoprefixer',
+    'connect:test',
+    'karma:unit'
   ]);
 
   grunt.registerTask('build', [
