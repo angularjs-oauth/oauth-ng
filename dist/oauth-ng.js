@@ -1,4 +1,4 @@
-/* oauth-ng - v0.2.8 - 2014-10-28 */
+/* oauth-ng - v0.3.0 - 2014-10-30 */
 
 'use strict';
 
@@ -20,7 +20,7 @@ angular.module('oauth').config(['$locationProvider','$httpProvider',
 
 var accessTokenService = angular.module('oauth.accessToken', ['ngStorage']);
 
-accessTokenService.factory('AccessToken', function($rootScope, $location, $sessionStorage, $timeout){
+accessTokenService.factory('AccessToken', function($rootScope, $location, $sessionStorage, $interval){
 
     var service = {
             token: null
@@ -43,7 +43,7 @@ accessTokenService.factory('AccessToken', function($rootScope, $location, $sessi
      * - takes the token from the sessionStorage
      */
     service.set = function(){
-        setTokenFromString($location.hash());
+        this.setTokenFromString($location.hash());
 
         //If hash is present in URL always use it, cuz its coming from oAuth2 provider redirect
         if(null === service.token){
@@ -72,15 +72,11 @@ accessTokenService.factory('AccessToken', function($rootScope, $location, $sessi
     };
 
 
-    /* * * * * * * * * *
-     * PRIVATE METHODS *
-     * * * * * * * * * */
-
     /**
      * Get the access token from a string and save it
      * @param hash
      */
-    var setTokenFromString = function(hash){
+    service.setTokenFromString = function(hash){
         var params = getTokenFromString(hash);
 
         if(params){
@@ -91,6 +87,11 @@ accessTokenService.factory('AccessToken', function($rootScope, $location, $sessi
         }
     };
 
+   
+    /* * * * * * * * * *
+     * PRIVATE METHODS *
+     * * * * * * * * * */
+   
     /**
      * Set the access token from the sessionStorage.
      */
@@ -161,9 +162,9 @@ accessTokenService.factory('AccessToken', function($rootScope, $location, $sessi
     var setExpiresAtEvent = function(){
         var time = (new Date(service.token.expires_at))-(new Date());
         if(time){
-            $timeout(function(){
+            $interval(function(){
                 $rootScope.$broadcast('oauth:expired', service.token)
-            }, time)
+            }, time, 1)
         }
     };
 
@@ -239,13 +240,16 @@ endpointClient.factory('Endpoint', function(AccessToken, $location) {
 
 var profileClient = angular.module('oauth.profile', [])
 
-profileClient.factory('Profile', function($http, AccessToken) {
+profileClient.factory('Profile', function($http, AccessToken, $rootScope) {
   var service = {};
   var profile;
 
   service.find = function(uri) {
     var promise = $http.get(uri, { headers: headers() });
-    promise.success(function(response) { profile = response });
+    promise.success(function(response) {
+        profile = response;
+        $rootScope.$broadcast('oauth:profile', profile);
+    });
     return promise;
   };
 

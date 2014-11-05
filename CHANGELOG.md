@@ -1,5 +1,16 @@
 # Changelog
 
+
+## 0.3.1 (November 3, 2014)
+
+* Replace $timeout with $interval #50
+* Add broadcast “oath:profile” once profile is retrieved. #51
+
+## 0.3.0 (October 30, 2014)
+
+* Solved bug on access token definition from hash
+* Correctly running tests with E2E protractor
+
 ## 0.2.8 (August 27, 2014)
 
 * Fixed `expries_at` not being set in some situations
