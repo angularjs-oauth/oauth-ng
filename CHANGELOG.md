@@ -5,6 +5,7 @@
 
 * Replace $timeout with $interval #50
 * Add broadcast “oath:profile” once profile is retrieved. #51
+* Added travis
 
 ## 0.3.0 (October 30, 2014)
 
