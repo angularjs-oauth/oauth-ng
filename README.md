@@ -1,4 +1,4 @@
-# AngularJS directive for OAuth 2.0
+# AngularJS directive for OAuth 2.0 [![Build Status](https://travis-ci.org/andreareginato/oauth-ng.svg?branch=master)](https://travis-ci.org/andreareginato/oauth-ng)
 
 AngularJS directive for the [OAuth 2.0 Implicit Flow](http://tools.ietf.org/html/rfc6749#section-1.3.2).
 
