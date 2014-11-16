@@ -1,6 +1,10 @@
 # AngularJS directive for OAuth 2.0 [![Build Status](https://travis-ci.org/andreareginato/oauth-ng.svg?branch=master)](https://travis-ci.org/andreareginato/oauth-ng)
 
-AngularJS directive for the [OAuth 2.0 Implicit Flow](http://tools.ietf.org/html/rfc6749#section-1.3.2).
+
+http://tools.ietf.org/html/rfc6749#section-4.1
+
+AngularJS directive for the [OAuth 2.0 Authorization code Flow](http://tools.ietf.org/html/rfc6749#section-1.3.1) 
+and the [OAuth 2.0 Implicit Flow](http://tools.ietf.org/html/rfc6749#section-1.3.2).
 
 ## Documentation
 
@@ -15,7 +19,24 @@ Please also update `gh-pages` branch with documentation when applicable.
 ### Setup
 
 * Fork and clone the repository
-* Run `npm install && bower install`
+* Run `npm install && bower install
+
+### OAuth 2.0 supported grant types
+
+We support both [OAuth 2.0 Authorization code Flow](http://tools.ietf.org/html/rfc6749#section-1.3.1) 
+and the [OAuth 2.0 Implicit Flow](http://tools.ietf.org/html/rfc6749#section-1.3.2).
+
+#### Authorization code flow
+
+See: http://tools.ietf.org/html/rfc6749#section-4.1
+
+The use the Authorization code flow set response-type="code" in the oauth directive.
+
+#### Implicit flow
+
+See: http://tools.ietf.org/html/rfc6749#section-4.2
+
+The use the Implicit flow set response-type="token" in the oauth directive.
 
 ### Unit tests (karma)
 
