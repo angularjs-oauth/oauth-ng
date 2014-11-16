@@ -1,4 +1,4 @@
-/* oauth-ng - v0.3.0 - 2014-10-30 */
+/* oauth-ng - v0.3.2 - 2014-11-16 */
 
 'use strict';
 
@@ -207,7 +207,7 @@ endpointClient.factory('Endpoint', function(AccessToken, $location) {
 
     url = params.site +
           params.authorizePath +
-          appendChar + 'response_type='+params.responseType+'&' +
+          appendChar + 'response_type=token&' +
           'client_id=' + encodeURIComponent(params.clientId) + '&' +
           'redirect_uri=' + encodeURIComponent(params.redirectUri) + '&' +
           'scope=' + oAuthScope + '&' +
@@ -306,7 +306,6 @@ directives.directive('oauth', function(AccessToken, Endpoint, Profile, $location
       site: '@',          // (required) set the oauth server host (e.g. http://oauth.example.com)
       clientId: '@',      // (required) client id
       redirectUri: '@',   // (required) client redirect uri
-      responseType: '@',  // (optional) response type, defaults to token
       scope: '@',         // (optional) scope
       profileUri: '@',    // (optional) user profile uri (e.g http://example.com/me)
       template: '@',      // (optional) template to render (e.g bower_components/oauth-ng/dist/views/templates/default.html)
