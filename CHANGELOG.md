@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.3.2 (November 16, 2014)
+
+* Authorization Code method option added
 
 ## 0.3.1 (November 3, 2014)
 
