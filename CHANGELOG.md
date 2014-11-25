@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.3 (November 25, 2014)
+
+* Fixed Code method option added
+
 ## 0.3.2 (November 16, 2014)
 
 * Authorization Code method option added
