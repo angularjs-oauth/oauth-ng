@@ -39,6 +39,7 @@ directives.directive('oauth', function(AccessToken, Endpoint, Profile, $location
       scope.authorizePath = scope.authorizePath || '/oauth/authorize';
       scope.tokenPath     = scope.tokenPath     || '/oauth/token';
       scope.template      = scope.template      || 'views/templates/default.html';
+      scope.responseType  = scope.responseType  || 'token';
       scope.text          = scope.text          || 'Sign In';
       scope.state         = scope.state         || undefined;
       scope.scope         = scope.scope         || undefined;

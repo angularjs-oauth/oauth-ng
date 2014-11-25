@@ -5,7 +5,7 @@ describe('Endpoint', function() {
   var result, $location, $sessionStorage, Endpoint;
 
   var fragment = 'access_token=token&token_type=bearer&expires_in=7200&state=/path';
-  var params   = { site: 'http://example.com', clientId: 'client-id', redirectUri: 'http://example.com/redirect', scope: 'scope', authorizePath: '/oauth/authorize' };
+  var params   = { site: 'http://example.com', clientId: 'client-id', redirectUri: 'http://example.com/redirect', scope: 'scope', authorizePath: '/oauth/authorize', responseType: 'token' };
   var uri      = 'http://example.com/oauth/authorize?response_type=token&client_id=client-id&redirect_uri=http%3A%2F%2Fexample.com%2Fredirect&scope=scope&state=';
 
   beforeEach(module('oauth'));
