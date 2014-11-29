@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.5 (November 29, 2014)
+
+* Remove access token and change directive text to 'logout' when token is expired.
+
 ## 0.3.3 (November 25, 2014)
 
 * Fixed Code method option added
