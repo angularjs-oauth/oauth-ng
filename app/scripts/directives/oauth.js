@@ -79,6 +79,11 @@ directives.directive('oauth', function(AccessToken, Endpoint, Profile, $location
       loggedOut();
     };
 
+    scope.$on('oauth:expired', function() {
+      AccessToken.destroy(scope);
+      scope.show = 'logged-out';
+    });
+
     // user is authorized
     var authorized = function() {
       $rootScope.$broadcast('oauth:authorized', AccessToken.get());
