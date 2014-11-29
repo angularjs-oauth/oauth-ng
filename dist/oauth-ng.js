@@ -1,4 +1,4 @@
-/* oauth-ng - v0.3.4 - 2014-11-29 */
+/* oauth-ng - v0.3.5 - 2014-11-29 */
 
 'use strict';
 
@@ -207,7 +207,7 @@ endpointClient.factory('Endpoint', function(AccessToken, $location) {
 
     url = params.site +
           params.authorizePath +
-          appendChar + 'response_type='+ params.responseType + '&' +
+          appendChar + 'response_type=' + params.responseType + '&' +
           'client_id=' + encodeURIComponent(params.clientId) + '&' +
           'redirect_uri=' + encodeURIComponent(params.redirectUri) + '&' +
           'scope=' + oAuthScope + '&' +
