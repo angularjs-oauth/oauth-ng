@@ -1,4 +1,4 @@
-/* oauth-ng - v0.3.2 - 2014-11-25 */
+/* oauth-ng - v0.3.4 - 2014-11-29 */
 
 'use strict';
 
@@ -20,8 +20,7 @@ angular.module('oauth').config(['$locationProvider','$httpProvider',
 
 var accessTokenService = angular.module('oauth.accessToken', ['ngStorage']);
 
-accessTokenService.factory('AccessToken', [ '$rootScope', '$location', '$sessionStorage', '$interval',
-  function($rootScope, $location, $sessionStorage, $interval){
+accessTokenService.factory('AccessToken', function($rootScope, $location, $sessionStorage, $interval){
 
     var service = {
             token: null
@@ -184,230 +183,232 @@ accessTokenService.factory('AccessToken', [ '$rootScope', '$location', '$session
 
 
     return service;
-}]);
+});
 
 'use strict';
 
 var endpointClient = angular.module('oauth.endpoint', []);
 
-endpointClient.factory('Endpoint', ['AccessToken', '$location',
-  function(AccessToken, $location) {
+endpointClient.factory('Endpoint', function(AccessToken, $location) {
 
-    var service = {};
-    var url;
-
-
-    /*
-     * Defines the authorization URL
-     */
-
-    service.set = function(params) {
-      var oAuthScope = (params.scope) ? params.scope : '',
-          state = (params.state) ? encodeURIComponent(params.state) : '',
-          authPathHasQuery = (params.authorizePath.indexOf('?') == -1) ? false : true,
-          appendChar = (authPathHasQuery) ? '&' : '?';    //if authorizePath has ? already append OAuth2 params
-
-      url = params.site +
-            params.authorizePath +
-            appendChar + 'response_type='+params.responseType + '&' +
-            'client_id=' + encodeURIComponent(params.clientId) + '&' +
-            'redirect_uri=' + encodeURIComponent(params.redirectUri) + '&' +
-            'scope=' + oAuthScope + '&' +
-            'state=' + state;
-
-      return url;
-    };
-
-    /*
-     * Returns the authorization URL
-     */
-
-    service.get = function() {
-      return url;
-    };
+  var service = {};
+  var url;
 
 
-    /*
-     * Redirects the app to the authorization URL
-     */
+  /*
+   * Defines the authorization URL
+   */
 
-    service.redirect = function() {
-      window.location.replace(url);
-    };
+  service.set = function(params) {
+    var oAuthScope = (params.scope) ? params.scope : '',
+        state = (params.state) ? encodeURIComponent(params.state) : '',
+        authPathHasQuery = (params.authorizePath.indexOf('?') == -1) ? false : true,
+        appendChar = (authPathHasQuery) ? '&' : '?';    //if authorizePath has ? already append OAuth2 params
 
-    return service;
-}]);
+    url = params.site +
+          params.authorizePath +
+          appendChar + 'response_type='+ params.responseType + '&' +
+          'client_id=' + encodeURIComponent(params.clientId) + '&' +
+          'redirect_uri=' + encodeURIComponent(params.redirectUri) + '&' +
+          'scope=' + oAuthScope + '&' +
+          'state=' + state;
+
+    return url;
+  };
+
+  /*
+   * Returns the authorization URL
+   */
+
+  service.get = function() {
+    return url;
+  };
+
+
+  /*
+   * Redirects the app to the authorization URL
+   */
+
+  service.redirect = function() {
+    window.location.replace(url);
+  };
+
+  return service;
+});
 
 'use strict';
 
 var profileClient = angular.module('oauth.profile', [])
 
-profileClient.factory('Profile', [ '$http', 'AccessToken', '$rootScope',
-  function($http, AccessToken, $rootScope) {
-    var service = {};
-    var profile;
+profileClient.factory('Profile', function($http, AccessToken, $rootScope) {
+  var service = {};
+  var profile;
 
-    service.find = function(uri) {
-      var promise = $http.get(uri, { headers: headers() });
-      promise.success(function(response) {
-          profile = response;
-          $rootScope.$broadcast('oauth:profile', profile);
-      });
-      return promise;
-    };
+  service.find = function(uri) {
+    var promise = $http.get(uri, { headers: headers() });
+    promise.success(function(response) {
+        profile = response;
+        $rootScope.$broadcast('oauth:profile', profile);
+    });
+    return promise;
+  };
 
-    service.get = function(uri) {
-      return profile;
-    };
+  service.get = function(uri) {
+    return profile;
+  };
 
-    service.set = function(resource) {
-      profile = resource;
-      return profile;
-    };
+  service.set = function(resource) {
+    profile = resource;
+    return profile;
+  };
 
-    var headers = function() {
-      return { Authorization: 'Bearer ' + AccessToken.get().access_token };
-    };
+  var headers = function() {
+    return { Authorization: 'Bearer ' + AccessToken.get().access_token };
+  };
 
-    return service;
-}]);
+  return service;
+});
 
 'use strict';
 
 var interceptorService = angular.module('oauth.interceptor', []);
 
-interceptorService.factory('ExpiredInterceptor', [ '$rootScope', '$q', '$sessionStorage',
-  function ($rootScope, $q, $sessionStorage) {
+interceptorService.factory('ExpiredInterceptor', function ($rootScope, $q, $sessionStorage) {
 
-    var service = {};
+  var service = {};
 
-    service.request = function(config) {
-      var token = $sessionStorage.token;
+  service.request = function(config) {
+    var token = $sessionStorage.token;
 
-      if (token && expired(token))
-        $rootScope.$broadcast('oauth:expired', token);
+    if (token && expired(token))
+      $rootScope.$broadcast('oauth:expired', token);
 
-      return config;
-    };
+    return config;
+  };
 
-    var expired = function(token) {
-      return (token && token.expires_at && new Date(token.expires_at) < new Date())
-    };
+  var expired = function(token) {
+    return (token && token.expires_at && new Date(token.expires_at) < new Date())
+  };
 
-    return service;
-}]);
+  return service;
+});
 
 'use strict';
 
 var directives = angular.module('oauth.directive', []);
 
-directives.directive('oauth', [ 'AccessToken', 'Endpoint', 'Profile', '$location', '$rootScope', '$compile', '$http', '$templateCache',
-  function(AccessToken, Endpoint, Profile, $location, $rootScope, $compile, $http, $templateCache) {
+directives.directive('oauth', function(AccessToken, Endpoint, Profile, $location, $rootScope, $compile, $http, $templateCache) {
 
-    var definition = {
-      restrict: 'AE',
-      replace: true,
-      scope: {
-        site: '@',          // (required) set the oauth server host (e.g. http://oauth.example.com)
-        clientId: '@',      // (required) client id
-        redirectUri: '@',   // (required) client redirect uri
-        responseType: '@',  // (optional) response type, defaults to token (use 'token' for implicit flow and 'code' for authorization code flow
-        scope: '@',         // (optional) scope
-        profileUri: '@',    // (optional) user profile uri (e.g http://example.com/me)
-        template: '@',      // (optional) template to render (e.g bower_components/oauth-ng/dist/views/templates/default.html)
-        text: '@',          // (optional) login text
-        authorizePath: '@', // (optional) authorization url
-        state: '@'          // (optional) An arbitrary unique string created by your app to guard against Cross-site Request Forgery
+  var definition = {
+    restrict: 'AE',
+    replace: true,
+    scope: {
+      site: '@',          // (required) set the oauth server host (e.g. http://oauth.example.com)
+      clientId: '@',      // (required) client id
+      redirectUri: '@',   // (required) client redirect uri
+      responseType: '@',  // (optional) response type, defaults to token (use 'token' for implicit flow and 'code' for authorization code flow
+      scope: '@',         // (optional) scope
+      profileUri: '@',    // (optional) user profile uri (e.g http://example.com/me)
+      template: '@',      // (optional) template to render (e.g bower_components/oauth-ng/dist/views/templates/default.html)
+      text: '@',          // (optional) login text
+      authorizePath: '@', // (optional) authorization url
+      state: '@'          // (optional) An arbitrary unique string created by your app to guard against Cross-site Request Forgery
+    }
+  };
+
+  definition.link = function postLink(scope, element, attrs) {
+    scope.show = 'none';
+
+    scope.$watch('clientId', function(value) { init() });
+
+    var init = function() {
+      initAttributes();          // sets defaults
+      compile();                 // compiles the desired layout
+      Endpoint.set(scope);       // sets the oauth authorization url
+      AccessToken.set(scope);    // sets the access token object (if existing, from fragment or session)
+      initProfile(scope);        // gets the profile resource (if existing the access token)
+      initView();                // sets the view (logged in or out)
+    };
+
+    var initAttributes = function() {
+      scope.authorizePath = scope.authorizePath || '/oauth/authorize';
+      scope.tokenPath     = scope.tokenPath     || '/oauth/token';
+      scope.template      = scope.template      || 'bower_components/oauth-ng/dist/views/templates/default.html';
+      scope.responseType  = scope.responseType  || 'token';
+      scope.text          = scope.text          || 'Sign In';
+      scope.state         = scope.state         || undefined;
+      scope.scope         = scope.scope         || undefined;
+    };
+
+    var compile = function() {
+      $http.get(scope.template, { cache: $templateCache }).success(function(html) {
+        element.html(html);
+        $compile(element.contents())(scope);
+      });
+    };
+
+    var initProfile = function(scope) {
+      var token = AccessToken.get();
+
+      if (token && token.access_token && scope.profileUri) {
+        Profile.find(scope.profileUri).success(function(response) {
+          scope.profile = response
+        })
       }
     };
 
-    definition.link = function postLink(scope, element, attrs) {
-      scope.show = 'none';
+    var initView = function() {
+      var token = AccessToken.get();
 
-      scope.$watch('clientId', function(value) { init() });
-
-      var init = function() {
-        initAttributes();          // sets defaults
-        compile();                 // compiles the desired layout
-        Endpoint.set(scope);       // sets the oauth authorization url
-        AccessToken.set(scope);    // sets the access token object (if existing, from fragment or session)
-        initProfile(scope);        // gets the profile resource (if existing the access token)
-        initView();                // sets the view (logged in or out)
-      };
-
-      var initAttributes = function() {
-        scope.authorizePath = scope.authorizePath || '/oauth/authorize';
-        scope.tokenPath     = scope.tokenPath     || '/oauth/token';
-        scope.template      = scope.template      || 'bower_components/oauth-ng/dist/views/templates/default.html';
-        scope.text          = scope.text          || 'Sign In';
-        scope.state         = scope.state         || undefined;
-        scope.scope         = scope.scope         || undefined;
-      };
-
-      var compile = function() {
-        $http.get(scope.template, { cache: $templateCache }).success(function(html) {
-          element.html(html);
-          $compile(element.contents())(scope);
-        });
-      };
-
-      var initProfile = function(scope) {
-        var token = AccessToken.get();
-
-        if (token && token.access_token && scope.profileUri) {
-          Profile.find(scope.profileUri).success(function(response) {
-            scope.profile = response
-          })
-        }
-      };
-
-      var initView = function() {
-        var token = AccessToken.get();
-
-        if (!token)             { return loggedOut()  }  // without access token it's logged out
-        if (token.access_token) { return authorized() }  // if there is the access token we are done
-        if (token.error)        { return denied()     }  // if the request has been denied we fire the denied event
-      };
-
-      scope.login = function() {
-        Endpoint.redirect();
-      };
-
-      scope.logout = function() {
-        AccessToken.destroy(scope);
-        loggedOut();
-      };
-
-      // user is authorized
-      var authorized = function() {
-        $rootScope.$broadcast('oauth:authorized', AccessToken.get());
-        scope.show = 'logged-in';
-      };
-
-      // set the oauth directive to the logged-out status
-      var loggedOut = function() {
-        $rootScope.$broadcast('oauth:logout');
-        scope.show = 'logged-out';
-      };
-
-      // set the oauth directive to the denied status
-      var denied = function() {
-        scope.show = 'denied';
-        $rootScope.$broadcast('oauth:denied');
-      };
-
-      // Updates the template at runtime
-      scope.$on('oauth:template:update', function(event, template) {
-        scope.template = template;
-        compile(scope);
-      });
-
-      // Hack to update the directive content on logout
-      // TODO think to a cleaner solution
-      scope.$on('$routeChangeSuccess', function () {
-        init();
-      });
+      if (!token)             { return loggedOut()  }  // without access token it's logged out
+      if (token.access_token) { return authorized() }  // if there is the access token we are done
+      if (token.error)        { return denied()     }  // if the request has been denied we fire the denied event
     };
 
-    return definition
-}]);
+    scope.login = function() {
+      Endpoint.redirect();
+    };
+
+    scope.logout = function() {
+      AccessToken.destroy(scope);
+      loggedOut();
+    };
+
+    scope.$on('oauth:expired', function() {
+      AccessToken.destroy(scope);
+      scope.show = 'logged-out';
+    });
+
+    // user is authorized
+    var authorized = function() {
+      $rootScope.$broadcast('oauth:authorized', AccessToken.get());
+      scope.show = 'logged-in';
+    };
+
+    // set the oauth directive to the logged-out status
+    var loggedOut = function() {
+      $rootScope.$broadcast('oauth:logout');
+      scope.show = 'logged-out';
+    };
+
+    // set the oauth directive to the denied status
+    var denied = function() {
+      scope.show = 'denied';
+      $rootScope.$broadcast('oauth:denied');
+    };
+
+    // Updates the template at runtime
+    scope.$on('oauth:template:update', function(event, template) {
+      scope.template = template;
+      compile(scope);
+    });
+
+    // Hack to update the directive content on logout
+    // TODO think to a cleaner solution
+    scope.$on('$routeChangeSuccess', function () {
+      init();
+    });
+  };
+
+  return definition
+});
