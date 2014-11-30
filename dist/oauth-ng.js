@@ -1,4 +1,4 @@
-/* oauth-ng - v0.3.2 - 2014-11-25 */
+/* oauth-ng - v0.3.5 - 2014-11-29 */
 
 'use strict';
 
@@ -209,7 +209,7 @@ endpointClient.factory('Endpoint', ['AccessToken', '$location',
 
       url = params.site +
             params.authorizePath +
-            appendChar + 'response_type='+params.responseType + '&' +
+            appendChar + 'response_type=' + params.responseType + '&' +
             'client_id=' + encodeURIComponent(params.clientId) + '&' +
             'redirect_uri=' + encodeURIComponent(params.redirectUri) + '&' +
             'scope=' + oAuthScope + '&' +
@@ -339,6 +339,7 @@ directives.directive('oauth', [ 'AccessToken', 'Endpoint', 'Profile', '$location
         scope.authorizePath = scope.authorizePath || '/oauth/authorize';
         scope.tokenPath     = scope.tokenPath     || '/oauth/token';
         scope.template      = scope.template      || 'bower_components/oauth-ng/dist/views/templates/default.html';
+        scope.responseType  = scope.responseType  || 'token';
         scope.text          = scope.text          || 'Sign In';
         scope.state         = scope.state         || undefined;
         scope.scope         = scope.scope         || undefined;
@@ -378,6 +379,11 @@ directives.directive('oauth', [ 'AccessToken', 'Endpoint', 'Profile', '$location
         loggedOut();
       };
 
+      scope.$on('oauth:expired', function() {
+        AccessToken.destroy(scope);
+        scope.show = 'logged-out';
+      });
+
       // user is authorized
       var authorized = function() {
         $rootScope.$broadcast('oauth:authorized', AccessToken.get());
@@ -410,4 +416,4 @@ directives.directive('oauth', [ 'AccessToken', 'Endpoint', 'Profile', '$location
     };
 
     return definition
-}]);
+});
