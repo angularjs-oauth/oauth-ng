@@ -416,4 +416,4 @@ directives.directive('oauth', [ 'AccessToken', 'Endpoint', 'Profile', '$location
     };
 
     return definition
-});
+}]);
