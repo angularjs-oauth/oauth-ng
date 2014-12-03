@@ -1,6 +1,6 @@
 {
   "name": "oauth-ng",
-  "version": "0.3.2",
+  "version": "0.3.6",
   "author": "Andrea Reginato <andrea.reginato@gmail.com>",
   "description": "AngularJS Directive for OAuth 2.0",
   "repository": {

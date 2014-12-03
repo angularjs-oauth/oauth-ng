@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.6 (Dicember 03, 2014)
+
+* Broadcast event oauth:tokenDestroy after a logout.
+
 ## 0.3.5 (November 29, 2014)
 
 * Remove access token and change directive text to 'logout' when token is expired.
