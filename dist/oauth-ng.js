@@ -371,6 +371,7 @@ directives.directive('oauth', function(AccessToken, Endpoint, Profile, $location
 
     scope.logout = function() {
       AccessToken.destroy(scope);
+      $rootScope.$broadcast('oauth:logout');
       loggedOut();
     };
 
@@ -387,7 +388,7 @@ directives.directive('oauth', function(AccessToken, Endpoint, Profile, $location
 
     // set the oauth directive to the logged-out status
     var loggedOut = function() {
-      $rootScope.$broadcast('oauth:logout');
+      $rootScope.$broadcast('oauth:loggedOut');
       scope.show = 'logged-out';
     };
 
