@@ -748,6 +748,15 @@ angular.module('newProjectApp').config(function($locationProvider) {
           </tr>
           <tr>
             <td class="parameter">
+              <span>oauth:loggedOut</span>
+              <span class="info">fired</span>
+            </td>
+            <td>
+              Fired when the user is not logged in.
+            </td>
+          </tr>
+          <tr>
+            <td class="parameter">
               <span>oauth:denied</span>
               <span class="info">fired</span>
             </td>
@@ -797,6 +806,10 @@ angular.module('newProjectApp').config(function($locationProvider) {
 
 $scope.$on('oauth:logout', function(event) {
   console.log('The user has signed out');
+});
+
+$scope.$on('oauth:loggedOut', function(event) {
+  console.log('The user is not signed in');
 });
 
 $scope.$on('oauth:denied', function(event) {
