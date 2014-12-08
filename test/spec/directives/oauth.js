@@ -25,10 +25,10 @@ describe('oauth', function() {
     element = angular.element(
       '<span class="xyze-widget">' +
         '<oauth ng-cloak site="http://example.com"' +
-          'client="client-id"' +
-          'redirect="http://example.com/redirect"' +
+          'client="\'client-id\'"' +
+          'redirect="\'http://example.com/redirect\'"' +
           'scope="scope"' +
-          'profile-uri="http://example.com/me">Sign In</oauth>' +
+          'profile-uri="\'http://example.com/me\'">Sign In</oauth>' +
       '</span>'
     );
   });
