@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.8 (February 06, 2015)
+
+* Upgrade to AngularJS v1.3.12.
+
 ## 0.3.6 (Dicember 03, 2014)
 
 * Broadcast event oauth:tokenDestroy after a logout.
