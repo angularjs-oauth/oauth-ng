@@ -1,4 +1,4 @@
-/* oauth-ng - v0.3.8 - 2015-04-14 */
+/* oauth-ng - v0.3.8 - 2015-04-19 */
 
 'use strict';
 
@@ -8,6 +8,7 @@ var app = angular.module('oauth', [
   'oauth.accessToken',    // access token service
   'oauth.endpoint',       // oauth endpoint service
   'oauth.profile',        // profile model
+  'oauth.storage',        // storage
   'oauth.interceptor'     // bearer token interceptor
 ]);
 
@@ -18,9 +19,9 @@ angular.module('oauth').config(['$locationProvider','$httpProvider',
 
 'use strict';
 
-var accessTokenService = angular.module('oauth.accessToken', ['ngStorage']);
+var accessTokenService = angular.module('oauth.accessToken', []);
 
-accessTokenService.factory('AccessToken', ['$rootScope', '$location', '$sessionStorage', '$interval', function($rootScope, $location, $sessionStorage, $interval){
+accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$location', '$interval', function(Storage, $rootScope, $location, $interval){
 
     var service = {
             token: null
@@ -58,7 +59,7 @@ accessTokenService.factory('AccessToken', ['$rootScope', '$location', '$sessionS
      * @returns {null}
      */
     service.destroy = function(){
-        delete $sessionStorage.token;
+        Storage.delete('token');
         this.token = null;
         return this.token;
     };
@@ -96,8 +97,8 @@ accessTokenService.factory('AccessToken', ['$rootScope', '$location', '$sessionS
      * Set the access token from the sessionStorage.
      */
     var setTokenFromSession = function(){
-        if($sessionStorage.token){
-            var params = $sessionStorage.token;
+        if(Storage.get('token')){
+            var params = Storage.get('token');
             params.expires_at = new Date(params.expires_at);
             setToken(params);
         }
@@ -141,7 +142,7 @@ accessTokenService.factory('AccessToken', ['$rootScope', '$location', '$sessionS
      * Save the access token into the session
      */
     var setTokenInSession = function(){
-        $sessionStorage.token = service.token;
+        Storage.set('token', service.token);
     };
 
     /**
@@ -271,14 +272,63 @@ profileClient.factory('Profile', ['$http', 'AccessToken', '$rootScope', function
 
 'use strict';
 
+var storageService = angular.module('oauth.storage', ['ngStorage']);
+
+storageService.factory('Storage', ['$rootScope', '$sessionStorage', '$localStorage', function($rootScope, $sessionStorage, $localStorage){
+
+    var service = {
+        storage: $sessionStorage // By default
+    };
+
+    /**
+     * Deletes the item from storage,
+     * Returns the item's previous value
+     */
+    service.delete = function (name) {
+        var stored = this.get(name);
+        delete this.storage[name];
+        return stored;
+    };
+
+    /**
+     * Returns the item from storage
+     */
+    service.get = function (name) {
+        return this.storage[name];
+    };
+
+    /**
+     * Sets the item in storage to the value specified
+     * Returns the item's value
+     */
+    service.set = function (name, value) {
+        this.storage[name] = value;
+        return this.get(name);
+    };
+
+    /**
+     * Change the storage service being used
+     */
+    service.use = function (storage) {
+        if (storage === 'sessionStorage') {
+            this.storage = $sessionStorage;
+        } else if (storage === 'localStorage') {
+            this.storage = $localStorage;
+        }
+    };
+
+    return service;
+}]);
+'use strict';
+
 var interceptorService = angular.module('oauth.interceptor', []);
 
-interceptorService.factory('ExpiredInterceptor', ['$rootScope', '$q', '$sessionStorage', function ($rootScope, $q, $sessionStorage) {
+interceptorService.factory('ExpiredInterceptor', ['Storage', '$rootScope', '$q', function (Storage, $rootScope, $q) {
 
   var service = {};
 
   service.request = function(config) {
-    var token = $sessionStorage.token;
+    var token = Storage.get('token');
 
     if (token && expired(token))
       $rootScope.$broadcast('oauth:expired', token);
@@ -301,12 +351,13 @@ directives.directive('oauth', [
   'AccessToken',
   'Endpoint',
   'Profile',
+  'Storage',
   '$location',
   '$rootScope',
   '$compile',
   '$http',
   '$templateCache',
-  function(AccessToken, Endpoint, Profile, $location, $rootScope, $compile, $http, $templateCache) {
+  function(AccessToken, Endpoint, Profile, Storage, $location, $rootScope, $compile, $http, $templateCache) {
 
   var definition = {
     restrict: 'AE',
@@ -321,7 +372,8 @@ directives.directive('oauth', [
       template: '@',      // (optional) template to render (e.g bower_components/oauth-ng/dist/views/templates/default.html)
       text: '@',          // (optional) login text
       authorizePath: '@', // (optional) authorization url
-      state: '@'          // (optional) An arbitrary unique string created by your app to guard against Cross-site Request Forgery
+      state: '@',         // (optional) An arbitrary unique string created by your app to guard against Cross-site Request Forgery
+      storage: '@'        // (optional) Store token in 'sessionStorage' or 'localStorage', defaults to 'sessionStorage'
     }
   };
 
@@ -332,6 +384,7 @@ directives.directive('oauth', [
 
     var init = function() {
       initAttributes();          // sets defaults
+      Storage.use(scope.storage);// set storage
       compile();                 // compiles the desired layout
       Endpoint.set(scope);       // sets the oauth authorization url
       AccessToken.set(scope);    // sets the access token object (if existing, from fragment or session)
@@ -347,6 +400,7 @@ directives.directive('oauth', [
       scope.text          = scope.text          || 'Sign In';
       scope.state         = scope.state         || undefined;
       scope.scope         = scope.scope         || undefined;
+      scope.storage       = scope.storage       || 'sessionStorage';
     };
 
     var compile = function() {

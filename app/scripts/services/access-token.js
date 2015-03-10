@@ -1,8 +1,8 @@
 'use strict';
 
-var accessTokenService = angular.module('oauth.accessToken', ['ngStorage']);
+var accessTokenService = angular.module('oauth.accessToken', []);
 
-accessTokenService.factory('AccessToken', ['$rootScope', '$location', '$sessionStorage', '$interval', function($rootScope, $location, $sessionStorage, $interval){
+accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$location', '$interval', function(Storage, $rootScope, $location, $interval){
 
     var service = {
             token: null
@@ -40,7 +40,7 @@ accessTokenService.factory('AccessToken', ['$rootScope', '$location', '$sessionS
      * @returns {null}
      */
     service.destroy = function(){
-        delete $sessionStorage.token;
+        Storage.delete('token');
         this.token = null;
         return this.token;
     };
@@ -78,8 +78,8 @@ accessTokenService.factory('AccessToken', ['$rootScope', '$location', '$sessionS
      * Set the access token from the sessionStorage.
      */
     var setTokenFromSession = function(){
-        if($sessionStorage.token){
-            var params = $sessionStorage.token;
+        if(Storage.get('token')){
+            var params = Storage.get('token');
             params.expires_at = new Date(params.expires_at);
             setToken(params);
         }
@@ -123,7 +123,7 @@ accessTokenService.factory('AccessToken', ['$rootScope', '$location', '$sessionS
      * Save the access token into the session
      */
     var setTokenInSession = function(){
-        $sessionStorage.token = service.token;
+        Storage.set('token', service.token);
     };
 
     /**
