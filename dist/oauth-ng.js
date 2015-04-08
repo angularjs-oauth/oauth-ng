@@ -20,7 +20,7 @@ angular.module('oauth').config(['$locationProvider','$httpProvider',
 
 var accessTokenService = angular.module('oauth.accessToken', ['ngStorage']);
 
-accessTokenService.factory('AccessToken', function($rootScope, $location, $sessionStorage, $interval){
+accessTokenService.factory('AccessToken', ['$rootScope', '$location', '$sessionStorage', '$interval', function($rootScope, $location, $sessionStorage, $interval){
 
     var service = {
             token: null
@@ -183,13 +183,13 @@ accessTokenService.factory('AccessToken', function($rootScope, $location, $sessi
 
 
     return service;
-});
+}]);
 
 'use strict';
 
 var endpointClient = angular.module('oauth.endpoint', []);
 
-endpointClient.factory('Endpoint', function(AccessToken, $location) {
+endpointClient.factory('Endpoint', ['AccessToken', '$location', function(AccessToken, $location) {
 
   var service = {};
   var url;
@@ -234,13 +234,13 @@ endpointClient.factory('Endpoint', function(AccessToken, $location) {
   };
 
   return service;
-});
+}]);
 
 'use strict';
 
 var profileClient = angular.module('oauth.profile', [])
 
-profileClient.factory('Profile', function($http, AccessToken, $rootScope) {
+profileClient.factory('Profile', ['$http', 'AccessToken', '$rootScope', function($http, AccessToken, $rootScope) {
   var service = {};
   var profile;
 
@@ -267,13 +267,13 @@ profileClient.factory('Profile', function($http, AccessToken, $rootScope) {
   };
 
   return service;
-});
+}]);
 
 'use strict';
 
 var interceptorService = angular.module('oauth.interceptor', []);
 
-interceptorService.factory('ExpiredInterceptor', function ($rootScope, $q, $sessionStorage) {
+interceptorService.factory('ExpiredInterceptor', ['$rootScope', '$q', '$sessionStorage', function ($rootScope, $q, $sessionStorage) {
 
   var service = {};
 
@@ -291,13 +291,13 @@ interceptorService.factory('ExpiredInterceptor', function ($rootScope, $q, $sess
   };
 
   return service;
-});
+}]);
 
 'use strict';
 
 var directives = angular.module('oauth.directive', []);
 
-directives.directive('oauth', function(AccessToken, Endpoint, Profile, $location, $rootScope, $compile, $http, $templateCache) {
+directives.directive('oauth', ['AccessToken', 'Endpoint', 'Profile', '$location', '$rootScope', '$compile', '$http', '$templateCache', function(AccessToken, Endpoint, Profile, $location, $rootScope, $compile, $http, $templateCache) {
 
   var definition = {
     restrict: 'AE',
@@ -412,4 +412,4 @@ directives.directive('oauth', function(AccessToken, Endpoint, Profile, $location
   };
 
   return definition
-});
+}]);
