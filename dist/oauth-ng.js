@@ -1,4 +1,4 @@
-/* oauth-ng - v0.3.8 - 2015-02-06 */
+/* oauth-ng - v0.3.8 - 2015-04-14 */
 
 'use strict';
 
@@ -189,7 +189,7 @@ accessTokenService.factory('AccessToken', ['$rootScope', '$location', '$sessionS
 
 var endpointClient = angular.module('oauth.endpoint', []);
 
-endpointClient.factory('Endpoint', ['AccessToken', '$location', function(AccessToken, $location) {
+endpointClient.factory('Endpoint', function() {
 
   var service = {};
   var url;
@@ -234,7 +234,7 @@ endpointClient.factory('Endpoint', ['AccessToken', '$location', function(AccessT
   };
 
   return service;
-}]);
+});
 
 'use strict';
 
@@ -297,7 +297,16 @@ interceptorService.factory('ExpiredInterceptor', ['$rootScope', '$q', '$sessionS
 
 var directives = angular.module('oauth.directive', []);
 
-directives.directive('oauth', ['AccessToken', 'Endpoint', 'Profile', '$location', '$rootScope', '$compile', '$http', '$templateCache', function(AccessToken, Endpoint, Profile, $location, $rootScope, $compile, $http, $templateCache) {
+directives.directive('oauth', [
+  'AccessToken',
+  'Endpoint',
+  'Profile',
+  '$location',
+  '$rootScope',
+  '$compile',
+  '$http',
+  '$templateCache',
+  function(AccessToken, Endpoint, Profile, $location, $rootScope, $compile, $http, $templateCache) {
 
   var definition = {
     restrict: 'AE',

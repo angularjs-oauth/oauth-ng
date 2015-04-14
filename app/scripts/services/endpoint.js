@@ -2,7 +2,7 @@
 
 var endpointClient = angular.module('oauth.endpoint', []);
 
-endpointClient.factory('Endpoint', function(AccessToken, $location) {
+endpointClient.factory('Endpoint', function() {
 
   var service = {};
   var url;

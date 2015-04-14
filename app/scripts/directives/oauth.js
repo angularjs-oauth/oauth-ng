@@ -2,7 +2,16 @@
 
 var directives = angular.module('oauth.directive', []);
 
-directives.directive('oauth', function(AccessToken, Endpoint, Profile, $location, $rootScope, $compile, $http, $templateCache) {
+directives.directive('oauth', [
+  'AccessToken',
+  'Endpoint',
+  'Profile',
+  '$location',
+  '$rootScope',
+  '$compile',
+  '$http',
+  '$templateCache',
+  function(AccessToken, Endpoint, Profile, $location, $rootScope, $compile, $http, $templateCache) {
 
   var definition = {
     restrict: 'AE',
@@ -117,4 +126,4 @@ directives.directive('oauth', function(AccessToken, Endpoint, Profile, $location
   };
 
   return definition
-});
+}]);

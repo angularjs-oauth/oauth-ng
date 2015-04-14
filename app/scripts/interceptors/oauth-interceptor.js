@@ -2,7 +2,7 @@
 
 var interceptorService = angular.module('oauth.interceptor', []);
 
-interceptorService.factory('ExpiredInterceptor', function ($rootScope, $q, $sessionStorage) {
+interceptorService.factory('ExpiredInterceptor', ['$rootScope', '$q', '$sessionStorage', function ($rootScope, $q, $sessionStorage) {
 
   var service = {};
 
@@ -20,4 +20,4 @@ interceptorService.factory('ExpiredInterceptor', function ($rootScope, $q, $sess
   };
 
   return service;
-});
+}]);
