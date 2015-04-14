@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.9 (April 14, 2015)
+
+* Add inline annotations for dependency injection
+
 ## 0.3.8 (February 06, 2015)
 
 * Upgrade to AngularJS v1.3.12.
