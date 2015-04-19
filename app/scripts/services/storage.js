@@ -2,7 +2,7 @@
 
 var storageService = angular.module('oauth.storage', ['ngStorage']);
 
-storageService.factory('Storage', function($rootScope, $sessionStorage, $localStorage){
+storageService.factory('Storage', ['$rootScope', '$sessionStorage', '$localStorage', function($rootScope, $sessionStorage, $localStorage){
 
     var service = {
         storage: $sessionStorage // By default
@@ -46,4 +46,4 @@ storageService.factory('Storage', function($rootScope, $sessionStorage, $localSt
     };
 
     return service;
-});
+}]);
