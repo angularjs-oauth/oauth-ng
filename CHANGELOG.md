@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.10 (April 20, 2015)
+
+* Add Storage service
+
 ## 0.3.9 (April 14, 2015)
 
 * Add inline annotations for dependency injection
