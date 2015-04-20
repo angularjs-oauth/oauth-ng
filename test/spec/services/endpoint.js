@@ -2,7 +2,7 @@
 
 describe('Endpoint', function() {
 
-  var result, $location, $sessionStorage, Endpoint;
+  var result, $location, Storage, Endpoint;
 
   var fragment = 'access_token=token&token_type=bearer&expires_in=7200&state=/path';
   var params   = { site: 'http://example.com', clientId: 'client-id', redirectUri: 'http://example.com/redirect', scope: 'scope', authorizePath: '/oauth/authorize', responseType: 'token' };
@@ -11,7 +11,7 @@ describe('Endpoint', function() {
   beforeEach(module('oauth'));
 
   beforeEach(inject(function($injector) { $location       = $injector.get('$location') }));
-  beforeEach(inject(function($injector) { $sessionStorage = $injector.get('$sessionStorage') }));
+  beforeEach(inject(function($injector) { Storage         = $injector.get('Storage') }));
   beforeEach(inject(function($injector) { Endpoint        = $injector.get('Endpoint') }));
 
   describe('#set', function() {

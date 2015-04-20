@@ -6,12 +6,13 @@ directives.directive('oauth', [
   'AccessToken',
   'Endpoint',
   'Profile',
+  'Storage',
   '$location',
   '$rootScope',
   '$compile',
   '$http',
   '$templateCache',
-  function(AccessToken, Endpoint, Profile, $location, $rootScope, $compile, $http, $templateCache) {
+  function(AccessToken, Endpoint, Profile, Storage, $location, $rootScope, $compile, $http, $templateCache) {
 
   var definition = {
     restrict: 'AE',
@@ -26,7 +27,8 @@ directives.directive('oauth', [
       template: '@',      // (optional) template to render (e.g views/templates/default.html)
       text: '@',          // (optional) login text
       authorizePath: '@', // (optional) authorization url
-      state: '@'          // (optional) An arbitrary unique string created by your app to guard against Cross-site Request Forgery
+      state: '@',         // (optional) An arbitrary unique string created by your app to guard against Cross-site Request Forgery
+      storage: '@'        // (optional) Store token in 'sessionStorage' or 'localStorage', defaults to 'sessionStorage'
     }
   };
 
@@ -37,6 +39,7 @@ directives.directive('oauth', [
 
     var init = function() {
       initAttributes();          // sets defaults
+      Storage.use(scope.storage);// set storage
       compile();                 // compiles the desired layout
       Endpoint.set(scope);       // sets the oauth authorization url
       AccessToken.set(scope);    // sets the access token object (if existing, from fragment or session)
@@ -52,6 +55,7 @@ directives.directive('oauth', [
       scope.text          = scope.text          || 'Sign In';
       scope.state         = scope.state         || undefined;
       scope.scope         = scope.scope         || undefined;
+      scope.storage       = scope.storage       || 'sessionStorage';
     };
 
     var compile = function() {

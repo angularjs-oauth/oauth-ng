@@ -17,6 +17,7 @@
     <!-- build:css({.tmp,app}) styles/main.css -->
     <link rel="stylesheet" href="styles/main.css">
     <!-- endbuild -->
+    <base href="/">
   </head>
   <body ng-app="app">
 
@@ -32,7 +33,8 @@
     client-id="CLIENT_ID_HERE"
     redirect-uri="REDIRECT_URI_HERE"
     profile-uri="PROFILE_URI_HERE"
-    scope="SCOPE_HERE">
+    scope="SCOPE_HERE"
+    storage="STORAGE_TYPE_HERE">
     </oauth>
     </div>
 
@@ -46,6 +48,7 @@
     <script src="scripts/services/access-token.js"></script>
     <script src="scripts/services/endpoint.js"></script>
     <script src="scripts/services/profile.js"></script>
+    <script src="scripts/services/storage.js"></script>
     <script src="scripts/interceptors/oauth-interceptor.js"></script>
     <script src="scripts/directives/oauth.js"></script>
     <!-- endbuild -->
