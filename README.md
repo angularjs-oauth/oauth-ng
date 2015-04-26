@@ -17,7 +17,7 @@ Please also update `gh-pages` branch with documentation when applicable.
 ### Setup
 
 * Fork and clone the repository
-* Run `npm install && bower install
+* Run `npm install && bower install`
 
 ### OAuth 2.0 supported grant types
 
@@ -28,13 +28,13 @@ and the [OAuth 2.0 Implicit Flow](http://tools.ietf.org/html/rfc6749#section-1.3
 
 See: http://tools.ietf.org/html/rfc6749#section-4.1
 
-The use the Authorization code flow set response-type="code" in the oauth directive.
+To use the Authorization code flow set response-type="code" in the oauth directive.
 
 #### Implicit flow
 
 See: http://tools.ietf.org/html/rfc6749#section-4.2
 
-The use the Implicit flow set response-type="token" in the oauth directive.
+To use the Implicit flow set response-type="token" in the oauth directive.
 
 ### Unit tests (karma)
 
