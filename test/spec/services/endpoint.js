@@ -166,5 +166,14 @@ describe('Endpoint', function() {
         expect( result ).toEqual( expectedUri );
       });
     });
+
+    describe( "given scope with spaces", function(){
+      it( "correctly encodes the spaces", function(){
+        var override    = { scope: 'read write profile openid' };
+        var result      = Endpoint.get( override );
+        var expectedUri = 'http://example.com/oauth/authorize?response_type=token&client_id=client-id&redirect_uri=http%3A%2F%2Fexample.com%2Fredirect&scope=read%20write%20profile%20openid&state=';
+        expect( result ).toEqual( expectedUri );
+      });
+    });
   });
 });

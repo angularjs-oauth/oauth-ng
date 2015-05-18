@@ -21,7 +21,7 @@ endpointClient.factory('Endpoint', function() {
 
   service.get = function( overrides ) {
     var params = angular.extend( {}, service.config, overrides);
-    var oAuthScope = (params.scope) ? params.scope : '',
+    var oAuthScope = (params.scope) ? encodeURIComponent(params.scope) : '',
         state = (params.state) ? encodeURIComponent(params.state) : '',
         authPathHasQuery = (params.authorizePath.indexOf('?') == -1) ? false : true,
         appendChar = (authPathHasQuery) ? '&' : '?';    //if authorizePath has ? already append OAuth2 params
