@@ -34,6 +34,10 @@ endpointClient.factory('Endpoint', function() {
           'redirect_uri=' + encodeURIComponent(params.redirectUri) + '&' +
           'scope=' + oAuthScope + '&' +
           'state=' + state;
+
+    if( params.nonce ) {
+      url = url + "&nonce=" + params.nonce;
+    }
     return url;
   };
 

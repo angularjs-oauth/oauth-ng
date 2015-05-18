@@ -184,5 +184,14 @@ describe('Endpoint', function() {
         expect( result ).toEqual( expectedUri );
       });
     });
+
+    describe( "when provided with a nonce", function(){
+      it( "adds the nonce parameter", function(){
+        var override    = { nonce: '987654321' };
+        var result      = Endpoint.get( override );
+        var expectedUri = 'http://example.com/oauth/authorize?response_type=token&client_id=client-id&redirect_uri=http%3A%2F%2Fexample.com%2Fredirect&scope=scope&state=&nonce=987654321';
+        expect( result ).toEqual( expectedUri );
+      });
+    });
   });
 });
