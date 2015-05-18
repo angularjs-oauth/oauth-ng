@@ -45,8 +45,8 @@ endpointClient.factory('Endpoint', function() {
    * Redirects the app to the authorization URL
    */
 
-  service.redirect = function() {
-    var targetLocation = this.get();
+  service.redirect = function( overrides ) {
+    var targetLocation = this.get( overrides );
     window.location.replace(targetLocation);
   };
 
