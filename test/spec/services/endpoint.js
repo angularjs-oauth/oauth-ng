@@ -175,5 +175,14 @@ describe('Endpoint', function() {
         expect( result ).toEqual( expectedUri );
       });
     });
+
+    describe( "on repsonse type with spaces", function(){
+      it( "correctly encodes the spaces", function(){
+        var override    = { responseType: 'id_token token' };
+        var result      = Endpoint.get( override );
+        var expectedUri = 'http://example.com/oauth/authorize?response_type=id_token%20token&client_id=client-id&redirect_uri=http%3A%2F%2Fexample.com%2Fredirect&scope=scope&state=';
+        expect( result ).toEqual( expectedUri );
+      });
+    });
   });
 });

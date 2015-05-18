@@ -24,11 +24,12 @@ endpointClient.factory('Endpoint', function() {
     var oAuthScope = (params.scope) ? encodeURIComponent(params.scope) : '',
         state = (params.state) ? encodeURIComponent(params.state) : '',
         authPathHasQuery = (params.authorizePath.indexOf('?') == -1) ? false : true,
-        appendChar = (authPathHasQuery) ? '&' : '?';    //if authorizePath has ? already append OAuth2 params
+        appendChar = (authPathHasQuery) ? '&' : '?',    //if authorizePath has ? already append OAuth2 params
+        responseType = (params.responseType) ? encodeURIComponent(params.responseType) : '';
 
     var url = params.site +
           params.authorizePath +
-          appendChar + 'response_type=' + params.responseType + '&' +
+          appendChar + 'response_type=' + responseType + '&' +
           'client_id=' + encodeURIComponent(params.clientId) + '&' +
           'redirect_uri=' + encodeURIComponent(params.redirectUri) + '&' +
           'scope=' + oAuthScope + '&' +
