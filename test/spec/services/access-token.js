@@ -5,6 +5,8 @@ describe('AccessToken', function() {
   var result, $location, Storage, AccessToken, date;
 
   var fragment = 'access_token=token&token_type=bearer&expires_in=7200&state=/path&extra=stuff';
+  var fragmentForever = 'access_token=token&token_type=bearer&state=/path&extra=stuff';
+  var fragmentImmediate = 'access_token=token&token_type=bearer&expires_in=0&state=/path&extra=stuff';
   var denied   = 'error=access_denied&error_description=error';
   var expires_at = '2014-08-17T17:38:37.584Z';
   var token    = { access_token: 'token', token_type: 'bearer', expires_in: 7200, state: '/path', expires_at: expires_at };
@@ -35,6 +37,38 @@ describe('AccessToken', function() {
       it('sets #expires_at', function() {
         var expected_date = new Date();
         expected_date.setSeconds(expected_date.getSeconds() + 7200 - 60);
+        expect(parseInt(result.expires_at/100)).toBe(parseInt(expected_date/100)); // 10 ms
+      });
+    });
+
+    describe('when sets the access token without an expiry', function() {
+
+      beforeEach(function() {
+        $location.hash(fragmentForever);
+      });
+
+      beforeEach(function() {
+        result = AccessToken.set();
+      });
+
+      it('sets #expires_at', function() {
+        expect(result.expires_at).toBe(null);
+      });
+    });
+
+    describe('when sets the access token with an expiry of 0 (immediate)', function() {
+
+      beforeEach(function() {
+        $location.hash(fragmentImmediate);
+      });
+
+      beforeEach(function() {
+        result = AccessToken.set();
+      });
+
+      it('sets #expires_at', function() {
+        var expected_date = new Date();
+        expected_date.setSeconds(expected_date.getSeconds() - 60);
         expect(parseInt(result.expires_at/100)).toBe(parseInt(expected_date/100)); // 10 ms
       });
     });
@@ -207,7 +241,7 @@ describe('AccessToken', function() {
             });
 
             it('rehydrates the expires_at value', function() {
-                expect(result).toEqual(new Date(expires_at));
+                expect(result).toEqual(expires_at);
             });
         });
     });

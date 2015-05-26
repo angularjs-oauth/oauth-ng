@@ -1,4 +1,4 @@
-/* oauth-ng - v0.3.8 - 2015-04-20 */
+/* oauth-ng - v0.3.10 - 2015-05-09 */
 
 'use strict';
 
@@ -84,6 +84,9 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$location',
             removeFragment();
             setToken(params);
             setExpiresAt();
+            // We have to save it again to make sure expires_at is set
+            //  and the expiry event is set up properly
+            setToken(this.token);
             $rootScope.$broadcast('oauth:login', service.token);
         }
     };
@@ -97,9 +100,8 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$location',
      * Set the access token from the sessionStorage.
      */
     var setTokenFromSession = function(){
-        if(Storage.get('token')){
-            var params = Storage.get('token');
-            params.expires_at = new Date(params.expires_at);
+        var params = Storage.get('token');
+        if (params) {
             setToken(params);
         }
     };
@@ -149,10 +151,15 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$location',
      * Set the access token expiration date (useful for refresh logics)
      */
     var setExpiresAt = function(){
-        if(service.token){
+        if (!service.token) {
+            return;
+        }
+        if(typeof(service.token.expires_in) !== 'undefined' && service.token.expires_in !== null) {
             var expires_at = new Date();
             expires_at.setSeconds(expires_at.getSeconds()+parseInt(service.token.expires_in)-60); // 60 seconds less to secure browser and response latency
             service.token.expires_at = expires_at;
+        } else {
+            service.token.expires_at = null;
         }
     };
 
@@ -161,6 +168,10 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$location',
      * Set the timeout at which the expired event is fired
      */
     var setExpiresAtEvent = function(){
+        // Don't bother if there's no expires token
+        if (typeof(service.token.expires_at) === 'undefined' || service.token.expires_at === null) {
+            return;
+        }
         var time = (new Date(service.token.expires_at))-(new Date());
         if(time){
             $interval(function(){
