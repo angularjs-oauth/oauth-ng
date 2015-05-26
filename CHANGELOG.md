@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.0 (May 26, 2015)
+
+* Fix jshint config file
+* Token `expires_in` property is now optional
+
 ## 0.3.10 (April 20, 2015)
 
 * Add Storage service
@@ -22,42 +27,42 @@
 
 ## 0.3.3 (November 25, 2014)
 
-* Fixed Code method option added
+* Add Fixed Code method option
 
 ## 0.3.2 (November 16, 2014)
 
-* Authorization Code method option added
+* Add Authorization Code method option
 
 ## 0.3.1 (November 3, 2014)
 
 * Replace $timeout with $interval #50
 * Add broadcast “oath:profile” once profile is retrieved. #51
-* Added travis
+* Add travis
 
 ## 0.3.0 (October 30, 2014)
 
-* Solved bug on access token definition from hash
+* Fix bug on access token definition from hash
 * Correctly running tests with E2E protractor
 
 ## 0.2.8 (August 27, 2014)
 
-* Fixed `expries_at` not being set in some situations
+* Fix `expries_at` not being set in some situations
 * Only use session storage when oAuth hash not in URL
 * Only remove oAuth2 tokens from hash
 
 ## 0.2.7 (August 26, 2014)
 
-* Fixed `expires_at` not being set
-* Fixed `expired()` calculation
+* Fix `expires_at` not being set
+* Fix `expired()` calculation
 
 ## 0.2.6 (August 14, 2014)
 
-* Removed encoding for OAuth 2.0 scope.
+* Remove encoding for OAuth 2.0 scope.
 
 ## 0.2.4 (August 13, 2014)
 
-* Removed settings for HTML5 mode
-* Added logic to fire the oauth:expired event when the token expires. Before it was raised
+* Remove settings for HTML5 mode
+* Add logic to fire the oauth:expired event when the token expires. Before it was raised
 only when the request was returning a 401.
 
 ## 0.2.2 (July 11, 2014)
@@ -73,6 +78,6 @@ per https://github.com/andreareginato/oauth-ng/issues/16
 
 ## 0.2.0 (June 1, 2014)
 
-* Updated name from ng-oauth to oauth-ng
+* Update name from ng-oauth to oauth-ng
 * New documentation site andreareginato.github.io/oauth-ng
 * Major refactoring
