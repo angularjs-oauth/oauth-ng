@@ -1,6 +1,6 @@
 'use strict';
 
-var profileClient = angular.module('oauth.profile', [])
+var profileClient = angular.module('oauth.profile', []);
 
 profileClient.factory('Profile', ['$http', 'AccessToken', '$rootScope', function($http, AccessToken, $rootScope) {
   var service = {};
@@ -11,11 +11,11 @@ profileClient.factory('Profile', ['$http', 'AccessToken', '$rootScope', function
     promise.success(function(response) {
         profile = response;
         $rootScope.$broadcast('oauth:profile', profile);
-    });
+      });
     return promise;
   };
 
-  service.get = function(uri) {
+  service.get = function() {
     return profile;
   };
 

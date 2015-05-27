@@ -15,7 +15,7 @@ endpointClient.factory('Endpoint', function() {
   service.set = function(params) {
     var oAuthScope = (params.scope) ? params.scope : '',
         state = (params.state) ? encodeURIComponent(params.state) : '',
-        authPathHasQuery = (params.authorizePath.indexOf('?') == -1) ? false : true,
+        authPathHasQuery = (params.authorizePath.indexOf('?') === -1) ? false : true,
         appendChar = (authPathHasQuery) ? '&' : '?';    //if authorizePath has ? already append OAuth2 params
 
     url = params.site +
