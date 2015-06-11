@@ -52,7 +52,7 @@
     "node": ">=0.8.0"
   },
   "scripts": {
-    "postinstall": "bower install --allow-root",
+    "postinstall": "bower install",
     "clean": "rm -rf node_modules dist app/bower_components",
     "test": "grunt test && grunt build"
   }
