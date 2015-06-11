@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.1 (Jun 11, 2015)
+
+* Add OpenID support
+
 ## 0.4.0 (May 26, 2015)
 
 * Fix jshint config file
