@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.2 (Jun 19, 2015)
+
+* Make the code more JSHint friendly
+* Fix expiry definition in the access token service 
+
 ## 0.4.1 (Jun 11, 2015)
 
 * Add OpenID support
