@@ -18,6 +18,15 @@
   "trailing": true,
   "smarttabs": true,
   "globals": {
-    "angular": false
+    "angular": false,
+    "jasmine": false,
+    "Timecop": false,
+    "spyOn": false,
+    "describe": false,
+    "it": false,
+    "expect": false,
+    "beforeEach": false,
+    "afterEach": false,
+    "inject": false
   }
 }

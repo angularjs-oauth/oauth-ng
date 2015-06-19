@@ -23,7 +23,7 @@ module.exports = function (grunt) {
   };
 
   try {
-    var component = require('./bower.json')
+    var component = require('./bower.json');
     yeomanConfig.name    = component.name    || 'no-name';
     yeomanConfig.version = component.version || '0.0.0.undefined';
   } catch (e) {}
@@ -114,6 +114,7 @@ module.exports = function (grunt) {
       ],
       test: {
         options: {
+          jasmine: true,
           jshintrc: 'test/.jshintrc'
         },
         src: ['test/spec/{,*/}*.js']

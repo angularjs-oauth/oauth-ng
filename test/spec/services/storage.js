@@ -7,9 +7,9 @@ describe('Storage', function() {
 
   beforeEach(module('oauth'));
 
-  beforeEach(inject(function($injector) { $sessionStorage = $injector.get('$sessionStorage') }));
-  beforeEach(inject(function($injector) { $localStorage   = $injector.get('$localStorage') }));
-  beforeEach(inject(function($injector) { Storage         = $injector.get('Storage') }));
+  beforeEach(inject(function($injector) { $sessionStorage = $injector.get('$sessionStorage'); }));
+  beforeEach(inject(function($injector) { $localStorage = $injector.get('$localStorage'); }));
+  beforeEach(inject(function($injector) { Storage = $injector.get('Storage'); }));
 
   it('should use sessionStorage by default', function () {
     expect(Storage.storage).toEqual($sessionStorage);
@@ -64,13 +64,13 @@ describe('Storage', function() {
     });
 
     it('should set something in sessionStorage', function () {
-      $sessionStorage.token = token
+      $sessionStorage.token = token;
       Storage.storage = $sessionStorage;
       expect(Storage.get('token')).toEqual(token);
     });
 
     it('should set something in sessionStorage', function () {
-      $localStorage.token = token
+      $localStorage.token = token;
       Storage.storage = $localStorage;
       expect(Storage.get('token')).toEqual(token);
     });

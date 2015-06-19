@@ -13,9 +13,9 @@ describe('AccessToken', function() {
 
   beforeEach(module('oauth'));
 
-  beforeEach(inject(function($injector) { $location       = $injector.get('$location') }));
-  beforeEach(inject(function($injector) { Storage         = $injector.get('Storage') }));
-  beforeEach(inject(function($injector) { AccessToken     = $injector.get('AccessToken') }));
+  beforeEach(inject(function($injector) { $location = $injector.get('$location'); }));
+  beforeEach(inject(function($injector) { Storage = $injector.get('Storage'); }));
+  beforeEach(inject(function($injector) { AccessToken = $injector.get('AccessToken'); }));
 
 
   describe('#set', function() {
@@ -92,7 +92,7 @@ describe('AccessToken', function() {
       });
 
       it('stores the token in the session', function() {
-        var stored_token = Storage.get('token');
+        Storage.get('token');
         expect(result.access_token).toEqual('token');
       });
     });
@@ -131,7 +131,7 @@ describe('AccessToken', function() {
       });
 
       it('stores the error message in the session', function() {
-        var stored_token = Storage.get('token');
+        Storage.get('token');
         expect(result.error).toBe('access_denied');
       });
     });
@@ -177,7 +177,7 @@ describe('AccessToken', function() {
     });
 
     it('reset the cache', function() {
-      expect(Storage.get('token')).toBeUndefined;
+      expect(Storage.get('token')).toBeUndefined();
     });
   });
 
@@ -229,20 +229,20 @@ describe('AccessToken', function() {
     });
   });
 
-    describe('#sessionExpired', function() {
-        describe('with the access token stored in the session', function() {
+  describe('#sessionExpired', function() {
+    describe('with the access token stored in the session', function() {
 
-            beforeEach(function() {
-                //It is an invalid test to have oAuth hash AND be getting token from session
-                //if hash is in URL it should always be used, cuz its coming from oAuth2 provider re-direct
-                $location.hash('');
-                Storage.set('token', token);
-                result = AccessToken.set().expires_at;
-            });
+      beforeEach(function() {
+        //It is an invalid test to have oAuth hash AND be getting token from session
+        //if hash is in URL it should always be used, cuz its coming from oAuth2 provider re-direct
+        $location.hash('');
+        Storage.set('token', token);
+        result = AccessToken.set().expires_at;
+      });
 
-            it('rehydrates the expires_at value', function() {
-                expect(result).toEqual(expires_at);
-            });
-        });
+      it('rehydrates the expires_at value', function() {
+        expect(result).toEqual(expires_at);
+      });
     });
+  });
 });

@@ -4,22 +4,21 @@ describe('oauth', function() {
 
   var $rootScope, $location, Storage, $httpBackend, $compile, AccessToken, Endpoint, element, scope, result, callback;
 
-  var uri      = 'http://example.com/oauth/authorize?response_type=token&client_id=client-id&redirect_uri=http://example.com/redirect&scope=scope&state=/';
   var fragment = 'access_token=token&token_type=bearer&expires_in=7200&state=/path';
-  var denied   = 'error=access_denied&error_description=error';
-  var headers  = { 'Accept': 'application/json, text/plain, */*', 'Authorization': 'Bearer token' }
-  var profile  = { id: '1', full_name: 'Alice Wonderland', email: 'alice@example.com' };
+  var denied = 'error=access_denied&error_description=error';
+  var headers = { 'Accept': 'application/json, text/plain, */*', 'Authorization': 'Bearer token' };
+  var profile = { id: '1', full_name: 'Alice Wonderland', email: 'alice@example.com' };
 
   beforeEach(module('oauth'));
   beforeEach(module('templates'));
 
-  beforeEach(inject(function($injector) { $rootScope      = $injector.get('$rootScope') }));
-  beforeEach(inject(function($injector) { $compile        = $injector.get('$compile') }));
-  beforeEach(inject(function($injector) { $location       = $injector.get('$location') }));
-  beforeEach(inject(function($injector) { Storage         = $injector.get('Storage') }));
-  beforeEach(inject(function($injector) { $httpBackend    = $injector.get('$httpBackend') }));
-  beforeEach(inject(function($injector) { AccessToken     = $injector.get('AccessToken') }));
-  beforeEach(inject(function($injector) { Endpoint        = $injector.get('Endpoint') }));
+  beforeEach(inject(function($injector) { $rootScope = $injector.get('$rootScope'); }));
+  beforeEach(inject(function($injector) { $compile = $injector.get('$compile'); }));
+  beforeEach(inject(function($injector) { $location = $injector.get('$location'); }));
+  beforeEach(inject(function($injector) { Storage = $injector.get('Storage'); }));
+  beforeEach(inject(function($injector) { $httpBackend = $injector.get('$httpBackend'); }));
+  beforeEach(inject(function($injector) { AccessToken = $injector.get('AccessToken'); }));
+  beforeEach(inject(function($injector) { Endpoint = $injector.get('Endpoint'); }));
 
   beforeEach(function() {
     element = angular.element(
@@ -37,8 +36,7 @@ describe('oauth', function() {
     scope = $rootScope;
     $compile(element)(scope);
     scope.$digest();
-  }
-
+  };
 
   describe('when logged in', function() {
 
@@ -83,7 +81,7 @@ describe('oauth', function() {
     });
 
     it('fires the oauth:login and oauth:authorized event', function() {
-      var token = AccessToken.get();
+      AccessToken.get();
       expect(callback.calls.count()).toBe(2);
     });
 
@@ -125,7 +123,7 @@ describe('oauth', function() {
       });
 
       it('does not fire the oauth:login event', function() {
-        var token = AccessToken.get();
+        AccessToken.get();
         expect(callback.calls.count()).toBe(1);
       });
     });
@@ -178,7 +176,7 @@ describe('oauth', function() {
     });
 
     beforeEach(function() {
-      compile($rootScope, $compile)
+      compile($rootScope, $compile);
     });
 
     beforeEach(function() {
@@ -226,7 +224,7 @@ describe('oauth', function() {
     });
 
     beforeEach(function() {
-      compile($rootScope, $compile)
+      compile($rootScope, $compile);
     });
 
     beforeEach(function() {
@@ -263,7 +261,7 @@ describe('oauth', function() {
     });
 
     beforeEach(function() {
-      compile($rootScope, $compile)
+      compile($rootScope, $compile);
     });
 
     it('shows the default template', function() {
@@ -279,7 +277,7 @@ describe('oauth', function() {
     });
 
     beforeEach(function() {
-      compile($rootScope, $compile)
+      compile($rootScope, $compile);
     });
 
     beforeEach(function() {
@@ -310,7 +308,7 @@ describe('oauth', function() {
     });
 
     beforeEach(function() {
-      compile($rootScope, $compile)
+      compile($rootScope, $compile);
     });
 
     it('shows the text "Denied"', function() {

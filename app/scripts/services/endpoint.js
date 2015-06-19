@@ -23,7 +23,7 @@ endpointClient.factory('Endpoint', function() {
     var params = angular.extend( {}, service.config, overrides);
     var oAuthScope = (params.scope) ? encodeURIComponent(params.scope) : '',
         state = (params.state) ? encodeURIComponent(params.state) : '',
-        authPathHasQuery = (params.authorizePath.indexOf('?') == -1) ? false : true,
+        authPathHasQuery = (params.authorizePath.indexOf('?') === -1) ? false : true,
         appendChar = (authPathHasQuery) ? '&' : '?',    //if authorizePath has ? already append OAuth2 params
         responseType = (params.responseType) ? encodeURIComponent(params.responseType) : '';
 
@@ -36,7 +36,7 @@ endpointClient.factory('Endpoint', function() {
           'state=' + state;
 
     if( params.nonce ) {
-      url = url + "&nonce=" + params.nonce;
+      url = url + '&nonce=' + params.nonce;
     }
     return url;
   };
