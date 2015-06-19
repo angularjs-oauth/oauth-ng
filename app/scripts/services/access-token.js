@@ -49,7 +49,7 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$location',
    * Tells if the access token is expired.
    */
   service.expired = function(){
-    return (this.token && this.token.expires_at && this.token.expires_at<new Date());
+    return (this.token && this.token.expires_at && new Date(this.token.expires_at) < new Date());
   };
 
   /**
