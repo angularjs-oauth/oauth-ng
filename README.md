@@ -1,8 +1,7 @@
 # AngularJS directive for OAuth 2.0 [![Build Status](https://travis-ci.org/andreareginato/oauth-ng.svg?branch=master)](https://travis-ci.org/andreareginato/oauth-ng)
 
 
-AngularJS directive for the [OAuth 2.0 Authorization code Flow](http://tools.ietf.org/html/rfc6749#section-1.3.1) 
-and the [OAuth 2.0 Implicit Flow](http://tools.ietf.org/html/rfc6749#section-1.3.2).
+AngularJS directive for the [OAuth 2.0 Implicit Flow](http://tools.ietf.org/html/rfc6749#section-1.3.2).
 
 ## Documentation
 
@@ -70,6 +69,7 @@ that can improve the project.
 Project created and released as open-source thanks to [Lelylan](http://lelylan.com).
 
 * [Andrea Reginato](http://twitter.com/andreareginato)
+* [Massimiliano Sartoretto](http://twitter.com/___Sarto)
 
 
 ## Contributors
@@ -80,6 +80,9 @@ for submitting patches.
 ## Changelog
 
 See [CHANGELOG](https://github.com/andreareginato/oauth-ng/blob/master/CHANGELOG.md)
+
+## TODO
+:white_medium_square: [OAuth 2.0 Authorization code Flow](http://tools.ietf.org/html/rfc6749#section-1.3.1)
 
 ## Copyright
 
