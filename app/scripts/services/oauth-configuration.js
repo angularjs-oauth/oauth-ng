@@ -21,7 +21,7 @@ oauthConfigurationService.provider('OAuthConfiguration', function() {
 .factory('AuthInterceptor', function($q, $rootScope, OAuthConfiguration, AccessToken) {
 	return {
 		'request': function(config) {
-			OAuthConfiguration.getConfig().protected_resources.forEach(function(resource) {
+			OAuthConfiguration.getConfig().protectedResources.forEach(function(resource) {
 				// If the url is one of the protected resources, we want to see if there's a token and then
 				// add the token if it exists.
 				if (config.url.indexOf(resource) > -1) {
