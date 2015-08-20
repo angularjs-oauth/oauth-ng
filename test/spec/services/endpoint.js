@@ -95,7 +95,7 @@ describe('Endpoint', function() {
       Endpoint.set(params);
     });
 
-    describe( "without overrides", function(){
+    describe( 'without overrides', function(){
       beforeEach(function() {
         result = Endpoint.get();
       });
@@ -105,16 +105,16 @@ describe('Endpoint', function() {
       });
     });
 
-    describe( "with state override", function(){
-      it( "injects the state correct", function(){
+    describe( 'with state override', function(){
+      it( 'injects the state correct', function(){
         var override = { state: 'testState' };
         var result = Endpoint.get( override );
         expect( result ).toEqual( uri + encodeURIComponent( override.state ) );
       });
     });
 
-    describe( "with clientId override", function(){
-      it( "injects the override", function(){
+    describe( 'with clientId override', function(){
+      it( 'injects the override', function(){
         var override    = { clientId: 'unicorn' };
         var result      = Endpoint.get( override );
         var expectedUri = 'http://example.com/oauth/authorize?response_type=token&client_id=unicorn&redirect_uri=http%3A%2F%2Fexample.com%2Fredirect&scope=scope&state=';
@@ -122,8 +122,8 @@ describe('Endpoint', function() {
       });
     });
 
-    describe( "with scope override", function(){
-      it( "injects the override", function(){
+    describe( 'with scope override', function(){
+      it( 'injects the override', function(){
         var override    = { scope: 'stars' };
         var result      = Endpoint.get( override );
         var expectedUri = 'http://example.com/oauth/authorize?response_type=token&client_id=client-id&redirect_uri=http%3A%2F%2Fexample.com%2Fredirect&scope=stars&state=';
@@ -131,16 +131,16 @@ describe('Endpoint', function() {
       });
     });
 
-    describe( "with state override", function(){
-      it( "injects the state correct", function(){
+    describe( 'with state override', function(){
+      it( 'injects the state correct', function(){
         var override = { state: 'testState' };
         var result   = Endpoint.get( override );
         expect( result ).toEqual( uri + encodeURIComponent( override.state ) );
       });
     });
 
-    describe( "with responseType override", function(){
-      it( "injects the correct repsonseType", function(){
+    describe( 'with responseType override', function(){
+      it( 'injects the correct repsonseType', function(){
         var override    = { responseType: 'id_token' };
         var result      = Endpoint.get( override );
         var expectedUri = 'http://example.com/oauth/authorize?response_type=id_token&client_id=client-id&redirect_uri=http%3A%2F%2Fexample.com%2Fredirect&scope=scope&state=';
@@ -148,8 +148,8 @@ describe('Endpoint', function() {
       });
     });
 
-    describe( "with site override", function(){
-      it( "injects the correct site", function(){
+    describe( 'with site override', function(){
+      it( 'injects the correct site', function(){
         var override    = { site: 'https://invincible.test' };
         var result      = Endpoint.get( override );
         var expectedUri = 'https://invincible.test/oauth/authorize?response_type=token&client_id=client-id&redirect_uri=http%3A%2F%2Fexample.com%2Fredirect&scope=scope&state=';
@@ -157,8 +157,8 @@ describe('Endpoint', function() {
       });
     });
 
-    describe( "with authorize path overrides", function(){
-      it( "injects the correct authorize path", function(){
+    describe( 'with authorize path overrides', function(){
+      it( 'injects the correct authorize path', function(){
         var override    = { authorizePath: '/end/here' };
         var result      = Endpoint.get( override );
         var expectedUri = 'http://example.com/end/here?response_type=token&client_id=client-id&redirect_uri=http%3A%2F%2Fexample.com%2Fredirect&scope=scope&state=';
@@ -166,8 +166,8 @@ describe('Endpoint', function() {
       });
     });
 
-    describe( "given scope with spaces", function(){
-      it( "correctly encodes the spaces", function(){
+    describe( 'given scope with spaces', function(){
+      it( 'correctly encodes the spaces', function(){
         var override    = { scope: 'read write profile openid' };
         var result      = Endpoint.get( override );
         var expectedUri = 'http://example.com/oauth/authorize?response_type=token&client_id=client-id&redirect_uri=http%3A%2F%2Fexample.com%2Fredirect&scope=read%20write%20profile%20openid&state=';
@@ -175,8 +175,8 @@ describe('Endpoint', function() {
       });
     });
 
-    describe( "on repsonse type with spaces", function(){
-      it( "correctly encodes the spaces", function(){
+    describe( 'on repsonse type with spaces', function(){
+      it( 'correctly encodes the spaces', function(){
         var override    = { responseType: 'id_token token' };
         var result      = Endpoint.get( override );
         var expectedUri = 'http://example.com/oauth/authorize?response_type=id_token%20token&client_id=client-id&redirect_uri=http%3A%2F%2Fexample.com%2Fredirect&scope=scope&state=';
@@ -184,8 +184,8 @@ describe('Endpoint', function() {
       });
     });
 
-    describe( "when provided with a nonce", function(){
-      it( "adds the nonce parameter", function(){
+    describe( 'when provided with a nonce', function(){
+      it( 'adds the nonce parameter', function(){
         var override    = { nonce: '987654321' };
         var result      = Endpoint.get( override );
         var expectedUri = 'http://example.com/oauth/authorize?response_type=token&client_id=client-id&redirect_uri=http%3A%2F%2Fexample.com%2Fredirect&scope=scope&state=&nonce=987654321';
