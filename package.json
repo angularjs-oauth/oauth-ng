@@ -30,7 +30,7 @@
     "grunt-google-cdn": "~0.2.0",
     "grunt-karma": "~0.8.0",
     "grunt-newer": "~0.5.4",
-    "grunt-ngmin": "~0.0.2",
+    "grunt-ng-annotate": "~1.0.1",
     "grunt-protractor-runner": "~0.2.4",
     "grunt-replace": "~0.7.7",
     "grunt-rev": "~0.1.0",
