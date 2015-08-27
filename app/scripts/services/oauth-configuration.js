@@ -18,7 +18,7 @@ oauthConfigurationService.provider('OAuthConfiguration', function() {
 		};
 	};
 })
-.factory('AuthInterceptor', function($q, $rootScope, OAuthConfiguration, AccessToken) {
+.factory('AuthInterceptor', ['OAuthConfiguration', 'AccessToken', function(OAuthConfiguration, AccessToken) {
 	return {
 		'request': function(config) {
 			OAuthConfiguration.getConfig().protectedResources.forEach(function(resource) {
@@ -35,4 +35,4 @@ oauthConfigurationService.provider('OAuthConfiguration', function() {
 			return config;
 		}
 	};
-});
+}]);
