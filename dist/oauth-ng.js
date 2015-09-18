@@ -1,4 +1,4 @@
-/* oauth-ng - v0.4.2 - 2015-06-19 */
+/* oauth-ng - v0.4.2 - 2015-08-27 */
 
 'use strict';
 
@@ -9,7 +9,8 @@ angular.module('oauth', [
   'oauth.endpoint',       // oauth endpoint service
   'oauth.profile',        // profile model
   'oauth.storage',        // storage
-  'oauth.interceptor'     // bearer token interceptor
+  'oauth.interceptor',     // bearer token interceptor
+  'oauth.configuration'   // token appender
 ])
   .config(['$locationProvider','$httpProvider',
   function($locationProvider, $httpProvider) {
@@ -170,7 +171,7 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$location',
       return;
     }
     var time = (new Date(service.token.expires_at))-(new Date());
-    if(time){
+    if(time && time > 0){
       $interval(function(){
         $rootScope.$broadcast('oauth:expired', service.token);
       }, time, 1);
@@ -331,6 +332,44 @@ storageService.factory('Storage', ['$rootScope', '$sessionStorage', '$localStora
 
   return service;
 }]);
+'use strict';
+
+var oauthConfigurationService = angular.module('oauth.configuration', []);
+
+oauthConfigurationService.provider('OAuthConfiguration', function() {
+	var _config = {};
+	
+	this.init = function(config, httpProvider) {
+		_config.protectedResources = config.protectedResources || [];
+		httpProvider.interceptors.push('AuthInterceptor');
+	};
+	
+	this.$get = function() {
+		return {
+			getConfig: function() {
+				return _config;
+			}
+		};
+	};
+})
+.factory('AuthInterceptor', function($q, $rootScope, OAuthConfiguration, AccessToken) {
+	return {
+		'request': function(config) {
+			OAuthConfiguration.getConfig().protectedResources.forEach(function(resource) {
+				// If the url is one of the protected resources, we want to see if there's a token and then
+				// add the token if it exists.
+				if (config.url.indexOf(resource) > -1) {
+					var token = AccessToken.get();
+					if (token) {
+						config.headers.Authorization = 'Bearer ' + token.access_token;
+					}
+				}
+			});
+			
+			return config;
+		}
+	};
+});
 'use strict';
 
 var interceptorService = angular.module('oauth.interceptor', []);

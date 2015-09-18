@@ -7,7 +7,8 @@ angular.module('oauth', [
   'oauth.endpoint',       // oauth endpoint service
   'oauth.profile',        // profile model
   'oauth.storage',        // storage
-  'oauth.interceptor'     // bearer token interceptor
+  'oauth.interceptor',     // bearer token interceptor
+  'oauth.configuration'   // token appender
 ])
   .config(['$locationProvider','$httpProvider',
   function($locationProvider, $httpProvider) {
