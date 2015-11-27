@@ -1,4 +1,4 @@
-/* oauth-ng - v0.4.2 - 2015-11-05 */
+/* oauth-ng - v0.4.3 - 2015-11-27 */
 
 'use strict';
 
@@ -531,6 +531,10 @@ directives.directive('oauth', [
       // Hack to update the directive content on logout
       // TODO think to a cleaner solution
       scope.$on('$routeChangeSuccess', function () {
+        init();
+      });
+
+      scope.$on('$stateChangeSuccess', function () {
         init();
       });
     };

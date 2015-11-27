@@ -136,6 +136,10 @@ directives.directive('oauth', [
       scope.$on('$routeChangeSuccess', function () {
         init();
       });
+
+      scope.$on('$stateChangeSuccess', function () {
+        init();
+      });
     };
 
     return definition;
