@@ -55,5 +55,6 @@
     "postinstall": "bower install",
     "clean": "rm -rf node_modules dist app/bower_components",
     "test": "grunt test && grunt build"
-  }
+  },
+  "main": "dist/oauth-ng.js"
 }
