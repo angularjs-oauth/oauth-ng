@@ -34,7 +34,9 @@ directives.directive('oauth', [
                              // OpenID Connect extras, more details in id-token.js:
         issuer: '@',         // (optional for OpenID Connect) issuer of the id_token, should match the 'iss' claim in id_token payload
         subject: '@',        // (optional for OpenID Connect) subject of the id_token, should match the 'sub' claim in id_token payload
-        pubKey: '@'          // (optional for OpenID Connect) the public key(RSA public key or X509 certificate in PEM format) to verify the signature
+        pubKey: '@',          // (optional for OpenID Connect) the public key(RSA public key or X509 certificate in PEM format) to verify the signature
+        logoutPath: '@',    // (optional) A url to go to at logout
+        sessionPath: '@'    // (optional) A url to use to check the validity of the current token.
       }
     };
 
@@ -54,6 +56,7 @@ directives.directive('oauth', [
         AccessToken.set(scope);    // sets the access token object (if existing, from fragment or session)
         initProfile(scope);        // gets the profile resource (if existing the access token)
         initView();                // sets the view (logged in or out)
+        checkValidity();           // ensure the validity of the current token
       };
 
       var initAttributes = function() {
@@ -84,34 +87,36 @@ directives.directive('oauth', [
         }
       };
 
-      var initView = function() {
+      var initView = function () {
         var token = AccessToken.get();
 
         if (!token) {
-          return loggedOut(); // without access token it's logged out
-        }
+          return loggedOut();
+        }  // without access token it's logged out
+        if (AccessToken.expired()) {
+          return expired();
+        }  // with a token, but it's expired
         if (token.access_token) {
-          return authorized(); // if there is the access token we are done
-        }
+          return authorized();
+        }  // if there is the access token we are done
         if (token.error) {
-          return denied(); // if the request has been denied we fire the denied event
-        }
+          return denied();
+        }  // if the request has been denied we fire the denied event
       };
 
-      scope.login = function() {
+      scope.login = function () {
         Endpoint.redirect();
       };
 
-      scope.logout = function() {
+      scope.logout = function () {
         AccessToken.destroy(scope);
         $rootScope.$broadcast('oauth:logout');
-        loggedOut();
+        Endpoint.logout();
+        $rootScope.$broadcast('oauth:loggedOut');
+        scope.show = 'logged-out';
       };
 
-      scope.$on('oauth:expired', function() {
-        AccessToken.destroy(scope);
-        scope.show = 'logged-out';
-      });
+      scope.$on('oauth:expired',expired);
 
       // user is authorized
       var authorized = function() {
@@ -119,16 +124,24 @@ directives.directive('oauth', [
         scope.show = 'logged-in';
       };
 
-      // set the oauth directive to the logged-out status
-      var loggedOut = function() {
-        $rootScope.$broadcast('oauth:loggedOut');
-        scope.show = 'logged-out';
+      var expired = function() {
+        $rootScope.$broadcast('oauth:expired');
+        scope.logout();
       };
 
       // set the oauth directive to the denied status
       var denied = function() {
         scope.show = 'denied';
         $rootScope.$broadcast('oauth:denied');
+      };
+
+      var checkValidity = function() {
+        Endpoint.checkValidity().then(function() {
+          $rootScope.$broadcast('oauth:valid');
+        }).catch(function(){
+          $rootScope.$broadcast('oauth:invalid');
+          scope.logout();
+        });
       };
 
       // Updates the template at runtime
