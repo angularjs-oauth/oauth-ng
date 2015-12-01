@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.4 (Nov 19, 2015)
+
+* Webpack Fix
+
+## 0.4.3 (Nov 19, 2015)
+
+* Added nonce parameter to directive
+
 ## 0.4.2 (Jun 19, 2015)
 
 * Make the code more JSHint friendly
