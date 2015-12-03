@@ -7,9 +7,12 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$location',
   var service = {
     token: null
   },
-  oAuth2HashTokens = [ //per http://tools.ietf.org/html/rfc6749#section-4.2.2
+  hashFragmentKeys = [
+    //Oauth2 keys per http://tools.ietf.org/html/rfc6749#section-4.2.2
     'access_token', 'token_type', 'expires_in', 'scope', 'state',
-    'error','error_description'
+    'error','error_description',
+    //Additional OpenID Connect key per http://openid.net/specs/openid-connect-core-1_0.html#ImplicitAuthResponse
+    'id_token'
   ];
 
   /**
@@ -164,7 +167,7 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$location',
    */
   var removeFragment = function(){
     var curHash = $location.hash();
-    angular.forEach(oAuth2HashTokens,function(hashKey){
+    angular.forEach(hashFragmentKeys,function(hashKey){
       var re = new RegExp('&'+hashKey+'(=[^&]*)?|^'+hashKey+'(=[^&]*)?&?');
       curHash = curHash.replace(re,'');
     });
