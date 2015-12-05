@@ -16,7 +16,7 @@ module.exports = function(config) {
       'app/bower_components/angular-mocks/angular-mocks.js',
       'app/bower_components/ngstorage/ngStorage.js',
       'app/bower_components/timecop/timecop-0.1.1.js',
-      'app/bower_components/jsrsasign-latest-all-min/index.js',
+      'app/bower_components/jsrsasign/jsrsasign-latest-all-min.js',
       'app/scripts/*.js',
       'app/scripts/**/*.js',
       'app/views/**/*.html',
