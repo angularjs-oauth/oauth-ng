@@ -2,7 +2,7 @@
 
 var accessTokenService = angular.module('oauth.accessToken', []);
 
-accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$location', '$interval', function(Storage, $rootScope, $location, $interval){
+accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$location', '$interval', 'IdToken', function(Storage, $rootScope, $location, $interval, IdToken){
 
   var service = {
     token: null
@@ -116,6 +116,13 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$location',
       params[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
     }
 
+    // OpenID Connect
+    if (params.id_token) {
+      IdToken.validateIdToken(params.id_token);
+      return params;
+    }
+
+    // Oauth2
     if(params.access_token || params.error){
       return params;
     }

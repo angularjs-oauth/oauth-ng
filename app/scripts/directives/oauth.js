@@ -3,6 +3,7 @@
 var directives = angular.module('oauth.directive', []);
 
 directives.directive('oauth', [
+  'IdToken',
   'AccessToken',
   'Endpoint',
   'Profile',
@@ -12,7 +13,7 @@ directives.directive('oauth', [
   '$compile',
   '$http',
   '$templateCache',
-  function(AccessToken, Endpoint, Profile, Storage, $location, $rootScope, $compile, $http, $templateCache) {
+  function(IdToken, AccessToken, Endpoint, Profile, Storage, $location, $rootScope, $compile, $http, $templateCache) {
 
     var definition = {
       restrict: 'AE',
@@ -29,7 +30,10 @@ directives.directive('oauth', [
         authorizePath: '@', // (optional) authorization url
         state: '@',         // (optional) An arbitrary unique string created by your app to guard against Cross-site Request Forgery
         storage: '@',        // (optional) Store token in 'sessionStorage' or 'localStorage', defaults to 'sessionStorage'
-        nonce: '@'          // (optional) Send nonce on auth request
+        nonce: '@',          // (optional) Send nonce on auth request
+                             // OIDC(OpenID Connect) extras:
+        issuer: '@',         // (required for OpenID Connect) issuer of the id_token, should match the 'iss' claim in id_token payload
+        jwks: '@'            // (required for OpenID Connect) json web key(s), it will be used to verify the id_token signature
       }
     };
 
@@ -45,6 +49,7 @@ directives.directive('oauth', [
         Storage.use(scope.storage);// set storage
         compile();                 // compiles the desired layout
         Endpoint.set(scope);       // sets the oauth authorization url
+        IdToken.set(scope);
         AccessToken.set(scope);    // sets the access token object (if existing, from fragment or session)
         initProfile(scope);        // gets the profile resource (if existing the access token)
         initView();                // sets the view (logged in or out)

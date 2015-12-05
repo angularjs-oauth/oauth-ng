@@ -2,7 +2,7 @@
 
 describe('AccessToken', function() {
 
-  var result, $location, Storage, AccessToken, date;
+  var result, $location, Storage, IdToken, AccessToken, date;
 
   var fragment = 'access_token=token&token_type=bearer&expires_in=7200&state=/path&extra=stuff';
   var fragmentForever = 'access_token=token&token_type=bearer&state=/path&extra=stuff';
@@ -15,6 +15,7 @@ describe('AccessToken', function() {
 
   beforeEach(inject(function($injector) { $location = $injector.get('$location'); }));
   beforeEach(inject(function($injector) { Storage = $injector.get('Storage'); }));
+  beforeEach(inject(function($injector) { IdToken = $injector.get('IdToken'); }));
   beforeEach(inject(function($injector) { AccessToken = $injector.get('AccessToken'); }));
 
 
