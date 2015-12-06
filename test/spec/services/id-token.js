@@ -1,15 +1,12 @@
 describe('AccessToken', function() {
 
-  var $location, Storage, IdToken;
+  var Storage, IdToken;
 
   var publicKeyString;
   var valid_id_token, expired_id_token;
 
   beforeEach(module('oauth'));
 
-  beforeEach(inject(function ($injector) {
-    $location = $injector.get('$location');
-  }));
   beforeEach(inject(function ($injector) {
     Storage = $injector.get('Storage');
   }));
@@ -50,8 +47,6 @@ describe('AccessToken', function() {
 
 
         var jwk  = KEYUTIL.getKey(publicKeyString);
-        console.log("------------");
-        console.log(jwk);
 
         IdToken.set({
           issuer: 'oidc',

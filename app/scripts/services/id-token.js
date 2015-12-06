@@ -2,8 +2,7 @@
 
 var accessTokenService = angular.module('oauth.idToken', []);
 
-accessTokenService.factory('IdToken', ['Storage', '$rootScope', '$location',
-  function(Storage, $rootScope, $location){
+accessTokenService.factory('IdToken', ['Storage', function(Storage){
 
     var service = {
       issuer: null,
@@ -126,7 +125,7 @@ accessTokenService.factory('IdToken', ['Storage', '$rootScope', '$location',
           if(payload['iss'] != service.issuer)
             throw new OidcException('invalid issuer ' + payload['iss'] + ' != ' + service.clientId);
 
-          //TODO: nonce support
+          //TODO: nonce support ? probably need to redo current nonce support
           //if(payload['nonce'] != sessionStorage['nonce'])
           //  throw new OidcException('invalid nonce');
           valid = true;
