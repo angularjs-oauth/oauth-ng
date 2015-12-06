@@ -118,7 +118,15 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$location',
 
     // OpenID Connect
     if (params.id_token) {
-      IdToken.validateIdToken(params.id_token);
+      try {
+        if (IdToken.validateIdToken(params.id_token)) {
+          IdToken.populateIdTokenClaims(params.id_token, params);
+        } else {
+          params.error = 'Failed to validate id_token';
+        }
+      } catch (error) {
+        params.error = 'Failed to validate id_token: ' + error.message;
+      }
       return params;
     }
 

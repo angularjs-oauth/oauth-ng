@@ -42,6 +42,15 @@ accessTokenService.factory('IdToken', ['Storage', '$rootScope', '$location',
     };
 
     /**
+     * Populate id token claims to map for future use
+     * @param idToken The id_token
+     * @param params  The target object for storing the claims
+     */
+    service.populateIdTokenClaims = function(idToken, params) {
+      params.id_token_claims = getIdTokenPayload(idToken);
+    };
+
+    /**
      * Verifies the ID Token signature using the JWK Keyset from jwks
      * Supports only RSA signatures
      * @param {string}idtoken      The ID Token string
@@ -143,7 +152,7 @@ accessTokenService.factory('IdToken', ['Storage', '$rootScope', '$location',
 
     /**
      * Splits the ID Token string into the individual JWS parts
-     * @param  {string} id_token    - ID Token
+     * @param  {string} id_token  ID Token
      * @returns {Array} An array of the JWS compact serialization components (header, payload, signature)
      */
     var getIdTokenParts = function (id_token) {
@@ -154,8 +163,8 @@ accessTokenService.factory('IdToken', ['Storage', '$rootScope', '$location',
 
     /**
      * Get the contents of the ID Token payload as an JSON object
-     * @param {string} id_token     - ID Token
-     * @returns {object}            - The ID Token payload JSON object
+     * @param {string} id_token     ID Token
+     * @returns {object}            The ID Token payload JSON object
      */
     var getIdTokenPayload = function (id_token) {
       var parts = getIdTokenParts(id_token);
@@ -165,7 +174,7 @@ accessTokenService.factory('IdToken', ['Storage', '$rootScope', '$location',
 
     /**
      * Get the JSON object from the JSON string
-     * @param {string} jsonS    - JSON string
+     * @param {string} jsonS    JSON string
      * @returns {object|null}   JSON object or null
      */
     var getJsonObject = function (jsonS) {
@@ -178,11 +187,11 @@ accessTokenService.factory('IdToken', ['Storage', '$rootScope', '$location',
 
     /**
      * Retrieve the JWK key that matches the input criteria
-     * @param {array} keys              - JWK Keyset
-     * @param {string} kty              - The 'kty' to match (RSA|EC). Only RSA is supported.
-     * @param {string} use              - The 'use' to match (sig|enc).
-     * @param {string} kid              - The 'kid' to match
-     * @returns {object} jwk            - The matched JWK
+     * @param {array} keys               JWK Keyset
+     * @param {string} kty               The 'kty' to match (RSA|EC). Only RSA is supported.
+     * @param {string} use               The 'use' to match (sig|enc).
+     * @param {string} kid               The 'kid' to match
+     * @returns {object} jwk             The matched JWK
      */
     var getMatchedKey = function (keys, kty, use, kid) {
       var foundKeys = [];
