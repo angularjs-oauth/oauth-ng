@@ -57,18 +57,27 @@ accessTokenService.factory('IdToken', ['Storage', '$rootScope', '$location',
 
       var idtParts = getIdTokenParts(idtoken);
       var header = getJsonObject(idtParts[0]);
-      var jwks = service.jwks.keys;
+      var jwks = null;
+
+      if(typeof service.jwks === 'string')
+        jwks = getJsonObject(service.jwks);
+      else if(typeof service.jwks === 'object')
+        jwks = service.jwks;
 
       if(header['alg'] && header['alg'].substr(0, 2) == 'RS') {
-        //TODO: choose key ?
-        //var jwk = jwk_get_key(jwks, 'RSA', 'sig', header['kid']);
-        verified = rsaVerifyJWS(idtoken, jwks[0]);
-        //if(!jwk)
-        //  new OidcException('No matching JWK found');
-        //else {
-        //  console.log("-----4------");
-        //  verified = rsaVerifyJWS(idtoken, jwk[0]);
-        //}
+        var matchedPubKey = null;
+        if (jwks.keys) {
+          if (jwks.keys.length == 1) {
+            matchedPubKey = jwks.keys[0];
+          } else {
+            matchedPubKey = getMatchedKey(jwks.keys, 'RSA', 'sig', header.kid);
+          }
+        }
+        if (!matchedPubKey) {
+          throw new OidcException('No matching JWK found');
+        } else {
+          verified = rsaVerifyJWS(idtoken, matchedPubKey);
+        }
       } else
         throw new OidcException('Unsupported JWS signature algorithm ' + header['alg']);
 
@@ -89,10 +98,10 @@ accessTokenService.factory('IdToken', ['Storage', '$rootScope', '$location',
         var payload = getJsonObject(idtParts[1]);
         if(payload) {
           var now =  new Date() / 1000;
-          if( payload['iat'] >  now + 60)
+          if( payload['iat'] >  now )
             throw new OidcException('ID Token issued time is later than current time');
 
-          if(payload['exp'] < now - 60)
+          if(payload['exp'] < now )
             throw new OidcException('ID Token expired');
 
           var audience = null;
@@ -128,18 +137,6 @@ accessTokenService.factory('IdToken', ['Storage', '$rootScope', '$location',
     var rsaVerifyJWS = function (jws, jwk) {
       if(jws && typeof jwk === 'object') {
         return KJUR.jws.JWS.verify(jws, jwk, ['RS256']);
-        //if(jwk['kty'] == 'RSA') {
-        //  var verifier = new KJUR.jws.JWS();
-        //  if(jwk['n'] && jwk['e']) {
-        //    var keyN = b64utohex(jwk['n']);
-        //    var keyE = b64utohex(jwk['e']);
-        //    return verifier.verifyJWSByNE(jws, keyN, keyE);
-        //  } else if (jwk['x5c']) {
-        //    return verifier.verifyJWSByPemX509Cert(jws, "-----BEGIN CERTIFICATE-----\n" + jwk['x5c'][0] + "\n-----END CERTIFICATE-----\n");
-        //  }
-        //} else {
-        //  throw new OidcException('No RSA kty in JWK');
-        //}
       }
       return false;
     };
@@ -181,64 +178,53 @@ accessTokenService.factory('IdToken', ['Storage', '$rootScope', '$location',
 
     /**
      * Retrieve the JWK key that matches the input criteria
-     * @param {string|object} jwkIn     - JWK Keyset string or object
+     * @param {array} keys              - JWK Keyset
      * @param {string} kty              - The 'kty' to match (RSA|EC). Only RSA is supported.
-     * @param {string}use               - The 'use' to match (sig|enc).
-     * @param {string}kid               - The 'kid' to match
-     * @returns {array}                 Array of JWK keys that match the specified criteria                                                                     itera
+     * @param {string} use              - The 'use' to match (sig|enc).
+     * @param {string} kid              - The 'kid' to match
+     * @returns {object} jwk            - The matched JWK
      */
-    var jwk_get_key = function(jwkIn, kty, use, kid )
-    {
-      var jwk = null;
+    var getMatchedKey = function (keys, kty, use, kid) {
       var foundKeys = [];
 
-      if(jwkIn) {
-        if(typeof jwkIn === 'string')
-          jwk = getJsonObject(jwkIn);
-        else if(typeof jwkIn === 'object')
-          jwk = jwkIn;
-
-        if(jwk != null) {
-          if(typeof jwk['keys'] === 'object') {
-            if(jwk.keys.length == 0)
-              return null;
-
-            for(var i = 0; i < jwk.keys.length; i++) {
-              if(jwk['keys'][i]['kty'] == kty)
-                foundKeys.push(jwk.keys[i]);
-            }
-
-            if(foundKeys.length == 0)
-              return null;
-
-            if(use) {
-              var temp = [];
-              for(var j = 0; j < foundKeys.length; j++) {
-                if(!foundKeys[j]['use'])
-                  temp.push(foundKeys[j]);
-                else if(foundKeys[j]['use'] == use)
-                  temp.push(foundKeys[j]);
-              }
-              foundKeys = temp;
-            }
-            if(foundKeys.length == 0)
-              return null;
-
-            if(kid) {
-              temp = [];
-              for(var k = 0; k < foundKeys.length; k++) {
-                if(foundKeys[k]['kid'] == kid)
-                  temp.push(foundKeys[k]);
-              }
-              foundKeys = temp;
-            }
-            if(foundKeys.length == 0)
-              return null;
-            else
-              return foundKeys;
-          }
+      if (typeof keys === 'object' && keys.length > 0) {
+        for (var i = 0; i < keys.length; i++) {
+          if (keys[i]['kty'] == kty)
+            foundKeys.push(keys[i]);
         }
+
+        if (foundKeys.length == 0)
+          return null;
+
+        if (use) {
+          var temp = [];
+          for (var j = 0; j < foundKeys.length; j++) {
+            if (!foundKeys[j]['use'])
+              temp.push(foundKeys[j]);
+            else if (foundKeys[j]['use'] == use)
+              temp.push(foundKeys[j]);
+          }
+          foundKeys = temp;
+        }
+        if (foundKeys.length == 0)
+          return null;
+
+        if (kid) {
+          temp = [];
+          for (var k = 0; k < foundKeys.length; k++) {
+            if (foundKeys[k]['kid'] == kid)
+              temp.push(foundKeys[k]);
+          }
+          foundKeys = temp;
+        }
+        if (foundKeys.length == 0)
+          return null;
+        else
+          return foundKeys[0];
+      } else {
+        return null;
       }
+
     };
 
 
