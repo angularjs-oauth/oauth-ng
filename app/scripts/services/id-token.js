@@ -51,7 +51,7 @@ accessTokenService.factory('IdToken', ['Storage', function(Storage){
 
     /**
      * Verifies the ID Token signature using the JWK Keyset from jwks
-     * Supports only RSA signatures
+     * Supports only RSA signatures ['RS256', 'RS384', 'RS512']
      * @param {string}idtoken      The ID Token string
      * @returns {boolean}          Indicates whether the signature is valid or not
      * @throws {OidcException}
@@ -72,7 +72,7 @@ accessTokenService.factory('IdToken', ['Storage', function(Storage){
       else if(typeof service.jwks === 'object')
         jwks = service.jwks;
 
-      if(header['alg'] && header['alg'].substr(0, 2) == 'RS') {
+      if(header.alg && header.alg.substr(0, 2) == 'RS') {
         var matchedPubKey = null;
         if (jwks.keys) {
           if (jwks.keys.length == 1) {
@@ -84,10 +84,10 @@ accessTokenService.factory('IdToken', ['Storage', function(Storage){
         if (!matchedPubKey) {
           throw new OidcException('No matching JWK found');
         } else {
-          verified = rsaVerifyJWS(idtoken, matchedPubKey);
+          verified = rsaVerifyJWS(idtoken, matchedPubKey, header.alg);
         }
       } else
-        throw new OidcException('Unsupported JWS signature algorithm ' + header['alg']);
+        throw new OidcException('Unsupported JWS signature algorithm ' + header.alg);
 
       return verified;
     };
@@ -139,12 +139,14 @@ accessTokenService.factory('IdToken', ['Storage', function(Storage){
      * Verifies the JWS string using the JWK
      * @param {string} jws      The JWS string
      * @param {object} jwk      The JWK Key that will be used to verify the signature
+     * @param {string} alg      The algorithm string. Expecting 'RS256', 'RS384', or 'RS512'
      * @returns {boolean}       Validity of the JWS signature
      * @throws {OidcException}
      */
-    var rsaVerifyJWS = function (jws, jwk) {
+    var rsaVerifyJWS = function (jws, jwk, alg) {
       if(jws && typeof jwk === 'object') {
-        return KJUR.jws.JWS.verify(jws, jwk, ['RS256']);
+        console.log("verifying token with algorithm ["+alg+"]");
+        return KJUR.jws.JWS.verify(jws, jwk, [alg]);
       }
       return false;
     };
