@@ -1,4 +1,4 @@
-/* oauth-ng - v0.4.4 - 2015-12-04 */
+/* oauth-ng - v0.4.4 - 2015-12-06 */
 
 'use strict';
 
@@ -22,8 +22,7 @@ angular.module('oauth', [
 
 var accessTokenService = angular.module('oauth.idToken', []);
 
-accessTokenService.factory('IdToken', ['Storage', '$rootScope', '$location',
-  function(Storage, $rootScope, $location){
+accessTokenService.factory('IdToken', ['Storage', function(Storage){
 
     var service = {
       issuer: null,
@@ -58,39 +57,57 @@ accessTokenService.factory('IdToken', ['Storage', '$rootScope', '$location',
      * @returns {boolean} True if all the check passes, False otherwise
      */
     service.validateIdToken = function(idToken) {
-      return verifyIdTokenSig(idToken) && verifyIdTokenInfo(idToken);
+      return this.verifyIdTokenSig(idToken) && this.verifyIdTokenInfo(idToken);
+    };
+
+    /**
+     * Populate id token claims to map for future use
+     * @param idToken The id_token
+     * @param params  The target object for storing the claims
+     */
+    service.populateIdTokenClaims = function(idToken, params) {
+      params.id_token_claims = getIdTokenPayload(idToken);
     };
 
     /**
      * Verifies the ID Token signature using the JWK Keyset from jwks
-     * Supports only RSA signatures
+     * Supports only RSA signatures ['RS256', 'RS384', 'RS512']
      * @param {string}idtoken      The ID Token string
      * @returns {boolean}          Indicates whether the signature is valid or not
      * @throws {OidcException}
      */
-    var verifyIdTokenSig = function (idtoken) {
+    service.verifyIdTokenSig = function (idtoken) {
       var verified = false;
 
-      if(!service.jwks) {
+      if(!this.jwks) {
         throw new OidcException('jwks(Json Web Keys) parameter not set');
       }
 
       var idtParts = getIdTokenParts(idtoken);
       var header = getJsonObject(idtParts[0]);
-      var jwks = service.jwks.keys;
+      var jwks = null;
 
-      if(header['alg'] && header['alg'].substr(0, 2) == 'RS') {
-        //TODO: choose key ?
-        //var jwk = jwk_get_key(jwks, 'RSA', 'sig', header['kid']);
-        verified = rsaVerifyJWS(idtoken, jwks[0]);
-        //if(!jwk)
-        //  new OidcException('No matching JWK found');
-        //else {
-        //  console.log("-----4------");
-        //  verified = rsaVerifyJWS(idtoken, jwk[0]);
-        //}
+      if(typeof this.jwks === 'string')
+        jwks = getJsonObject(this.jwks);
+      else if(typeof this.jwks === 'object')
+        jwks = this.jwks;
+
+      if(header.alg && header.alg.substr(0, 2) == 'RS') {
+        var matchedPubKey = null;
+        if (jwks.keys) {
+          if (jwks.keys.length == 1) {
+            matchedPubKey = jwks.keys[0];
+          } else {
+            matchedPubKey = getMatchedKey(jwks.keys, 'RSA', 'sig', header.kid);
+          }
+        }
+        if (!matchedPubKey) {
+          throw new OidcException('No matching JWK found');
+        } else {
+          verified = rsaVerifyJWS(idtoken, matchedPubKey, header.alg);
+        }
       } else
-        throw new OidcException('Unsupported JWS signature algorithm ' + header['alg']);
+        throw new OidcException('Unsupported JWS signature algorithm ' + header.alg);
 
       return verified;
     };
@@ -101,7 +118,7 @@ accessTokenService.factory('IdToken', ['Storage', '$rootScope', '$location',
      * @returns {boolean}           Validity of the ID Token
      * @throws {OidcException}
      */
-    var verifyIdTokenInfo = function(idtoken) {
+    service.verifyIdTokenInfo = function(idtoken) {
       var valid = false;
 
       if(idtoken) {
@@ -109,10 +126,10 @@ accessTokenService.factory('IdToken', ['Storage', '$rootScope', '$location',
         var payload = getJsonObject(idtParts[1]);
         if(payload) {
           var now =  new Date() / 1000;
-          if( payload['iat'] >  now + 60)
+          if( payload['iat'] >  now )
             throw new OidcException('ID Token issued time is later than current time');
 
-          if(payload['exp'] < now - 60)
+          if(payload['exp'] < now )
             throw new OidcException('ID Token expired');
 
           var audience = null;
@@ -122,13 +139,13 @@ accessTokenService.factory('IdToken', ['Storage', '$rootScope', '$location',
             } else
               audience = payload['aud'];
           }
-          if(audience && audience != service.clientId)
+          if(audience && audience != this.clientId)
             throw new OidcException('invalid audience');
 
-          if(payload['iss'] != service.issuer)
-            throw new OidcException('invalid issuer ' + payload['iss'] + ' != ' + service.clientId);
+          if(payload['iss'] != this.issuer)
+            throw new OidcException('invalid issuer ' + payload['iss'] + ' != ' + this.issuer);
 
-          //TODO: nonce support
+          //TODO: nonce support ? probably need to redo current nonce support
           //if(payload['nonce'] != sessionStorage['nonce'])
           //  throw new OidcException('invalid nonce');
           valid = true;
@@ -142,31 +159,21 @@ accessTokenService.factory('IdToken', ['Storage', '$rootScope', '$location',
      * Verifies the JWS string using the JWK
      * @param {string} jws      The JWS string
      * @param {object} jwk      The JWK Key that will be used to verify the signature
+     * @param {string} alg      The algorithm string. Expecting 'RS256', 'RS384', or 'RS512'
      * @returns {boolean}       Validity of the JWS signature
      * @throws {OidcException}
      */
-    var rsaVerifyJWS = function (jws, jwk) {
+    var rsaVerifyJWS = function (jws, jwk, alg) {
       if(jws && typeof jwk === 'object') {
-        return KJUR.jws.JWS.verify(jws, jwk, ['RS256']);
-        //if(jwk['kty'] == 'RSA') {
-        //  var verifier = new KJUR.jws.JWS();
-        //  if(jwk['n'] && jwk['e']) {
-        //    var keyN = b64utohex(jwk['n']);
-        //    var keyE = b64utohex(jwk['e']);
-        //    return verifier.verifyJWSByNE(jws, keyN, keyE);
-        //  } else if (jwk['x5c']) {
-        //    return verifier.verifyJWSByPemX509Cert(jws, "-----BEGIN CERTIFICATE-----\n" + jwk['x5c'][0] + "\n-----END CERTIFICATE-----\n");
-        //  }
-        //} else {
-        //  throw new OidcException('No RSA kty in JWK');
-        //}
+        console.log("verifying token with algorithm ["+alg+"]");
+        return KJUR.jws.JWS.verify(jws, jwk, [alg]);
       }
       return false;
     };
 
     /**
      * Splits the ID Token string into the individual JWS parts
-     * @param  {string} id_token    - ID Token
+     * @param  {string} id_token  ID Token
      * @returns {Array} An array of the JWS compact serialization components (header, payload, signature)
      */
     var getIdTokenParts = function (id_token) {
@@ -177,8 +184,8 @@ accessTokenService.factory('IdToken', ['Storage', '$rootScope', '$location',
 
     /**
      * Get the contents of the ID Token payload as an JSON object
-     * @param {string} id_token     - ID Token
-     * @returns {object}            - The ID Token payload JSON object
+     * @param {string} id_token     ID Token
+     * @returns {object}            The ID Token payload JSON object
      */
     var getIdTokenPayload = function (id_token) {
       var parts = getIdTokenParts(id_token);
@@ -188,7 +195,7 @@ accessTokenService.factory('IdToken', ['Storage', '$rootScope', '$location',
 
     /**
      * Get the JSON object from the JSON string
-     * @param {string} jsonS    - JSON string
+     * @param {string} jsonS    JSON string
      * @returns {object|null}   JSON object or null
      */
     var getJsonObject = function (jsonS) {
@@ -201,64 +208,53 @@ accessTokenService.factory('IdToken', ['Storage', '$rootScope', '$location',
 
     /**
      * Retrieve the JWK key that matches the input criteria
-     * @param {string|object} jwkIn     - JWK Keyset string or object
-     * @param {string} kty              - The 'kty' to match (RSA|EC). Only RSA is supported.
-     * @param {string}use               - The 'use' to match (sig|enc).
-     * @param {string}kid               - The 'kid' to match
-     * @returns {array}                 Array of JWK keys that match the specified criteria                                                                     itera
+     * @param {array} keys               JWK Keyset
+     * @param {string} kty               The 'kty' to match (RSA|EC). Only RSA is supported.
+     * @param {string} use               The 'use' to match (sig|enc).
+     * @param {string} kid               The 'kid' to match
+     * @returns {object} jwk             The matched JWK
      */
-    var jwk_get_key = function(jwkIn, kty, use, kid )
-    {
-      var jwk = null;
+    var getMatchedKey = function (keys, kty, use, kid) {
       var foundKeys = [];
 
-      if(jwkIn) {
-        if(typeof jwkIn === 'string')
-          jwk = getJsonObject(jwkIn);
-        else if(typeof jwkIn === 'object')
-          jwk = jwkIn;
-
-        if(jwk != null) {
-          if(typeof jwk['keys'] === 'object') {
-            if(jwk.keys.length == 0)
-              return null;
-
-            for(var i = 0; i < jwk.keys.length; i++) {
-              if(jwk['keys'][i]['kty'] == kty)
-                foundKeys.push(jwk.keys[i]);
-            }
-
-            if(foundKeys.length == 0)
-              return null;
-
-            if(use) {
-              var temp = [];
-              for(var j = 0; j < foundKeys.length; j++) {
-                if(!foundKeys[j]['use'])
-                  temp.push(foundKeys[j]);
-                else if(foundKeys[j]['use'] == use)
-                  temp.push(foundKeys[j]);
-              }
-              foundKeys = temp;
-            }
-            if(foundKeys.length == 0)
-              return null;
-
-            if(kid) {
-              temp = [];
-              for(var k = 0; k < foundKeys.length; k++) {
-                if(foundKeys[k]['kid'] == kid)
-                  temp.push(foundKeys[k]);
-              }
-              foundKeys = temp;
-            }
-            if(foundKeys.length == 0)
-              return null;
-            else
-              return foundKeys;
-          }
+      if (typeof keys === 'object' && keys.length > 0) {
+        for (var i = 0; i < keys.length; i++) {
+          if (keys[i]['kty'] == kty)
+            foundKeys.push(keys[i]);
         }
+
+        if (foundKeys.length == 0)
+          return null;
+
+        if (use) {
+          var temp = [];
+          for (var j = 0; j < foundKeys.length; j++) {
+            if (!foundKeys[j]['use'])
+              temp.push(foundKeys[j]);
+            else if (foundKeys[j]['use'] == use)
+              temp.push(foundKeys[j]);
+          }
+          foundKeys = temp;
+        }
+        if (foundKeys.length == 0)
+          return null;
+
+        if (kid) {
+          temp = [];
+          for (var k = 0; k < foundKeys.length; k++) {
+            if (foundKeys[k]['kid'] == kid)
+              temp.push(foundKeys[k]);
+          }
+          foundKeys = temp;
+        }
+        if (foundKeys.length == 0)
+          return null;
+        else
+          return foundKeys[0];
+      } else {
+        return null;
       }
+
     };
 
 
@@ -387,7 +383,15 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$location',
 
     // OpenID Connect
     if (params.id_token) {
-      IdToken.validateIdToken(params.id_token);
+      try {
+        if (IdToken.validateIdToken(params.id_token)) {
+          IdToken.populateIdTokenClaims(params.id_token, params);
+        } else {
+          params.error = 'Failed to validate id_token';
+        }
+      } catch (error) {
+        params.error = 'Failed to validate id_token: ' + error.message;
+      }
       return params;
     }
 

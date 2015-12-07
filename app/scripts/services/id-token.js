@@ -37,7 +37,7 @@ accessTokenService.factory('IdToken', ['Storage', function(Storage){
      * @returns {boolean} True if all the check passes, False otherwise
      */
     service.validateIdToken = function(idToken) {
-      return verifyIdTokenSig(idToken) && verifyIdTokenInfo(idToken);
+      return this.verifyIdTokenSig(idToken) && this.verifyIdTokenInfo(idToken);
     };
 
     /**
@@ -56,10 +56,10 @@ accessTokenService.factory('IdToken', ['Storage', function(Storage){
      * @returns {boolean}          Indicates whether the signature is valid or not
      * @throws {OidcException}
      */
-    var verifyIdTokenSig = function (idtoken) {
+    service.verifyIdTokenSig = function (idtoken) {
       var verified = false;
 
-      if(!service.jwks) {
+      if(!this.jwks) {
         throw new OidcException('jwks(Json Web Keys) parameter not set');
       }
 
@@ -67,10 +67,10 @@ accessTokenService.factory('IdToken', ['Storage', function(Storage){
       var header = getJsonObject(idtParts[0]);
       var jwks = null;
 
-      if(typeof service.jwks === 'string')
-        jwks = getJsonObject(service.jwks);
-      else if(typeof service.jwks === 'object')
-        jwks = service.jwks;
+      if(typeof this.jwks === 'string')
+        jwks = getJsonObject(this.jwks);
+      else if(typeof this.jwks === 'object')
+        jwks = this.jwks;
 
       if(header.alg && header.alg.substr(0, 2) == 'RS') {
         var matchedPubKey = null;
@@ -98,7 +98,7 @@ accessTokenService.factory('IdToken', ['Storage', function(Storage){
      * @returns {boolean}           Validity of the ID Token
      * @throws {OidcException}
      */
-    var verifyIdTokenInfo = function(idtoken) {
+    service.verifyIdTokenInfo = function(idtoken) {
       var valid = false;
 
       if(idtoken) {
@@ -119,11 +119,11 @@ accessTokenService.factory('IdToken', ['Storage', function(Storage){
             } else
               audience = payload['aud'];
           }
-          if(audience && audience != service.clientId)
+          if(audience && audience != this.clientId)
             throw new OidcException('invalid audience');
 
-          if(payload['iss'] != service.issuer)
-            throw new OidcException('invalid issuer ' + payload['iss'] + ' != ' + service.clientId);
+          if(payload['iss'] != this.issuer)
+            throw new OidcException('invalid issuer ' + payload['iss'] + ' != ' + this.issuer);
 
           //TODO: nonce support ? probably need to redo current nonce support
           //if(payload['nonce'] != sessionStorage['nonce'])
