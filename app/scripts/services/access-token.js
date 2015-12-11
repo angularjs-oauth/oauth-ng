@@ -117,15 +117,28 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$location',
     }
 
     // OpenID Connect
-    if (params.id_token) {
+    if (params.id_token && !params.error) {
+      var valid = false;
+      var message = '';
       try {
-        if (IdToken.validateIdToken(params.id_token)) {
-          IdToken.populateIdTokenClaims(params.id_token, params);
-        } else {
-          params.error = 'Failed to validate id_token';
+        valid = IdToken.validateIdToken(params.id_token);
+        /*
+          if response_type is 'id_token token', then we will get both id_token and access_token
+          access_token needs to be validated as well
+         */
+        if (valid && params.access_token) {
+          valid = IdToken.validateAccessToken(params.id_token, params.access_token);
         }
       } catch (error) {
-        params.error = 'Failed to validate id_token: ' + error.message;
+        message = error.message;
+      }
+
+      if (valid) {
+        IdToken.populateIdTokenClaims(params.id_token, params);
+      } else {
+        params.id_token = null;
+        params.access_token = null;
+        params.error = 'Failed to validate token:' + message;
       }
       return params;
     }

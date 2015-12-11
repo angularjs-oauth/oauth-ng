@@ -50,6 +50,33 @@ accessTokenService.factory('IdToken', ['Storage', function(Storage){
     };
 
     /**
+     * Validate access_token based on the 'alg' and 'at_hash' value of the id_token header
+     * per spec: http://openid.net/specs/openid-connect-core-1_0.html#ImplicitTokenValidation
+     *
+     * @param idToken The id_token
+     * @param accessToken The access_token
+     * @returns {boolean} true if validation passes
+     */
+    service.validateAccessToken = function(idToken, accessToken) {
+      var header = getJsonObject(getIdTokenParts(idToken)[0]);
+      if (header.at_hash) {
+        var shalevel = header.alg.substr(2);
+        if (shalevel !== '256' && shalevel !== '384' && shalevel !== '512') {
+          throw new OidcException('Unsupported hash algorithm, expecting sha256, sha384, or sha512');
+        }
+        var md = new KJUR.crypto.MessageDigest({'alg':'sha'+ shalevel, 'prov':'cryptojs'});
+        //hex representation of the hash
+        var hexStr = md.digestString(accessToken);
+        //take first 128bits and base64url encoding it
+        var expected = hextob64u(hexStr.substring(0, 32));
+
+        return expected === header.at_hash;
+      } else {
+        return true;
+      }
+    };
+
+    /**
      * Verifies the ID Token signature using the JWK Keyset from jwks
      * Supports only RSA signatures ['RS256', 'RS384', 'RS512']
      * @param {string}idtoken      The ID Token string

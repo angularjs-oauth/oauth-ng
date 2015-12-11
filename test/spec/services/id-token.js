@@ -4,6 +4,7 @@ describe('IdToken', function() {
 
   var publicKeyString, jwk;
   var validIdToken, invalidIdToken;
+  var validAccessToken;
 
   beforeEach(module('oauth'));
 
@@ -36,7 +37,22 @@ describe('IdToken', function() {
 
   describe('validate an id_token with both signature and claims', function() {
     beforeEach(function () {
-      //Valid token with RS256, expires at 20251231235959Z UTC
+      /*
+        Valid token with RS256, expires at 20251231235959Z UTC
+        https://jwt.io has a debugger that can help view the id_token's header and payload
+
+        e.g. The header of following token is { "alg": "RS256", "typ": "JWT" }
+             The body of the following token is:
+             {
+               "iss": "oidc",
+               "sub": "oauth-ng-client",
+               "nbf": 1449267385,
+               "exp": 1767225599,
+               "iat": 1449267385,
+               "jti": "id123456",
+               "typ": "https://example.com/register"
+             }
+       */
       validIdToken = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9' +
           '.eyJpc3MiOiJvaWRjIiwic3ViIjoib2F1dGgtbmctY2xpZW50IiwibmJmIjoxNDQ5MjY3Mzg1LCJleHAiOjE3NjcyMjU1OTksImlhdCI6MTQ0OTI2NzM4NSwianRpIjoiaWQxMjM0NTYiLCJ0eXAiOiJodHRwczovL2V4YW1wbGUuY29tL3JlZ2lzdGVyIn0' +
           '.MXBbWkr1Sf6KRn11IgEXyVg5g5VVUOSyLhTglgL8fI13aGf6SquVy0ZNn7ajTym5a_fJHPWLlgpvo-v98xuMBC9cLH_NN3ocrZAQkkW19G4AVY-LsOURp0t9JzVEb-pEe8Zps8O7Mumj0qSlr-4Dnyb3UMqdwZTcSgUTrbdyf6Qa7KHA0myANLDs2T8ctlSEptgVHPj8Zy9tk9UUlDZgsU4KoEpanDt7c1GzQJu7KEI3iJYlVEwDgMqu0EWn64aaP-w1OKZAyHbJWdMwun7i9edLonQ37M67Mb8ox6-cx8fxS3s3h6b3jRS5L0RACFVtB9lF4f_0yPVBwcTBhzYBOg';
@@ -124,6 +140,24 @@ describe('IdToken', function() {
 
   });
 
+
+  describe('validate access_token with id_token header information', function () {
+
+    beforeEach(function() {
+      /*
+       Sample id_token and access_token pair (corresponds to response_type = 'id_token token'
+       Get more examples at google playground: https://developers.google.com/oauthplayground/
+       */
+      validIdToken = 'eyJhbGciOiJSUzI1NiIsImtpZCI6IjJhODc0MjBlY2YxNGU5MzRmOWY5MDRhMDE0NzY4MTMyMDNiMzk5NGIifQ' +
+          '.eyJpc3MiOiJhY2NvdW50cy5nb29nbGUuY29tIiwic3ViIjoiMTEwMTY5NDg0NDc0Mzg2Mjc2MzM0IiwiYXpwIjoiNDA3NDA4NzE4MTkyLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwiYXRfaGFzaCI6ImFVQWtKRy11Nng0UlRXdUlMV3ktQ0EiLCJhdWQiOiI0MDc0MDg3MTgxOTIuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJpYXQiOjE0MzIwODI4NzgsImV4cCI6MTQzMjA4NjQ3OH0' +
+          '.xSwhf4KvEztFFhVj4YdgKFOC8aPEoLAAZcXDWIh6YBXpfjzfnwYhaQgsmCofzOl53yirpbj5h7Om5570yzlUziP5TYNIqrA3Nyaj60-ZyXY2JMIBWYYMr3SRyhXdW0Dp71tZ5IaxMFlS8fc0MhSx55ZNrCV-3qmkTLeTTY1_4Jc';
+      validAccessToken = 'ya29.eQETFbFOkAs8nWHcmYXKwEi0Zz46NfsrUU_KuQLOLTwWS40y6Fb99aVzEXC0U14m61lcPMIr1hEIBA';
+    });
+
+    it('should succeed', function() {
+      expect(IdToken.validateAccessToken(validIdToken, validAccessToken)).toEqual(true);
+    })
+  });
 
 
   describe('detect false id_token with', function () {
