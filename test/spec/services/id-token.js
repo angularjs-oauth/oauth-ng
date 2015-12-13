@@ -175,7 +175,7 @@ describe('IdToken', function() {
       });
 
       it('should throw exception', function () {
-        expect(function(){ IdToken.verifyIdTokenInfo(invalidIdToken) }).toThrowError(/invalid issuer/);
+        expect(function(){ IdToken.verifyIdTokenInfo(invalidIdToken) }).toThrowError(/Invalid issuer/);
       });
 
     });

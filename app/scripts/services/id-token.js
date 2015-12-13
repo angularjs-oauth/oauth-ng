@@ -6,7 +6,17 @@ idTokenService.factory('IdToken', ['Storage', function(Storage) {
 
   var service = {
     issuer: null,
+    subject: null,
+    //clientId, should match 'aud' claim
     clientId: null,
+    /*
+      The public key to verify the signature, supports:
+      1.RSA public key in PEM string: e.g. "-----BEGIN PUBLIC KEY..."
+      2.X509 certificate in PEM string: e.g. "-----BEGIN CERTIFICATE..."
+      3.JWK (Json Web Key): e.g. {kty: "RSA", n: "0vx7...", e: "AQAB"}
+
+      If not set, the id_token header should carry the key or the url to retrieve the key
+     */
     pubKey: null
   };
   /**
@@ -27,6 +37,7 @@ idTokenService.factory('IdToken', ['Storage', function(Storage) {
    */
   service.set = function(scope) {
     this.issuer = scope.issuer;
+    this.subject = scope.subject;
     this.clientId = scope.clientId;
     this.pubKey = scope.pubKey;
   };
@@ -127,13 +138,13 @@ idTokenService.factory('IdToken', ['Storage', function(Storage) {
       if (matchedPubKey.kid && header.kid && matchedPubKey.kid !== header.kid) {
         throw new OidcException('Json Wek Key ID not match');
       }
-      //TODO: Support for "jku" (JWK Set URL), "x5u" (X.509 URL), "x5c" (X.509 Certificate Chain) parameter to get key
+      /*
+       TODO: Support for "jku" (JWK Set URL), "x5u" (X.509 URL), "x5c" (X.509 Certificate Chain) parameter to get key
+       per http://tools.ietf.org/html/draft-ietf-jose-json-web-signature-26#page-9
+       */
     } else {
       //Use configured public key
       matchedPubKey = this.pubKey;
-      if (typeof matchedPubKey !== 'string') {
-        throw new OidcException('Unsupported public key format, expecting PEM format');
-      }
     }
 
     if(!matchedPubKey) {
@@ -152,29 +163,34 @@ idTokenService.factory('IdToken', ['Storage', function(Storage) {
   service.verifyIdTokenInfo = function(idtoken) {
     var valid = false;
 
-    if(idtoken) {
+    if (idtoken) {
       var idtParts = getIdTokenParts(idtoken);
       var payload = getJsonObject(idtParts[1]);
-      if(payload) {
+      if (payload) {
         var now =  new Date() / 1000;
-        if( payload['iat'] >  now )
+        if (payload.iat > now + 60)
           throw new OidcException('ID Token issued time is later than current time');
 
-        if(payload['exp'] < now )
+        if (payload.exp < now )
           throw new OidcException('ID Token expired');
 
-        var audience = null;
-        if(payload['aud']) {
-          if(payload['aud'] instanceof Array) {
-            audience = payload['aud'][0];
-          } else
-            audience = payload['aud'];
-        }
-        if(audience && audience != this.clientId)
-          throw new OidcException('invalid audience');
+        if (now < payload.ntb)
+          throw new OidcException('ID Token is invalid before '+ payload.ntb);
 
-        if(payload['iss'] != this.issuer)
-          throw new OidcException('invalid issuer ' + payload['iss'] + ' != ' + this.issuer);
+        if (payload.iss && this.issuer && payload.iss != this.issuer)
+          throw new OidcException('Invalid issuer ' + payload.iss + ' != ' + this.issuer);
+
+        if (payload.sub && this.subject && payload.sub != this.subject)
+          throw new OidcException('Invalid subject ' + payload.sub + ' != ' + this.subject);
+
+        if (payload.aud) {
+          if (payload.aud instanceof Array && !KJUR.jws.JWS.inArray(this.clientId, payload.aud)) {
+            throw new OidcException('Client not in intended audience:' + payload.aud);
+          }
+          if (typeof payload.aud === 'string' && payload.aud !== this.clientId) {
+            throw new OidcException('Invalid audience ' + payload.aud + ' != ' + this.clientId);
+          }
+        }
 
         //TODO: nonce support ? probably need to redo current nonce support
         //if(payload['nonce'] != sessionStorage['nonce'])
@@ -195,7 +211,12 @@ idTokenService.factory('IdToken', ['Storage', function(Storage) {
    * @throws {OidcException}
    */
   var rsaVerifyJWS = function (jws, pubKey, alg) {
+    /*
+      convert various public key format to RSAKey object
+      see @KEYUTIL.getKey for a full list of supported input format
+     */
     var rsaKey = KEYUTIL.getKey(pubKey);
+
     return KJUR.jws.JWS.verify(jws, rsaKey, [alg]);
   };
 
