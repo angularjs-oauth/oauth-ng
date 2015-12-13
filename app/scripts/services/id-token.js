@@ -2,7 +2,7 @@
 
 var idTokenService = angular.module('oauth.idToken', []);
 
-idTokenService.factory('IdToken', ['Storage', function(Storage){
+idTokenService.factory('IdToken', ['Storage', function(Storage) {
 
   var service = {
     issuer: null,
@@ -30,6 +30,39 @@ idTokenService.factory('IdToken', ['Storage', function(Storage){
     this.clientId = scope.clientId;
     this.pubKey = scope.pubKey;
   };
+
+  /**
+   * Validate id_token and access_token(if there's one)
+   * If validation passes, the id_token payload(claims) will be populated to 'params'
+   * Otherwise error will set to 'params' and tokens will be removed
+   *
+   * @param params
+   */
+  service.validateTokensAndPopulateClaims = function(params) {
+    var valid = false;
+    var message = '';
+    try {
+      valid = this.validateIdToken(params.id_token);
+      /*
+       if response_type is 'id_token token', then we will get both id_token and access_token,
+       access_token needs to be validated as well
+       */
+      if (valid && params.access_token) {
+        valid = this.validateAccessToken(params.id_token, params.access_token);
+      }
+    } catch (error) {
+      message = error.message;
+    }
+
+    if (valid) {
+      this.populateIdTokenClaims(params.id_token, params);
+    } else {
+      params.id_token = null;
+      params.access_token = null;
+      params.error = 'Failed to validate token:' + message;
+    }
+  };
+
 
   /**
    * Validates the id_token
