@@ -2,11 +2,13 @@
 
 describe('AccessToken', function() {
 
-  var result, $location, Storage, AccessToken, date;
+  var result, $location, Storage, IdToken, AccessToken, date;
 
   var fragment = 'access_token=token&token_type=bearer&expires_in=7200&state=/path&extra=stuff';
   var fragmentForever = 'access_token=token&token_type=bearer&state=/path&extra=stuff';
   var fragmentImmediate = 'access_token=token&token_type=bearer&expires_in=0&state=/path&extra=stuff';
+  var fragmentWithIdToken = 'access_token=token&token_type=bearer'+
+      '&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ&expires_in=3600';
   var denied   = 'error=access_denied&error_description=error';
   var expires_at = '2014-08-17T17:38:37.584Z';
   var token    = { access_token: 'token', token_type: 'bearer', expires_in: 7200, state: '/path', expires_at: expires_at };
@@ -15,6 +17,7 @@ describe('AccessToken', function() {
 
   beforeEach(inject(function($injector) { $location = $injector.get('$location'); }));
   beforeEach(inject(function($injector) { Storage = $injector.get('Storage'); }));
+  beforeEach(inject(function($injector) { IdToken = $injector.get('IdToken'); }));
   beforeEach(inject(function($injector) { AccessToken = $injector.get('AccessToken'); }));
 
 
@@ -135,6 +138,71 @@ describe('AccessToken', function() {
         expect(result.error).toBe('access_denied');
       });
     });
+
+    describe('with id token and access token in the fragment', function() {
+      beforeEach(function() {
+        $location.hash(fragmentWithIdToken);
+      });
+
+      describe('when all validation passes', function() {
+        beforeEach(function() {
+          //specific validation mechanism are tested in id-token spec
+          spyOn(IdToken, 'validateIdToken').and.returnValue(true);
+          spyOn(IdToken, 'validateAccessToken').and.returnValue(true);
+          result = AccessToken.set();
+        });
+
+        it('sets the access token', function() {
+          expect(result.access_token).toEqual('token');
+        });
+
+        it('sets the id token', function() {
+          expect(result.id_token).toEqual('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ');
+        });
+
+        it('populates id token claims', function() {
+          expect(result.id_token_claims).toBeDefined();
+          expect(result.id_token_claims.name).toEqual('John Doe');
+        });
+      });
+
+      describe('when id token validation fails', function(){
+        beforeEach(function() {
+          //specific validation mechanism are tested in id-token spec
+          spyOn(IdToken, 'validateIdToken').and.returnValue(false);
+          spyOn(IdToken, 'validateAccessToken').and.returnValue(true);
+          result = AccessToken.set();
+        });
+
+        it('erases access token and id token', function() {
+          expect(result.access_token).toEqual(null);
+          expect(result.id_token).toEqual(null);
+        });
+
+        it('sets the error', function() {
+          expect(result.error).toEqual('Failed to validate token:');
+        })
+      });
+
+      describe('when access token validation fails', function(){
+        beforeEach(function() {
+          //specific validation mechanism are tested in id-token spec
+          spyOn(IdToken, 'validateIdToken').and.returnValue(true);
+          spyOn(IdToken, 'validateAccessToken').and.returnValue(false);
+          result = AccessToken.set();
+        });
+
+        it('erases access token and id token', function() {
+          expect(result.access_token).toEqual(null);
+          expect(result.id_token).toEqual(null);
+        });
+
+        it('sets the error', function() {
+          expect(result.error).toEqual('Failed to validate token:');
+        })
+      });
+
+    })
   });
 
 

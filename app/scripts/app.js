@@ -3,6 +3,7 @@
 // App libraries
 angular.module('oauth', [
   'oauth.directive',      // login directive
+  'oauth.idToken',        // id token service (only for OpenID Connect)
   'oauth.accessToken',    // access token service
   'oauth.endpoint',       // oauth endpoint service
   'oauth.profile',        // profile model
