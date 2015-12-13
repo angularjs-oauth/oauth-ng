@@ -2,14 +2,17 @@
 
 var accessTokenService = angular.module('oauth.accessToken', []);
 
-accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$location', '$interval', function(Storage, $rootScope, $location, $interval){
+accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$location', '$interval', 'IdToken', function(Storage, $rootScope, $location, $interval, IdToken){
 
   var service = {
     token: null
   },
-  oAuth2HashTokens = [ //per http://tools.ietf.org/html/rfc6749#section-4.2.2
+  hashFragmentKeys = [
+    //Oauth2 keys per http://tools.ietf.org/html/rfc6749#section-4.2.2
     'access_token', 'token_type', 'expires_in', 'scope', 'state',
-    'error','error_description'
+    'error','error_description',
+    //Additional OpenID Connect key per http://openid.net/specs/openid-connect-core-1_0.html#ImplicitAuthResponse
+    'id_token'
   ];
 
   /**
@@ -113,6 +116,13 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$location',
       params[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
     }
 
+    // OpenID Connect
+    if (params.id_token && !params.error) {
+      IdToken.validateTokensAndPopulateClaims(params);
+      return params;
+    }
+
+    // Oauth2
     if(params.access_token || params.error){
       return params;
     }
@@ -164,7 +174,7 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$location',
    */
   var removeFragment = function(){
     var curHash = $location.hash();
-    angular.forEach(oAuth2HashTokens,function(hashKey){
+    angular.forEach(hashFragmentKeys,function(hashKey){
       var re = new RegExp('&'+hashKey+'(=[^&]*)?|^'+hashKey+'(=[^&]*)?&?');
       curHash = curHash.replace(re,'');
     });
