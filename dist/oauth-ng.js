@@ -22,11 +22,21 @@ angular.module('oauth', [
 
 var idTokenService = angular.module('oauth.idToken', []);
 
-idTokenService.factory('IdToken', ['Storage', function(Storage){
+idTokenService.factory('IdToken', ['Storage', function(Storage) {
 
   var service = {
     issuer: null,
+    subject: null,
+    //clientId, should match 'aud' claim
     clientId: null,
+    /*
+      The public key to verify the signature, supports:
+      1.RSA public key in PEM string: e.g. "-----BEGIN PUBLIC KEY..."
+      2.X509 certificate in PEM string: e.g. "-----BEGIN CERTIFICATE..."
+      3.JWK (Json Web Key): e.g. {kty: "RSA", n: "0vx7...", e: "AQAB"}
+
+      If not set, the id_token header should carry the key or the url to retrieve the key
+     */
     pubKey: null
   };
   /**
@@ -47,9 +57,43 @@ idTokenService.factory('IdToken', ['Storage', function(Storage){
    */
   service.set = function(scope) {
     this.issuer = scope.issuer;
+    this.subject = scope.subject;
     this.clientId = scope.clientId;
     this.pubKey = scope.pubKey;
   };
+
+  /**
+   * Validate id_token and access_token(if there's one)
+   * If validation passes, the id_token payload(claims) will be populated to 'params'
+   * Otherwise error will set to 'params' and tokens will be removed
+   *
+   * @param params
+   */
+  service.validateTokensAndPopulateClaims = function(params) {
+    var valid = false;
+    var message = '';
+    try {
+      valid = this.validateIdToken(params.id_token);
+      /*
+       if response_type is 'id_token token', then we will get both id_token and access_token,
+       access_token needs to be validated as well
+       */
+      if (valid && params.access_token) {
+        valid = this.validateAccessToken(params.id_token, params.access_token);
+      }
+    } catch (error) {
+      message = error.message;
+    }
+
+    if (valid) {
+      params.id_token_claims = getIdTokenPayload(params.id_token);
+    } else {
+      params.id_token = null;
+      params.access_token = null;
+      params.error = 'Failed to validate token:' + message;
+    }
+  };
+
 
   /**
    * Validates the id_token
@@ -58,15 +102,6 @@ idTokenService.factory('IdToken', ['Storage', function(Storage){
    */
   service.validateIdToken = function(idToken) {
     return this.verifyIdTokenSig(idToken) && this.verifyIdTokenInfo(idToken);
-  };
-
-  /**
-   * Populate id token claims to map for future use
-   * @param idToken The id_token
-   * @param params  The target object for storing the claims
-   */
-  service.populateIdTokenClaims = function(idToken, params) {
-    params.id_token_claims = getIdTokenPayload(idToken);
   };
 
   /**
@@ -123,13 +158,13 @@ idTokenService.factory('IdToken', ['Storage', function(Storage){
       if (matchedPubKey.kid && header.kid && matchedPubKey.kid !== header.kid) {
         throw new OidcException('Json Wek Key ID not match');
       }
-      //TODO: Support for "jku" (JWK Set URL), "x5u" (X.509 URL), "x5c" (X.509 Certificate Chain) parameter to get key
+      /*
+       TODO: Support for "jku" (JWK Set URL), "x5u" (X.509 URL), "x5c" (X.509 Certificate Chain) parameter to get key
+       per http://tools.ietf.org/html/draft-ietf-jose-json-web-signature-26#page-9
+       */
     } else {
       //Use configured public key
       matchedPubKey = this.pubKey;
-      if (typeof matchedPubKey !== 'string') {
-        throw new OidcException('Unsupported public key format, expecting PEM format');
-      }
     }
 
     if(!matchedPubKey) {
@@ -148,29 +183,34 @@ idTokenService.factory('IdToken', ['Storage', function(Storage){
   service.verifyIdTokenInfo = function(idtoken) {
     var valid = false;
 
-    if(idtoken) {
+    if (idtoken) {
       var idtParts = getIdTokenParts(idtoken);
       var payload = getJsonObject(idtParts[1]);
-      if(payload) {
+      if (payload) {
         var now =  new Date() / 1000;
-        if( payload['iat'] >  now )
+        if (payload.iat > now + 60)
           throw new OidcException('ID Token issued time is later than current time');
 
-        if(payload['exp'] < now )
+        if (payload.exp < now )
           throw new OidcException('ID Token expired');
 
-        var audience = null;
-        if(payload['aud']) {
-          if(payload['aud'] instanceof Array) {
-            audience = payload['aud'][0];
-          } else
-            audience = payload['aud'];
-        }
-        if(audience && audience != this.clientId)
-          throw new OidcException('invalid audience');
+        if (now < payload.ntb)
+          throw new OidcException('ID Token is invalid before '+ payload.ntb);
 
-        if(payload['iss'] != this.issuer)
-          throw new OidcException('invalid issuer ' + payload['iss'] + ' != ' + this.issuer);
+        if (payload.iss && this.issuer && payload.iss != this.issuer)
+          throw new OidcException('Invalid issuer ' + payload.iss + ' != ' + this.issuer);
+
+        if (payload.sub && this.subject && payload.sub != this.subject)
+          throw new OidcException('Invalid subject ' + payload.sub + ' != ' + this.subject);
+
+        if (payload.aud) {
+          if (payload.aud instanceof Array && !KJUR.jws.JWS.inArray(this.clientId, payload.aud)) {
+            throw new OidcException('Client not in intended audience:' + payload.aud);
+          }
+          if (typeof payload.aud === 'string' && payload.aud !== this.clientId) {
+            throw new OidcException('Invalid audience ' + payload.aud + ' != ' + this.clientId);
+          }
+        }
 
         //TODO: nonce support ? probably need to redo current nonce support
         //if(payload['nonce'] != sessionStorage['nonce'])
@@ -191,7 +231,12 @@ idTokenService.factory('IdToken', ['Storage', function(Storage){
    * @throws {OidcException}
    */
   var rsaVerifyJWS = function (jws, pubKey, alg) {
+    /*
+      convert various public key format to RSAKey object
+      see @KEYUTIL.getKey for a full list of supported input format
+     */
     var rsaKey = KEYUTIL.getKey(pubKey);
+
     return KJUR.jws.JWS.verify(jws, rsaKey, [alg]);
   };
 
@@ -354,28 +399,7 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$location',
 
     // OpenID Connect
     if (params.id_token && !params.error) {
-      var valid = false;
-      var message = '';
-      try {
-        valid = IdToken.validateIdToken(params.id_token);
-        /*
-          if response_type is 'id_token token', then we will get both id_token and access_token
-          access_token needs to be validated as well
-         */
-        if (valid && params.access_token) {
-          valid = IdToken.validateAccessToken(params.id_token, params.access_token);
-        }
-      } catch (error) {
-        message = error.message;
-      }
-
-      if (valid) {
-        IdToken.populateIdTokenClaims(params.id_token, params);
-      } else {
-        params.id_token = null;
-        params.access_token = null;
-        params.error = 'Failed to validate token:' + message;
-      }
+      IdToken.validateTokensAndPopulateClaims(params);
       return params;
     }
 
@@ -676,10 +700,10 @@ directives.directive('oauth', [
         state: '@',         // (optional) An arbitrary unique string created by your app to guard against Cross-site Request Forgery
         storage: '@',        // (optional) Store token in 'sessionStorage' or 'localStorage', defaults to 'sessionStorage'
         nonce: '@',          // (optional) Send nonce on auth request
-                             // OIDC(OpenID Connect) extras:
-        issuer: '@',         // (required for OpenID Connect) issuer of the id_token, should match the 'iss' claim in id_token payload
+                             // OpenID Connect extras, more details in id-token.js:
+        issuer: '@',         // (optional for OpenID Connect) issuer of the id_token, should match the 'iss' claim in id_token payload
+        subject: '@',        // (optional for OpenID Connect) subject of the id_token, should match the 'sub' claim in id_token payload
         pubKey: '@'          // (optional for OpenID Connect) the public key(RSA public key or X509 certificate in PEM format) to verify the signature
-                             // If not set, the id_token header should carry information of the key or where to find the key
       }
     };
 

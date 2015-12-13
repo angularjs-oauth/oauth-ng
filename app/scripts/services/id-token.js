@@ -177,10 +177,10 @@ idTokenService.factory('IdToken', ['Storage', function(Storage) {
         if (now < payload.ntb)
           throw new OidcException('ID Token is invalid before '+ payload.ntb);
 
-        if (payload.iss && this.issuer && payload.iss != this.issuer)
+        if (payload.iss && this.issuer && payload.iss !== this.issuer)
           throw new OidcException('Invalid issuer ' + payload.iss + ' != ' + this.issuer);
 
-        if (payload.sub && this.subject && payload.sub != this.subject)
+        if (payload.sub && this.subject && payload.sub !== this.subject)
           throw new OidcException('Invalid subject ' + payload.sub + ' != ' + this.subject);
 
         if (payload.aud) {
