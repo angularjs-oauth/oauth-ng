@@ -60,7 +60,7 @@ describe('IdToken', function() {
       IdToken.set({
         issuer: 'oidc',
         clientId: 'oauth-ng-client',
-        jwks: {keys: [jwk]}
+        pubKey: publicKeyString
       });
     });
 
@@ -84,7 +84,7 @@ describe('IdToken', function() {
         IdToken.set({
           issuer: 'oidc-rs-256',
           clientId: 'oauth-ng-client',
-          jwks: {keys: [jwk]}
+          pubKey: publicKeyString
         });
       });
 
@@ -105,7 +105,7 @@ describe('IdToken', function() {
         IdToken.set({
           issuer: 'oidc-rs-384',
           clientId: 'oauth-ng-client',
-          jwks: {keys: [jwk]}
+          pubKey: publicKeyString
         });
 
       });
@@ -127,7 +127,7 @@ describe('IdToken', function() {
         IdToken.set({
           issuer: 'oidc-rs-512',
           clientId: 'oauth-ng-client',
-          jwks: {keys: [jwk]}
+          pubKey: publicKeyString
         });
 
       });
@@ -173,7 +173,7 @@ describe('IdToken', function() {
         IdToken.set({
           issuer: 'oidc',
           clientId: 'oauth-ng-client',
-          jwks: {keys: [jwk]}
+          pubKey: publicKeyString
         });
       });
 
@@ -194,7 +194,7 @@ describe('IdToken', function() {
         IdToken.set({
           issuer: 'oidc',
           clientId: 'oauth-ng-client',
-          jwks: {keys: [jwk]}
+          pubKey: publicKeyString
         });
       });
 
@@ -215,7 +215,7 @@ describe('IdToken', function() {
         IdToken.set({
           issuer: 'oidc',
           clientId: 'oauth-ng-client',
-          jwks: {keys: [jwk]}
+          pubKey: publicKeyString
         });
       });
 

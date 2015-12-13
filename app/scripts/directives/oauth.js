@@ -33,7 +33,8 @@ directives.directive('oauth', [
         nonce: '@',          // (optional) Send nonce on auth request
                              // OIDC(OpenID Connect) extras:
         issuer: '@',         // (required for OpenID Connect) issuer of the id_token, should match the 'iss' claim in id_token payload
-        jwks: '@'            // (required for OpenID Connect) json web key(s), it will be used to verify the id_token signature
+        pubKey: '@'          // (optional for OpenID Connect) the public key(RSA public key or X509 certificate in PEM format) to verify the signature
+                             // If not set, the id_token header should carry information of the key or where to find the key
       }
     };
 
