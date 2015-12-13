@@ -55,7 +55,7 @@ idTokenService.factory('IdToken', ['Storage', function(Storage) {
     }
 
     if (valid) {
-      this.populateIdTokenClaims(params.id_token, params);
+      params.id_token_claims = getIdTokenPayload(params.id_token);
     } else {
       params.id_token = null;
       params.access_token = null;
@@ -71,15 +71,6 @@ idTokenService.factory('IdToken', ['Storage', function(Storage) {
    */
   service.validateIdToken = function(idToken) {
     return this.verifyIdTokenSig(idToken) && this.verifyIdTokenInfo(idToken);
-  };
-
-  /**
-   * Populate id token claims to map for future use
-   * @param idToken The id_token
-   * @param params  The target object for storing the claims
-   */
-  service.populateIdTokenClaims = function(idToken, params) {
-    params.id_token_claims = getIdTokenPayload(idToken);
   };
 
   /**
