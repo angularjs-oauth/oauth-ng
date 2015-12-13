@@ -2,7 +2,7 @@ describe('IdToken', function() {
 
   var Storage, IdToken;
 
-  var publicKeyString, jwk;
+  var publicKeyString;
   var validIdToken, invalidIdToken;
   var validAccessToken;
 
@@ -30,9 +30,6 @@ describe('IdToken', function() {
         + "f0YN3/Q0auBkdbDR/ES2PbgKTJdkjc/rEeM0TxvOUf7HuUNOhrtAVEN1D5uuxE1W\n"
         + "SwIDAQAB"
         + "-----END PUBLIC KEY-----\n";
-
-    jwk = KEYUTIL.getKey(publicKeyString);
-
   });
 
   describe('validate an id_token with both signature and claims', function() {
