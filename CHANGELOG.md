@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.5 (Dec 16, 2015)
+
+* Add OpenID support
+
 ## 0.4.4 (Nov 19, 2015)
 
 * Webpack Fix
