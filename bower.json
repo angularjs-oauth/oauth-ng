@@ -15,7 +15,8 @@
   ],
   "dependencies": {
     "angular": "~1.3.12",
-    "ngstorage": "~0.3.0"
+    "ngstorage": "~0.3.0",
+    "jsrsasign": "~5.0.5"
   },
   "devDependencies": {
     "json3": "~3.2.4",
