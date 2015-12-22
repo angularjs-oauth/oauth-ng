@@ -162,7 +162,7 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$location',
       return;
     }
     var time = (new Date(service.token.expires_at))-(new Date());
-    if(time && time > 0){
+    if(time && time > 0 && time <= 2147483647){
       $interval(function(){
         $rootScope.$broadcast('oauth:expired', service.token);
       }, time, 1);
