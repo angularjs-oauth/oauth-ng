@@ -5,7 +5,7 @@ AngularJS directive for the [OAuth 2.0 Implicit Flow](http://tools.ietf.org/html
 
 ## Documentation
 
-[![oauth-ng](http://i.imgur.com/C0xCJcr.png)](https://andreareginato.github.com/oauth-ng)
+[![oauth-ng](http://i.imgur.com/C0xCJcr.png)](https://angularjs-oauth.github.com/oauth-ng)
 
 ## Contributing
 
@@ -54,14 +54,14 @@ Follow [github](https://github.com/styleguide/) guidelines.
 
 ### Feedback
 
-Use the [issue tracker](http://github.com/andreareginato/oauth-ng/issues) for bugs.
+Use the [issue tracker](http://github.com/angularjs-oauth/oauth-ng/issues) for bugs.
 [Mail](mailto:andrea.reginato@gmail.com) or [Tweet](http://twitter.com/andreareginato) us for any idea
 that can improve the project.
 
 ### Links
 
-* [GIT Repository](http://github.com/andreareginato/oauth-ng)
-* [Website](https://andreareginato.github.com/oauth-ng)
+* [GIT Repository](http://github.com/angularjs-oauth/oauth-ng)
+* [Website](https://angularjs-oauth.github.com/oauth-ng)
 
 
 ## Authors
@@ -74,12 +74,12 @@ Project created and released as open-source thanks to [Lelylan](http://lelylan.c
 
 ## Contributors
 
-Special thanks to all [contributors](https://github.com/andreareginato/oauth-ng/contributors)
+Special thanks to all [contributors](https://github.com/angularjs-oauth/oauth-ng/contributors)
 for submitting patches.
 
 ## Changelog
 
-See [CHANGELOG](https://github.com/andreareginato/oauth-ng/blob/master/CHANGELOG.md)
+See [CHANGELOG](https://github.com/angularjs-oauth/oauth-ng/blob/master/CHANGELOG.md)
 
 ## TODO
 :white_medium_square: [OAuth 2.0 Authorization code Flow](http://tools.ietf.org/html/rfc6749#section-1.3.1)
@@ -87,4 +87,4 @@ See [CHANGELOG](https://github.com/andreareginato/oauth-ng/blob/master/CHANGELOG
 ## Copyright
 
 Copyright (c) 2014 [Lelylan](http://lelylan.com).
-See [LICENSE](https://github.com/andreareginato/oauth-ng/blob/master/LICENSE.md) for details.
+See [LICENSE](https://github.com/angularjs-oauth/oauth-ng/blob/master/LICENSE.md) for details.
