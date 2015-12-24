@@ -5,7 +5,7 @@ AngularJS directive for the [OAuth 2.0 Implicit Flow](http://tools.ietf.org/html
 
 ## Documentation
 
-[![oauth-ng](http://i.imgur.com/C0xCJcr.png)](https://angularjs-oauth.github.com/oauth-ng)
+[![oauth-ng](http://i.imgur.com/C0xCJcr.png)](https://angularjs-oauth.github.io/oauth-ng)
 
 ## Contributing
 
@@ -61,7 +61,7 @@ that can improve the project.
 ### Links
 
 * [GIT Repository](http://github.com/angularjs-oauth/oauth-ng)
-* [Website](https://angularjs-oauth.github.com/oauth-ng)
+* [Website](https://angularjs-oauth.github.io/oauth-ng)
 
 
 ## Authors
