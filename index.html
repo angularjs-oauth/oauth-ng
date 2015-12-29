@@ -43,7 +43,9 @@
       <h1 id="introduction">Introduction</h1>
       <p>
       Create AngularJS apps that connects to any OAuth 2.0 server using the client side
-      flow (aka <a href="http://tools.ietf.org/html/rfc6749#section-1.3.2" target="_blank">OAuth 2.0 Implicit Grant</a>)
+      flow (aka <a href="http://tools.ietf.org/html/rfc6749#section-1.3.2" target="_blank">OAuth 2.0 Implicit Grant</a>).
+      In addition, <a href="http://openid.net/specs/openid-connect-core-1_0.html#ImplicitFlowAuth" target="_blank">OpenID Connect Implicit Flow</a>
+      is also supported.
       </p>
     </div>
     </section>
@@ -404,6 +406,16 @@ angular.module('newProjectApp').config(function($locationProvider) {
           </tr>
           <tr>
             <td class="parameter">
+              <span>response-type</span>
+              <span class="info">required</span>
+            </td>
+            <td>
+              Default to <code>token</code>, which is for OAuth 2.0 implicit grant type. To use OpenID Connect Implicit Flow,
+              use <code>id_token</code> (to get id_token only) or <code>id_token token</code> (to get both id_token and access_token)
+            </td>
+          </tr>
+          <tr>
+            <td class="parameter">
               <span>redirect-uri</span>
               <span class="info">required</span>
             </td>
@@ -418,6 +430,7 @@ angular.module('newProjectApp').config(function($locationProvider) {
             </td>
             <td>
               Application privileges to be requested from the authorization server.  The value should be in plain text and will be properly URI encoded for authorization.
+              When using OpenID Connect Implicit Flow, value <code>openid</code> must be included.
             </td>
           </tr>
           <tr>
@@ -477,6 +490,39 @@ angular.module('newProjectApp').config(function($locationProvider) {
               How the token is stored locally,<br>
               <code>localStorage</code> or <code>sessionStorage</code>.<br>
               Defaults to <code>sessionStorage</code>.
+            </td>
+          </tr>
+          <tr>
+            <td class="parameter">
+              <span>issuer</span>
+              <span class="info">(optional)</span>
+            </td>
+            <td>
+              For OpenID Connect Implicit Flow only.
+              The issuer of the id_token. It must exactly match the <code>iss</code> claim (if exists) in the id_token
+            </td>
+          </tr>
+          <tr>
+            <td class="parameter">
+              <span>subject</span>
+              <span class="info">(optional)</span>
+            </td>
+            <td>
+              For OpenID Connect Implicit Flow only.
+              The subject of the id_token. The detailed meaning is usually application specific.
+              It must exactly match the <code>sub</code> claim (if exists) in the id_token
+            </td>
+          </tr>
+          <tr>
+            <td class="parameter">
+              <span>pub-key</span>
+              <span class="info">(optional)</span>
+            </td>
+            <td>
+              For OpenID Connect Implicit Flow only.
+              The public key to verify the id_token signature. It could be <code>.pem</code> format or JWK format.<br>
+              For signing algorithm (usually specified by <code>alg</code> in the id_token header), currently only <code>RS256</code>, <code>RS384</code>, or <code>RS512</code> is supported.<br>
+              If not set, then the id_token itself should carry the public key, or the url which can be used to retrieve the public key.
             </td>
           </tr>
         </tbody>
