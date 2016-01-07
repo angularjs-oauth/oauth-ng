@@ -20,7 +20,7 @@ Please also update `gh-pages` branch with documentation when applicable.
 
 ### OAuth 2.0 supported grant types
 
-We support both [OAuth 2.0 Authorization code Flow](http://tools.ietf.org/html/rfc6749#section-1.3.1) 
+We support both [OAuth 2.0 Authorization code Flow](http://tools.ietf.org/html/rfc6749#section-1.3.1)
 and the [OAuth 2.0 Implicit Flow](http://tools.ietf.org/html/rfc6749#section-1.3.2).
 
 #### Authorization code flow

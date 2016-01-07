@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.6 (Jan 07, 2016)
+
+* Fix JWK format support of OIDC public key
+
 ## 0.4.5 (Dec 16, 2015)
 
 * Add OpenID support
@@ -15,7 +19,7 @@
 ## 0.4.2 (Jun 19, 2015)
 
 * Make the code more JSHint friendly
-* Fix expiry definition in the access token service 
+* Fix expiry definition in the access token service
 
 ## 0.4.1 (Jun 11, 2015)
 
