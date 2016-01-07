@@ -136,15 +136,15 @@ idTokenService.factory('IdToken', ['Storage', function(Storage) {
       //Take the JWK if it comes with the id_token
       matchedPubKey = header.jwk;
       if (matchedPubKey.kid && header.kid && matchedPubKey.kid !== header.kid) {
-        throw new OidcException('Json Wek Key ID not match');
+        throw new OidcException('Json Web Key ID not match');
       }
       /*
        TODO: Support for "jku" (JWK Set URL), "x5u" (X.509 URL), "x5c" (X.509 Certificate Chain) parameter to get key
        per http://tools.ietf.org/html/draft-ietf-jose-json-web-signature-26#page-9
        */
-    } else {
-      //Use configured public key
-      matchedPubKey = this.pubKey;
+    } else { //Use configured public key
+      var jwk = getJsonObject(this.pubKey);
+      matchedPubKey = jwk ? jwk : this.pubKey; //JWK or PEM
     }
 
     if(!matchedPubKey) {
