@@ -137,6 +137,27 @@ describe('IdToken', function() {
 
   });
 
+  describe('verify id_token using JWK(Json Web Key) format key', function() {
+    beforeEach(function () {
+      //The same public key, but using a JWK format
+      var jwkString = '{"kty":"RSA","n":"33TqqLR3eeUmDtHS89qF3p4MP7Wfqt2Zjj3lZjLjjCGDvwr9cJNlNDiuKboODgUiT4ZdPWbOiMAfDcDzlOxA04DDnEFGAf-kDQiNSe2ZtqC7bnIc8-KSG_qOGQIVaay4Ucr6ovDkykO5Hxn7OU7sJp9TP9H0JH8zMQA6YzijYH9LsupTerrY3U6zyihVEDXXOv08vBHk50BMFJbE9iwFwnxCsU5-UZUZYw87Uu0n4LPFS9BT8tUIvAfnRXIEWCha3KbFWmdZQZlyrFw0buUEf0YN3_Q0auBkdbDR_ES2PbgKTJdkjc_rEeM0TxvOUf7HuUNOhrtAVEN1D5uuxE1WSw","e":"AQAB"}';
+      //Valid token with RS256, expires at 20251231235959Z UTC
+      validIdToken = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9' +
+          '.eyJpc3MiOiJvaWRjLXJzLTI1NiIsInN1YiI6Im9hdXRoLW5nLWNsaWVudCIsIm5iZiI6MTQ0OTQ0OTE0NCwiZXhwIjoxNzY3MjI1NTk5LCJpYXQiOjE0NDk0NDkxNDQsImp0aSI6ImlkMTIzNDU2IiwidHlwIjoiaHR0cHM6Ly9leGFtcGxlLmNvbS9yZWdpc3RlciJ9' +
+          '.lpxeRY_IqsvgWLj6H2ghre8dBBtsSF-bnjWHtVvhQIuerztMQOX20CCqtVFGScIZcI4gHxtEZGauF-sX3zwaLuqPtzORjaBiH0vV6C-3ZyqZrCU_n-TozKAwpSYyyHQpJ-xKdGRaOdd7_4vDtaFBWyHLXp1hbYvMftkPCvGjO25GppGQ7MjxCnd7IAPn0obXx2lZr1q0hHT7532O5dlmsPHTyrTvrSupTOVH3CZe3ZghM6R_mlagyfRh1Pf2cdRQkXJ0gEHf4GYpBbz-E3YfCyxcvQRPzfKnpLGH16M1_jM0mc3z5zVsegi62NNr79B8hExG5OtXfDMvws4LDfps2A';
+
+      IdToken.set({
+        issuer: 'oidc-rs-256',
+        clientId: 'oauth-ng-client',
+        pubKey: jwkString
+      });
+    });
+
+    it('validate token successfully', function () {
+      expect(IdToken.verifyIdTokenSig(validIdToken)).toEqual(true);
+    });
+
+  });
 
   describe('validate access_token with id_token header information', function () {
 

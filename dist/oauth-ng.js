@@ -1,4 +1,4 @@
-/* oauth-ng - v0.4.4 - 2015-12-12 */
+/* oauth-ng - v0.4.5 - 2016-01-06 */
 
 'use strict';
 
@@ -156,15 +156,15 @@ idTokenService.factory('IdToken', ['Storage', function(Storage) {
       //Take the JWK if it comes with the id_token
       matchedPubKey = header.jwk;
       if (matchedPubKey.kid && header.kid && matchedPubKey.kid !== header.kid) {
-        throw new OidcException('Json Wek Key ID not match');
+        throw new OidcException('Json Web Key ID not match');
       }
       /*
        TODO: Support for "jku" (JWK Set URL), "x5u" (X.509 URL), "x5c" (X.509 Certificate Chain) parameter to get key
        per http://tools.ietf.org/html/draft-ietf-jose-json-web-signature-26#page-9
        */
-    } else {
-      //Use configured public key
-      matchedPubKey = this.pubKey;
+    } else { //Use configured public key
+      var jwk = getJsonObject(this.pubKey);
+      matchedPubKey = jwk ? jwk : this.pubKey; //JWK or PEM
     }
 
     if(!matchedPubKey) {
@@ -443,7 +443,7 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$location',
       return;
     }
     var time = (new Date(service.token.expires_at))-(new Date());
-    if(time && time > 0){
+    if(time && time > 0 && time <= 2147483647){
       $interval(function(){
         $rootScope.$broadcast('oauth:expired', service.token);
       }, time, 1);
