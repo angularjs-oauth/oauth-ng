@@ -1,4 +1,4 @@
-/* oauth-ng - v0.4.9 - 2016-03-13 */
+/* oauth-ng - v0.4.9 - 2016-03-24 */
 
 'use strict';
 
@@ -6,6 +6,7 @@
 angular.module('oauth', [
   'oauth.directive',      // login directive
   'oauth.idToken',        // id token service (only for OpenID Connect)
+  'oauth.oidcConfig',     // for loading OIDC configuration from .well-known/openid-configuration endpoint
   'oauth.accessToken',    // access token service
   'oauth.endpoint',       // oauth endpoint service
   'oauth.profile',        // profile model
@@ -162,9 +163,20 @@ idTokenService.factory('IdToken', ['Storage', function(Storage) {
        TODO: Support for "jku" (JWK Set URL), "x5u" (X.509 URL), "x5c" (X.509 Certificate Chain) parameter to get key
        per http://tools.ietf.org/html/draft-ietf-jose-json-web-signature-26#page-9
        */
-    } else { //Use configured public key
-      var jwk = getJsonObject(this.pubKey);
-      matchedPubKey = jwk ? jwk : this.pubKey; //JWK or PEM
+    } else {
+      //Try to load the key from .well-known configuration
+      var oidcConfig = Storage.get('oidcConfig');
+      if (angular.isDefined(oidcConfig) && oidcConfig.jwks && oidcConfig.jwks.keys) {
+        oidcConfig.jwks.keys.forEach(function(key) {
+          if (key.kid === header.kid) {
+            matchedPubKey = key;
+          }
+        });
+      } else {
+        //Use configured public key
+        var jwk = getJsonObject(this.pubKey);
+        matchedPubKey = jwk ? jwk : this.pubKey; //JWK or PEM
+      }
     }
 
     if(!matchedPubKey) {
@@ -278,6 +290,65 @@ idTokenService.factory('IdToken', ['Storage', function(Storage) {
   return service;
 
 }]);
+
+(function() {
+  'use strict';
+
+  angular.module('oauth.oidcConfig', [])
+    .factory('OidcConfig', ['Storage', '$http', '$q', OidcConfig]);
+
+  function OidcConfig(Storage, $http, $q) {
+    var cache = null;
+    return {
+      load: load
+    };
+
+    function load(scope) {
+      if (scope.issuer && scope.wellKnown && scope.wellKnown !== "false") {
+        var promise = loadConfig(scope.issuer);
+        if (scope.wellKnown === "sync") {
+          return promise;
+        }
+      }
+      return $q.resolve(1);
+    }
+
+    function loadConfig(iss) {
+      if (cache === null) {
+        cache = Storage.get('oidcConfig');
+      }
+      if (angular.isDefined(cache)) {
+        return $q.resolve(cache);
+      } else {
+        return loadOpenidConfiguration(iss)
+                .then(saveCache)
+                .then(loadJwks)
+                .then(saveCache);
+      }
+    }
+
+    function saveCache(o) {
+      Storage.set('oidcConfig', cache);
+      return o;
+    }
+
+    function loadOpenidConfiguration(iss) {
+      return $http.get(iss + ".well-known/openid-configuration").then(function(res) {
+        return cache = res.data;
+      });
+    }
+
+    function loadJwks(oidcConf) {
+      if (oidcConf.jwks_uri) {
+        return $http.get(oidcConf.jwks_uri).then(function(res) {
+          return oidcConf.jwks = res.data;
+        });
+      } else {
+        return $q.reject("No jwks_uri found.");
+      }
+    }
+  }
+})();
 
 'use strict';
 
@@ -746,13 +817,14 @@ directives.directive('oauth', [
   'Endpoint',
   'Profile',
   'Storage',
+  'OidcConfig',
   '$location',
   '$rootScope',
   '$compile',
   '$http',
   '$templateCache',
   '$timeout',
-  function(IdToken, AccessToken, Endpoint, Profile, Storage, $location, $rootScope, $compile, $http, $templateCache, $timeout) {
+  function(IdToken, AccessToken, Endpoint, Profile, Storage, OidcConfig, $location, $rootScope, $compile, $http, $templateCache, $timeout) {
 
     var definition = {
       restrict: 'AE',
@@ -774,6 +846,7 @@ directives.directive('oauth', [
         issuer: '@',         // (optional for OpenID Connect) issuer of the id_token, should match the 'iss' claim in id_token payload
         subject: '@',        // (optional for OpenID Connect) subject of the id_token, should match the 'sub' claim in id_token payload
         pubKey: '@',          // (optional for OpenID Connect) the public key(RSA public key or X509 certificate in PEM format) to verify the signature
+        wellKnown: '@',       // (optional for OpenID Connect) whether to load public key according to .well-known/openid-configuration endpoint
         logoutPath: '@',    // (optional) A url to go to at logout
         sessionPath: '@'    // (optional) A url to use to check the validity of the current token.
       }
@@ -791,11 +864,14 @@ directives.directive('oauth', [
         Storage.use(scope.storage);// set storage
         compile();                 // compiles the desired layout
         Endpoint.set(scope);       // sets the oauth authorization url
-        IdToken.set(scope);
-        AccessToken.set(scope);    // sets the access token object (if existing, from fragment or session)
-        initProfile(scope);        // gets the profile resource (if existing the access token)
-        initView();                // sets the view (logged in or out)
-        checkValidity();           // ensure the validity of the current token
+        OidcConfig.load(scope)     // loads OIDC configuration from .well-known/openid-configuration if necessary
+          .then(function() {
+            IdToken.set(scope);
+            AccessToken.set(scope);    // sets the access token object (if existing, from fragment or session)
+            initProfile(scope);        // gets the profile resource (if existing the access token)
+            initView();                // sets the view (logged in or out)
+            checkValidity();           // ensure the validity of the current token
+          });
       };
 
       var initAttributes = function() {
