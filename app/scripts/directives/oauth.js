@@ -91,7 +91,7 @@ directives.directive('oauth', [
         var token = AccessToken.get();
 
         if (!token) {
-          return loggedOut();
+          return scope.logout();
         }  // without access token it's logged out
         if (AccessToken.expired()) {
           return expired();
@@ -109,8 +109,6 @@ directives.directive('oauth', [
       };
 
       scope.logout = function () {
-        AccessToken.destroy(scope);
-        $rootScope.$broadcast('oauth:logout');
         Endpoint.logout();
         $rootScope.$broadcast('oauth:loggedOut');
         scope.show = 'logged-out';
@@ -138,9 +136,8 @@ directives.directive('oauth', [
       var checkValidity = function() {
         Endpoint.checkValidity().then(function() {
           $rootScope.$broadcast('oauth:valid');
-        }).catch(function(){
-          $rootScope.$broadcast('oauth:invalid');
-          scope.logout();
+        }).catch(function(message){
+          $rootScope.$broadcast('oauth:invalid', message);
         });
       };
 

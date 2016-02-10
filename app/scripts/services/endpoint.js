@@ -7,15 +7,16 @@ endpointClient.factory('Endpoint', function($rootScope, AccessToken, $q, $http) 
   var service = {};
 
   var buildOauthUrl = function (path, params) {
-    var oAuthScope = (params.scope) ? params.scope : '',
+    var oAuthScope = (params.scope) ? encodeURIComponent(params.scope) : '',
       state = (params.state) ? encodeURIComponent(params.state) : '',
       authPathHasQuery = (params.authorizePath.indexOf('?') == -1) ? false : true,
       appendChar = (authPathHasQuery) ? '&' : '?',    //if authorizePath has ? already append OAuth2 params
-      nonceParam = (params.nonce) ? '&nonce=' + params.nonce : '';
+      nonceParam = (params.nonce) ? '&nonce=' + params.nonce : '',
+      responseType = encodeURIComponent(params.responseType);
 
     return params.site +
       path +
-      appendChar + 'response_type=token&' +
+      appendChar + 'response_type=' + responseType + '&' +
       'client_id=' + encodeURIComponent(params.clientId) + '&' +
       'redirect_uri=' + encodeURIComponent(params.redirectUri) + '&' +
       'scope=' + oAuthScope + '&' +
@@ -67,11 +68,11 @@ endpointClient.factory('Endpoint', function($rootScope, AccessToken, $q, $http) 
   service.checkValidity = function() {
     var params = service.config;
     if( params.sessionPath ) {
-      var token = AccessToken.get().access_token;
+      var token = AccessToken.get();
       if( !token ) {
         return $q.reject("No token configured");
       }
-      var path = params.site + params.sessionPath + "?token=" + token;
+      var path = params.site + params.sessionPath + "?token=" + token.access_token;
       return $http.get(path).then( function(httpResponse) {
         var tokenInfo = httpResponse.data;
         if(tokenInfo.valid) {
@@ -97,9 +98,8 @@ endpointClient.factory('Endpoint', function($rootScope, AccessToken, $q, $http) 
     $rootScope.$broadcast('oauth:logging-out');
     if( params.logoutPath ) {
       window.location.replace(buildOauthUrl(params.logOutPath, params));
-    } else {
-      $rootScope.$broadcast('oauth:logout');
     }
+    $rootScope.$broadcast('oauth:logout');
   };
 
   return service;
