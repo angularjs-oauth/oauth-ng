@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.7 (Feb 11, 2016)
+
+* Add logout capability
+* Add session validity checking feature
+
 ## 0.4.6 (Jan 07, 2016)
 
 * Fix JWK format support of OIDC public key
