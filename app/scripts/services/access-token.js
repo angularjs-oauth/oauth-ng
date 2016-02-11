@@ -14,6 +14,7 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$location',
     //Additional OpenID Connect key per http://openid.net/specs/openid-connect-core-1_0.html#ImplicitAuthResponse
     'id_token'
   ];
+  var expiresAtEvent = null;
 
   /**
    * Returns the access token.
@@ -71,6 +72,14 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$location',
       setToken(this.token);
       $rootScope.$broadcast('oauth:login', service.token);
     }
+  };
+
+   /**
+    * updates the expiration of the token
+    */
+  service.updateExpiry = function(newExpiresIn){
+    this.token.expires_in = newExpiresIn;
+    setExpiresAt();
   };
 
   /* * * * * * * * * *
@@ -161,11 +170,19 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$location',
     if (typeof(service.token.expires_at) === 'undefined' || service.token.expires_at === null) {
       return;
     }
+    cancelExpiresAtEvent();
     var time = (new Date(service.token.expires_at))-(new Date());
     if(time && time > 0 && time <= 2147483647){
-      $interval(function(){
+      expiresAtEvent = $interval(function(){
         $rootScope.$broadcast('oauth:expired', service.token);
       }, time, 1);
+    }
+  };
+
+  var cancelExpiresAtEvent = function() {
+    if(expiresAtEvent) {
+      $timeout.cancel(expiresAtEvent);
+      expiresAtEvent = undefined;
     }
   };
 

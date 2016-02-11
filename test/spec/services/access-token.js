@@ -11,6 +11,7 @@ describe('AccessToken', function() {
       '&id_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ&expires_in=3600';
   var denied   = 'error=access_denied&error_description=error';
   var expires_at = '2014-08-17T17:38:37.584Z';
+  var newExpiresIn = 9600;
   var token    = { access_token: 'token', token_type: 'bearer', expires_in: 7200, state: '/path', expires_at: expires_at };
 
   beforeEach(module('oauth'));
@@ -294,6 +295,23 @@ describe('AccessToken', function() {
       it('returns true', function() {
         expect(result).toBe(true);
       });
+    });
+  });
+
+  describe('#updateExpiry', function () {
+    beforeEach(function () {
+      $location.hash('');
+      Storage.set('token', token);
+      AccessToken.set();
+    });
+
+
+    it('updates the expiry to a new time', function () {
+      AccessToken.updateExpiry(newExpiresIn);
+      expect(AccessToken.expired()).toBeFalsy();
+      var newExpiresAt = new Date();
+      newExpiresAt.setSeconds(newExpiresAt.getSeconds() + newExpiresIn - 60);
+      expect(AccessToken.get().expires_at).toEqual(newExpiresAt);
     });
   });
 

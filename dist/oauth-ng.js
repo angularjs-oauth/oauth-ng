@@ -1,4 +1,4 @@
-/* oauth-ng - v0.4.5 - 2016-01-06 */
+/* oauth-ng - v0.4.6 - 2016-02-10 */
 
 'use strict';
 
@@ -295,6 +295,7 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$location',
     //Additional OpenID Connect key per http://openid.net/specs/openid-connect-core-1_0.html#ImplicitAuthResponse
     'id_token'
   ];
+  var expiresAtEvent = null;
 
   /**
    * Returns the access token.
@@ -352,6 +353,14 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$location',
       setToken(this.token);
       $rootScope.$broadcast('oauth:login', service.token);
     }
+  };
+
+   /**
+    * updates the expiration of the token
+    */
+  service.updateExpiry = function(newExpiresIn){
+    this.token.expires_in = newExpiresIn;
+    setExpiresAt();
   };
 
   /* * * * * * * * * *
@@ -442,11 +451,19 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$location',
     if (typeof(service.token.expires_at) === 'undefined' || service.token.expires_at === null) {
       return;
     }
+    cancelExpiresAtEvent();
     var time = (new Date(service.token.expires_at))-(new Date());
     if(time && time > 0 && time <= 2147483647){
-      $interval(function(){
+      expiresAtEvent = $interval(function(){
         $rootScope.$broadcast('oauth:expired', service.token);
       }, time, 1);
+    }
+  };
+
+  var cancelExpiresAtEvent = function() {
+    if(expiresAtEvent) {
+      $timeout.cancel(expiresAtEvent);
+      expiresAtEvent = undefined;
     }
   };
 
@@ -471,9 +488,30 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$location',
 
 var endpointClient = angular.module('oauth.endpoint', []);
 
-endpointClient.factory('Endpoint', function() {
+endpointClient.factory('Endpoint', function($rootScope, AccessToken, $q, $http) {
 
   var service = {};
+
+  var buildOauthUrl = function (path, params) {
+    var oAuthScope = (params.scope) ? encodeURIComponent(params.scope) : '',
+      state = (params.state) ? encodeURIComponent(params.state) : '',
+      authPathHasQuery = (params.authorizePath.indexOf('?') == -1) ? false : true,
+      appendChar = (authPathHasQuery) ? '&' : '?',    //if authorizePath has ? already append OAuth2 params
+      nonceParam = (params.nonce) ? '&nonce=' + params.nonce : '',
+      responseType = encodeURIComponent(params.responseType);
+
+    return params.site +
+      path +
+      appendChar + 'response_type=' + responseType + '&' +
+      'client_id=' + encodeURIComponent(params.clientId) + '&' +
+      'redirect_uri=' + encodeURIComponent(params.redirectUri) + '&' +
+      'scope=' + oAuthScope + '&' +
+      'state=' + state + nonceParam;
+  };
+
+  var extendValidity = function (tokenInfo) {
+    AccessToken.updateExpiry(tokenInfo.expires);
+  };
 
   /*
    * Defines the authorization URL
@@ -488,35 +526,66 @@ endpointClient.factory('Endpoint', function() {
    * Returns the authorization URL
    */
 
-  service.get = function( overrides ) {
+  service.get = function(overrides) {
     var params = angular.extend( {}, service.config, overrides);
-    var oAuthScope = (params.scope) ? encodeURIComponent(params.scope) : '',
-        state = (params.state) ? encodeURIComponent(params.state) : '',
-        authPathHasQuery = (params.authorizePath.indexOf('?') === -1) ? false : true,
-        appendChar = (authPathHasQuery) ? '&' : '?',    //if authorizePath has ? already append OAuth2 params
-        responseType = (params.responseType) ? encodeURIComponent(params.responseType) : '';
-
-    var url = params.site +
-          params.authorizePath +
-          appendChar + 'response_type=' + responseType + '&' +
-          'client_id=' + encodeURIComponent(params.clientId) + '&' +
-          'redirect_uri=' + encodeURIComponent(params.redirectUri) + '&' +
-          'scope=' + oAuthScope + '&' +
-          'state=' + state;
-
-    if( params.nonce ) {
-      url = url + '&nonce=' + params.nonce;
-    }
-    return url;
+    return buildOauthUrl(params.authorizePath, params);
   };
 
   /*
    * Redirects the app to the authorization URL
    */
 
-  service.redirect = function( overrides ) {
-    var targetLocation = this.get( overrides );
+  service.redirect = function(overrides) {
+    var targetLocation = this.get(overrides);
+    $rootScope.$broadcast('oauth:logging-in');
     window.location.replace(targetLocation);
+  };
+
+  /*
+   * Alias for 'redirect'
+   */
+  service.login = function() {
+    service.redirect();
+  };
+
+  /*
+   * Check the validity of the token if a session path is available
+   */
+  service.checkValidity = function() {
+    var params = service.config;
+    if( params.sessionPath ) {
+      var token = AccessToken.get();
+      if( !token ) {
+        return $q.reject("No token configured");
+      }
+      var path = params.site + params.sessionPath + "?token=" + token.access_token;
+      return $http.get(path).then( function(httpResponse) {
+        var tokenInfo = httpResponse.data;
+        if(tokenInfo.valid) {
+          extendValidity(tokenInfo);
+          return true;
+        } else {
+          return $q.reject("Server replied: token is invalid.");
+        }
+      });
+    } else {
+      return $q.reject("You must give a :session-path param in order to validate the token.")
+    }
+  };
+
+  /*
+   * Destroys the session, sends the user to the logout url if set.
+   * First broadcasts 'logging-out' and then 'logout' when finished.
+   */
+
+  service.logout = function() {
+    var params = service.config;
+    AccessToken.destroy();
+    $rootScope.$broadcast('oauth:logging-out');
+    if( params.logoutPath ) {
+      window.location.replace(buildOauthUrl(params.logOutPath, params));
+    }
+    $rootScope.$broadcast('oauth:logout');
   };
 
   return service;
@@ -703,7 +772,9 @@ directives.directive('oauth', [
                              // OpenID Connect extras, more details in id-token.js:
         issuer: '@',         // (optional for OpenID Connect) issuer of the id_token, should match the 'iss' claim in id_token payload
         subject: '@',        // (optional for OpenID Connect) subject of the id_token, should match the 'sub' claim in id_token payload
-        pubKey: '@'          // (optional for OpenID Connect) the public key(RSA public key or X509 certificate in PEM format) to verify the signature
+        pubKey: '@',          // (optional for OpenID Connect) the public key(RSA public key or X509 certificate in PEM format) to verify the signature
+        logoutPath: '@',    // (optional) A url to go to at logout
+        sessionPath: '@'    // (optional) A url to use to check the validity of the current token.
       }
     };
 
@@ -723,6 +794,7 @@ directives.directive('oauth', [
         AccessToken.set(scope);    // sets the access token object (if existing, from fragment or session)
         initProfile(scope);        // gets the profile resource (if existing the access token)
         initView();                // sets the view (logged in or out)
+        checkValidity();           // ensure the validity of the current token
       };
 
       var initAttributes = function() {
@@ -753,34 +825,34 @@ directives.directive('oauth', [
         }
       };
 
-      var initView = function() {
+      var initView = function () {
         var token = AccessToken.get();
 
         if (!token) {
-          return loggedOut(); // without access token it's logged out
-        }
+          return scope.logout();
+        }  // without access token it's logged out
+        if (AccessToken.expired()) {
+          return expired();
+        }  // with a token, but it's expired
         if (token.access_token) {
-          return authorized(); // if there is the access token we are done
-        }
+          return authorized();
+        }  // if there is the access token we are done
         if (token.error) {
-          return denied(); // if the request has been denied we fire the denied event
-        }
+          return denied();
+        }  // if the request has been denied we fire the denied event
       };
 
-      scope.login = function() {
+      scope.login = function () {
         Endpoint.redirect();
       };
 
-      scope.logout = function() {
-        AccessToken.destroy(scope);
-        $rootScope.$broadcast('oauth:logout');
-        loggedOut();
+      scope.logout = function () {
+        Endpoint.logout();
+        $rootScope.$broadcast('oauth:loggedOut');
+        scope.show = 'logged-out';
       };
 
-      scope.$on('oauth:expired', function() {
-        AccessToken.destroy(scope);
-        scope.show = 'logged-out';
-      });
+      scope.$on('oauth:expired',expired);
 
       // user is authorized
       var authorized = function() {
@@ -788,16 +860,23 @@ directives.directive('oauth', [
         scope.show = 'logged-in';
       };
 
-      // set the oauth directive to the logged-out status
-      var loggedOut = function() {
-        $rootScope.$broadcast('oauth:loggedOut');
-        scope.show = 'logged-out';
+      var expired = function() {
+        $rootScope.$broadcast('oauth:expired');
+        scope.logout();
       };
 
       // set the oauth directive to the denied status
       var denied = function() {
         scope.show = 'denied';
         $rootScope.$broadcast('oauth:denied');
+      };
+
+      var checkValidity = function() {
+        Endpoint.checkValidity().then(function() {
+          $rootScope.$broadcast('oauth:valid');
+        }).catch(function(message){
+          $rootScope.$broadcast('oauth:invalid', message);
+        });
       };
 
       // Updates the template at runtime
