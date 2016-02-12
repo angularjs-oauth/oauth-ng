@@ -2,7 +2,7 @@
 
 var endpointClient = angular.module('oauth.endpoint', []);
 
-endpointClient.factory('Endpoint', function($rootScope, AccessToken, $q, $http) {
+endpointClient.factory('Endpoint', ['$rootScope', 'AccessToken', '$q', '$http', function($rootScope, AccessToken, $q, $http) {
 
   var service = {};
 
@@ -103,4 +103,4 @@ endpointClient.factory('Endpoint', function($rootScope, AccessToken, $q, $http) 
   };
 
   return service;
-});
+}]);
