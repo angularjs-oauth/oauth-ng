@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.8 (Feb 12, 2016)
+
+* Fixed issues related to state change
+
 ## 0.4.7 (Feb 11, 2016)
 
 * Add logout capability

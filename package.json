@@ -1,11 +1,11 @@
 {
   "name": "oauth-ng",
-  "version": "0.4.7",
+  "version": "0.4.8",
   "author": "Andrea Reginato <andrea.reginato@gmail.com>",
   "description": "AngularJS Directive for OAuth 2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/andreareginato/oauth-ng"
+    "url": "https://github.com/angularjs-oauth/oauth-ng"
   },
   "dependencies": {},
   "devDependencies": {
