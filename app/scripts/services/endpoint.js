@@ -97,7 +97,7 @@ endpointClient.factory('Endpoint', function($rootScope, AccessToken, $q, $http) 
     AccessToken.destroy();
     $rootScope.$broadcast('oauth:logging-out');
     if( params.logoutPath ) {
-      window.location.replace(buildOauthUrl(params.logOutPath, params));
+      window.location.replace(buildOauthUrl(params.logoutPath, params));
     }
     $rootScope.$broadcast('oauth:logout');
   };
