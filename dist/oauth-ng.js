@@ -583,7 +583,7 @@ endpointClient.factory('Endpoint', function($rootScope, AccessToken, $q, $http) 
     AccessToken.destroy();
     $rootScope.$broadcast('oauth:logging-out');
     if( params.logoutPath ) {
-      window.location.replace(buildOauthUrl(params.logOutPath, params));
+      window.location.replace(buildOauthUrl(params.logoutPath, params));
     }
     $rootScope.$broadcast('oauth:logout');
   };
@@ -751,7 +751,8 @@ directives.directive('oauth', [
   '$compile',
   '$http',
   '$templateCache',
-  function(IdToken, AccessToken, Endpoint, Profile, Storage, $location, $rootScope, $compile, $http, $templateCache) {
+  '$timeout',
+  function(IdToken, AccessToken, Endpoint, Profile, Storage, $location, $rootScope, $compile, $http, $templateCache, $timeout) {
 
     var definition = {
       restrict: 'AE',
@@ -879,6 +880,10 @@ directives.directive('oauth', [
         });
       };
 
+      var refreshDirective = function () {
+        scope.$apply();
+      };
+
       // Updates the template at runtime
       scope.$on('oauth:template:update', function(event, template) {
         scope.template = template;
@@ -886,13 +891,12 @@ directives.directive('oauth', [
       });
 
       // Hack to update the directive content on logout
-      // TODO think to a cleaner solution
       scope.$on('$routeChangeSuccess', function () {
-        init();
+        $timeout(refreshDirective);
       });
 
       scope.$on('$stateChangeSuccess', function () {
-        init();
+        $timeout(refreshDirective);
       });
     };
 
