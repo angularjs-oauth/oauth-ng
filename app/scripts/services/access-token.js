@@ -2,7 +2,7 @@
 
 var accessTokenService = angular.module('oauth.accessToken', []);
 
-accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$location', '$interval', 'IdToken', function(Storage, $rootScope, $location, $interval, IdToken){
+accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$location', '$interval', 'IdToken', '$timeout', function(Storage, $rootScope, $location, $interval, IdToken, $timeout){
 
   var service = {
     token: null
