@@ -1,4 +1,4 @@
-/* oauth-ng - v0.4.8 - 2016-02-12 */
+/* oauth-ng - v0.4.9 - 2016-03-13 */
 
 'use strict';
 
@@ -283,7 +283,7 @@ idTokenService.factory('IdToken', ['Storage', function(Storage) {
 
 var accessTokenService = angular.module('oauth.accessToken', []);
 
-accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$location', '$interval', 'IdToken', function(Storage, $rootScope, $location, $interval, IdToken){
+accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$location', '$interval', '$timeout', 'IdToken', function(Storage, $rootScope, $location, $interval, $timeout, IdToken){
 
   var service = {
     token: null
@@ -488,7 +488,7 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$location',
 
 var endpointClient = angular.module('oauth.endpoint', []);
 
-endpointClient.factory('Endpoint', function($rootScope, AccessToken, $q, $http) {
+endpointClient.factory('Endpoint', ['$rootScope', 'AccessToken', '$q', '$http', function($rootScope, AccessToken, $q, $http) {
 
   var service = {};
 
@@ -589,7 +589,7 @@ endpointClient.factory('Endpoint', function($rootScope, AccessToken, $q, $http) 
   };
 
   return service;
-});
+}]);
 
 'use strict';
 
