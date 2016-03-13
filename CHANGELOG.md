@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.9 (Mar 13, 2016)
+
+* Add DI explicit annotation to Endpoint factory
+* Add missing dependency to Access Token service
+
 ## 0.4.8 (Feb 12, 2016)
 
 * Fixed issues related to state change
