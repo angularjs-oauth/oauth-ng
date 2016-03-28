@@ -142,9 +142,20 @@ idTokenService.factory('IdToken', ['Storage', function(Storage) {
        TODO: Support for "jku" (JWK Set URL), "x5u" (X.509 URL), "x5c" (X.509 Certificate Chain) parameter to get key
        per http://tools.ietf.org/html/draft-ietf-jose-json-web-signature-26#page-9
        */
-    } else { //Use configured public key
-      var jwk = getJsonObject(this.pubKey);
-      matchedPubKey = jwk ? jwk : this.pubKey; //JWK or PEM
+    } else {
+      //Try to load the key from .well-known configuration
+      var oidcConfig = Storage.get('oidcConfig');
+      if (angular.isDefined(oidcConfig) && oidcConfig.jwks && oidcConfig.jwks.keys) {
+        oidcConfig.jwks.keys.forEach(function(key) {
+          if (key.kid === header.kid) {
+            matchedPubKey = key;
+          }
+        });
+      } else {
+        //Use configured public key
+        var jwk = getJsonObject(this.pubKey);
+        matchedPubKey = jwk ? jwk : this.pubKey; //JWK or PEM
+      }
     }
 
     if(!matchedPubKey) {

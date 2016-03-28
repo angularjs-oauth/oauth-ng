@@ -8,13 +8,14 @@ directives.directive('oauth', [
   'Endpoint',
   'Profile',
   'Storage',
+  'OidcConfig',
   '$location',
   '$rootScope',
   '$compile',
   '$http',
   '$templateCache',
   '$timeout',
-  function(IdToken, AccessToken, Endpoint, Profile, Storage, $location, $rootScope, $compile, $http, $templateCache, $timeout) {
+  function(IdToken, AccessToken, Endpoint, Profile, Storage, OidcConfig, $location, $rootScope, $compile, $http, $templateCache, $timeout) {
 
     var definition = {
       restrict: 'AE',
@@ -36,6 +37,7 @@ directives.directive('oauth', [
         issuer: '@',         // (optional for OpenID Connect) issuer of the id_token, should match the 'iss' claim in id_token payload
         subject: '@',        // (optional for OpenID Connect) subject of the id_token, should match the 'sub' claim in id_token payload
         pubKey: '@',          // (optional for OpenID Connect) the public key(RSA public key or X509 certificate in PEM format) to verify the signature
+        wellKnown: '@',       // (optional for OpenID Connect) whether to load public key according to .well-known/openid-configuration endpoint
         logoutPath: '@',    // (optional) A url to go to at logout
         sessionPath: '@'    // (optional) A url to use to check the validity of the current token.
       }
@@ -53,11 +55,14 @@ directives.directive('oauth', [
         Storage.use(scope.storage);// set storage
         compile();                 // compiles the desired layout
         Endpoint.set(scope);       // sets the oauth authorization url
-        IdToken.set(scope);
-        AccessToken.set(scope);    // sets the access token object (if existing, from fragment or session)
-        initProfile(scope);        // gets the profile resource (if existing the access token)
-        initView();                // sets the view (logged in or out)
-        checkValidity();           // ensure the validity of the current token
+        OidcConfig.load(scope)     // loads OIDC configuration from .well-known/openid-configuration if necessary
+          .then(function() {
+            IdToken.set(scope);
+            AccessToken.set(scope);    // sets the access token object (if existing, from fragment or session)
+            initProfile(scope);        // gets the profile resource (if existing the access token)
+            initView();                // sets the view (logged in or out)
+            checkValidity();           // ensure the validity of the current token
+          });
       };
 
       var initAttributes = function() {
