@@ -1,4 +1,4 @@
-/* oauth-ng - v0.4.9 - 2016-03-24 */
+/* oauth-ng - v0.4.9 - 2016-03-28 */
 
 'use strict';
 
@@ -295,9 +295,9 @@ idTokenService.factory('IdToken', ['Storage', function(Storage) {
   'use strict';
 
   angular.module('oauth.oidcConfig', [])
-    .factory('OidcConfig', ['Storage', '$http', '$q', OidcConfig]);
+    .factory('OidcConfig', ['Storage', '$http', '$q', '$log', OidcConfig]);
 
-  function OidcConfig(Storage, $http, $q) {
+  function OidcConfig(Storage, $http, $q, $log) {
     var cache = null;
     return {
       load: load
@@ -310,7 +310,7 @@ idTokenService.factory('IdToken', ['Storage', function(Storage) {
           return promise;
         }
       }
-      return $q.resolve(1);
+      return $q.when(1);
     }
 
     function loadConfig(iss) {
@@ -318,13 +318,18 @@ idTokenService.factory('IdToken', ['Storage', function(Storage) {
         cache = Storage.get('oidcConfig');
       }
       if (angular.isDefined(cache)) {
-        return $q.resolve(cache);
+        return $q.when(cache);
       } else {
         return loadOpenidConfiguration(iss)
                 .then(saveCache)
                 .then(loadJwks)
-                .then(saveCache);
+                .then(saveCache, errorLogger);
       }
+    }
+
+    function errorLogger(err) {
+      $log.error("Could not load OIDC config:", err);
+      return $q.reject(err);
     }
 
     function saveCache(o) {
@@ -332,9 +337,16 @@ idTokenService.factory('IdToken', ['Storage', function(Storage) {
       return o;
     }
 
+    function joinPath(x,y) {
+      return x + (x.charAt(x.length - 1) === '/' ? '' : '/') + y;
+    }
+
     function loadOpenidConfiguration(iss) {
-      return $http.get(iss + ".well-known/openid-configuration").then(function(res) {
+      var configUri = joinPath(iss, ".well-known/openid-configuration");
+      return $http.get(configUri).then(function(res) {
         return cache = res.data;
+      }, function(err) {
+        return $q.reject("Could not get config info from " + configUri + ' . Check the availability of this url.');
       });
     }
 

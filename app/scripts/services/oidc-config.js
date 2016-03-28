@@ -2,9 +2,9 @@
   'use strict';
 
   angular.module('oauth.oidcConfig', [])
-    .factory('OidcConfig', ['Storage', '$http', '$q', OidcConfig]);
+    .factory('OidcConfig', ['Storage', '$http', '$q', '$log', OidcConfig]);
 
-  function OidcConfig(Storage, $http, $q) {
+  function OidcConfig(Storage, $http, $q, $log) {
     var cache = null;
     return {
       load: load
@@ -30,8 +30,13 @@
         return loadOpenidConfiguration(iss)
                 .then(saveCache)
                 .then(loadJwks)
-                .then(saveCache);
+                .then(saveCache, errorLogger);
       }
+    }
+
+    function errorLogger(err) {
+      $log.error("Could not load OIDC config:", err);
+      return $q.reject(err);
     }
 
     function saveCache(o) {
@@ -44,8 +49,11 @@
     }
 
     function loadOpenidConfiguration(iss) {
-      return $http.get(joinPath(iss, ".well-known/openid-configuration")).then(function(res) {
+      var configUri = joinPath(iss, ".well-known/openid-configuration");
+      return $http.get(configUri).then(function(res) {
         return cache = res.data;
+      }, function(err) {
+        return $q.reject("Could not get config info from " + configUri + ' . Check the availability of this url.');
       });
     }
 
