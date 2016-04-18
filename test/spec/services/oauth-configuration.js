@@ -11,7 +11,7 @@ describe('AuthInterceptor', function() {
 	
 	
 	beforeEach(function() {
-		var fakeModule = angular.module('test.app.config', function(){});
+		var fakeModule = angular.module('test.app.config', []);
 		fakeModule.config(function(OAuthConfigurationProvider, $httpProvider) {
 			theOAuthConfigurationProvider = OAuthConfigurationProvider;
 			theOAuthConfigurationProvider.init({protectedResources:['http://api.protected']}, $httpProvider);
