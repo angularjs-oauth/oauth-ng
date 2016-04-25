@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.10 (Apr 25, 2016)
+
+* Support for loading keys from `.well-known/openid-configuration`
+
 ## 0.4.9 (Mar 13, 2016)
 
 * Add DI explicit annotation to Endpoint factory
