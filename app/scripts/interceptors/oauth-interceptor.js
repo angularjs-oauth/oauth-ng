@@ -8,7 +8,7 @@ interceptorService.factory('ExpiredInterceptor', ['Storage', '$rootScope', funct
 
   service.request = function(config) {
     var token = Storage.get('token');
-
+    
     if (token && expired(token)) {
       $rootScope.$broadcast('oauth:expired', token);
     }

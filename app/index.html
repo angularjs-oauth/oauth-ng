@@ -2,11 +2,14 @@
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
 <!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
-  <head>
+<!--[if gt IE 8]><!-->
+<html class="no-js">
+<!--<![endif]-->
+
+<head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title></title>
+    <title>Oauth NG Catenon</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width">
     <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
@@ -18,30 +21,39 @@
     <link rel="stylesheet" href="styles/main.css">
     <!-- endbuild -->
     <base href="/">
-  </head>
-  <body ng-app="app">
+</head>
 
-    <div class="content">
-      <a href="http://andreareginato.github.io/oauth-ng/">
-        <img src="http://i.imgur.com/C0xCJcr.png"></img>
-      </a>
-    </div>
+<body ng-app="app" ng-controller="IndexCtrl as vm">
 
-    <div style="display:none">
-    <oauth
-    site="OAUTH_SERVER_URI_HERE"
-    client-id="CLIENT_ID_HERE"
-    redirect-uri="REDIRECT_URI_HERE"
-    profile-uri="PROFILE_URI_HERE"
-    scope="SCOPE_HERE"
-    storage="STORAGE_TYPE_HERE">
-    </oauth>
+    <div class="menu">
+        <!-- <img src="http://i.imgur.com/C0xCJcr.png" width="150"/> -->
+
+        <a href="http://andreareginato.github.io/oauth-ng/">oauth-ng</a>
+
+        <!-- Se muestra cuando esta autenticado: -->
+        <a ng-if="isLogged" ui-sref="dashboard">Dashboard</a>
+        <a ng-if="isLogged" ui-sref="profile">Profile</a>
+        <oauth site="{{vm.oauth2.site}}" client-id="{{vm.oauth2.clientId}}" redirect-uri="{{vm.oauth2.redirectUrl}}" authorize-path="{{vm.oauth2.authorizePath}}" token-path="{{vm.oauth2.tokenPath}}" text="{{vm.oauth2.signInText}}" storage="{{vm.oauth2.storage}}"></oauth>
+
     </div>
+    <p>logged: {{vm.logged}}</p>
+    <!-- <oauth site="OAUTH_SERVER_URI_HERE" client-id="CLIENT_ID_HERE" redirect-uri="REDIRECT_URI_HERE" profile-uri="PROFILE_URI_HERE" scope="SCOPE_HERE" storage="STORAGE_TYPE_HERE"></oauth> -->
+    <hr>
+    <h3>Clients</h3>
+    <button type="button" ng-click="vm.loadData()">Load data</button>
+    <ul>
+        <li ng-repeat="item in vm.items">{{item.name}}</li>
+    </ul>
+    <hr>
+
+    <div ui-view></div>
 
     <!-- bower:js -->
     <script src="bower_components/angular/angular.js"></script>
     <script src="bower_components/ngstorage/ngStorage.js"></script>
     <script src="bower_components/jsrsasign/jsrsasign-latest-all-min.js"></script>
+    <script src="bower_components/angular-ui-router/release/angular-ui-router.js"></script>
+    <script src="bower_components/angular-cookies/angular-cookies.js"></script>
     <!-- endbower -->
 
     <!-- build:js({.tmp,app}) oauth-ng.js -->
@@ -58,12 +70,112 @@
     <!-- endbuild -->
 
     <script>
-      var app = angular.module('app', ['oauth']);
+        var app = angular.module('app', ['oauth', 'ui.router', 'ngCookies']);
 
-      angular.module('app').config(function($locationProvider) {
-        $locationProvider.html5Mode(true).hashPrefix('!');
-      });
+        angular.module('app').config(function($locationProvider, $stateProvider, $urlRouterProvider, $httpProvider, OAuthConfigurationProvider) {
+
+            var protectedResources = ['https://sandbox.catenon.com:8243'];
+
+            OAuthConfigurationProvider.init({protectedResources: protectedResources}, $httpProvider);
+
+            $locationProvider.html5Mode(true).hashPrefix('!');
+
+            //$urlRouterProvider.otherwise('/');
+
+            $stateProvider
+                .state('dashboard', {
+                    url: '/dashboard',
+                    template: '<h2>Dashboard</h2>'
+
+                })
+                .state('profile', {
+                    url: '/profile',
+                    template: '<h2>Profile</h2>'
+
+                });
+
+
+        });
+
+        app.controller('IndexCtrl', function($rootScope, $scope, $http, $timeout, $window, AccessToken) {
+            var vm = this;
+            vm.oauth2 = {
+                site: 'https://sandbox.catenon.com:9444',
+                profileUri: '',
+                authorizePath: '/oauth2/authorize',
+                tokenPath: '/oauth2/token',
+                //authorizePath:'/oauth2/authorize',
+                authorizationUrl: 'https://sandbox.catenon.com:9444/oauth2/authorize',
+                //redirectUrl:"https://test-app.catenon.com/oauth2/callback",
+                //redirectUrl:"http://localhost:8080/oauth2/callback",
+                redirectUrl: $window.location.origin || ($window.location.protocol + '//' + $window.location.host),
+                clientId: "GF0b4RAuhLdUsHVf2UGDrH_Eo7Qa",
+                responseType: "token",
+                scope: "public",
+                signoutUrl: "https://sandbox.catenon.com:9444/oauth2/revoke?token=",
+                signoutAppendToken: "true",
+                signoutRedirectUrl: "http://localhost:3000/dashboard",
+                silentTokenRedirectUrl: "http://localhost:9000/silent-renew",
+                signInText: 'Login',
+                //template:'views/templates/signInButton.html',
+                autoGenerateNonce: true,
+                storage:'cookieStorage'
+
+            };
+
+            vm.loadData = loadData;
+
+            $timeout(function() {
+                vm.logged = !!AccessToken.get();
+            }, 0)
+
+            $scope.$on('oauth:login', function(event, token) {
+                $rootScope.isLogged = true;
+                console.log('Authorized third party app with token', token.access_token);
+            });
+
+            $scope.$on('oauth:logout', function(event) {
+                $rootScope.isLogged = false;
+                console.log('The user has signed out');
+            });
+
+            $scope.$on('oauth:loggedOut', function(event) {
+                console.log('The user is not signed in');
+            });
+
+            $scope.$on('oauth:denied', function(event) {
+                console.log('The user did not authorize the third party app');
+            });
+
+            $scope.$on('oauth:expired', function(event) {
+                console.log('The access token is expired. Please refresh.');
+            });
+
+            $scope.$on('oauth:profile', function(profile) {
+                console.log('User profile data retrieved: ', profile);
+            });
+
+            $scope.$on('oauth:authorized', function(event, token) {
+                console.log('User is authorized', token);
+                if (token) {
+                    $rootScope.isLogged = true;
+                }
+                //console.log(AccessToken.token);
+            });
+
+            function loadData() {
+                $http.get('https://sandbox.catenon.com:8243/api-candidate-service/2/languages')
+                    .then(function(results) {
+                        console.log(results);
+                        vm.items = results._embedded.languages;
+                    }, function(err) {
+                        console.error(err);
+                    })
+            }
+
+        })
     </script>
 
 </body>
+
 </html>
