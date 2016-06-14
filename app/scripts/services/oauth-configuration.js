@@ -4,12 +4,12 @@ var oauthConfigurationService = angular.module('oauth.configuration', []);
 
 oauthConfigurationService.provider('OAuthConfiguration', function() {
 	var _config = {};
-	
+
 	this.init = function(config, httpProvider) {
 		_config.protectedResources = config.protectedResources || [];
 		httpProvider.interceptors.push('AuthInterceptor');
 	};
-	
+
 	this.$get = function() {
 		return {
 			getConfig: function() {
@@ -27,11 +27,12 @@ oauthConfigurationService.provider('OAuthConfiguration', function() {
 				if (config.url.indexOf(resource) > -1) {
 					var token = AccessToken.get();
 					if (token) {
+						config.headers.Autentication = 'Basic YWRtaW46cGFzc3dvcmQ=';
 						config.headers.Authorization = 'Bearer ' + token.access_token;
 					}
 				}
 			});
-			
+			console.log(config.headers);
 			return config;
 		}
 	};

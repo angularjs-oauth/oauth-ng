@@ -1,5 +1,19 @@
-.content {
-  margin: 0 auto;
-  width: 750px;
-  padding-top:200px;
+.menu {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 20px;
+
+}
+
+.menu img {
+  margin: 0;
+  display: inline-block;
+}
+
+.menu a {
+  display: inline-block;
+  margin: 0 10px 0px;
+  padding: 10px;
+  background-color: silver;
+  cursor: pointer;
 }
