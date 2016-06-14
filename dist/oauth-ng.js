@@ -1,4 +1,4 @@
-/* oauth-ng - v0.4.10 - 2016-04-25 */
+/* oauth-ng - v0.4.10 - 2016-06-14 */
 
 'use strict';
 
@@ -711,9 +711,10 @@ profileClient.factory('Profile', ['$http', 'AccessToken', '$rootScope', function
 
 var storageService = angular.module('oauth.storage', ['ngStorage']);
 
-storageService.factory('Storage', ['$rootScope', '$sessionStorage', '$localStorage', function($rootScope, $sessionStorage, $localStorage){
+storageService.factory('Storage', ['$rootScope', '$sessionStorage', '$localStorage', '$cookies', function($rootScope, $sessionStorage, $localStorage, $cookies){
 
   var service = {
+    type:'localStorage',
     storage: $sessionStorage // By default
   };
 
@@ -723,7 +724,11 @@ storageService.factory('Storage', ['$rootScope', '$sessionStorage', '$localStora
    */
   service.delete = function (name) {
     var stored = this.get(name);
-    delete this.storage[name];
+    if (this.type === 'cookieStorage') {
+      this.storage.remove(name);
+    } else {
+      delete this.storage[name];
+    }
     return stored;
   };
 
@@ -731,7 +736,7 @@ storageService.factory('Storage', ['$rootScope', '$sessionStorage', '$localStora
    * Returns the item from storage
    */
   service.get = function (name) {
-    return this.storage[name];
+    return (this.type === 'cookieStorage')?this.storage.getObject(name):this.storage[name];
   };
 
   /**
@@ -739,7 +744,11 @@ storageService.factory('Storage', ['$rootScope', '$sessionStorage', '$localStora
    * Returns the item's value
    */
   service.set = function (name, value) {
-    this.storage[name] = value;
+    if (this.type === 'cookieStorage') {
+      this.storage.putObject(name, value)
+    } else {
+      this.storage[name] = value;
+    }
     return this.get(name);
   };
 
@@ -747,27 +756,31 @@ storageService.factory('Storage', ['$rootScope', '$sessionStorage', '$localStora
    * Change the storage service being used
    */
   service.use = function (storage) {
+    this.type = storage;
     if (storage === 'sessionStorage') {
       this.storage = $sessionStorage;
     } else if (storage === 'localStorage') {
       this.storage = $localStorage;
+    } else if (storage === 'cookieStorage') {
+      this.storage = $cookies;
     }
   };
 
   return service;
 }]);
+
 'use strict';
 
 var oauthConfigurationService = angular.module('oauth.configuration', []);
 
 oauthConfigurationService.provider('OAuthConfiguration', function() {
 	var _config = {};
-	
+
 	this.init = function(config, httpProvider) {
 		_config.protectedResources = config.protectedResources || [];
 		httpProvider.interceptors.push('AuthInterceptor');
 	};
-	
+
 	this.$get = function() {
 		return {
 			getConfig: function() {
@@ -785,15 +798,17 @@ oauthConfigurationService.provider('OAuthConfiguration', function() {
 				if (config.url.indexOf(resource) > -1) {
 					var token = AccessToken.get();
 					if (token) {
+						config.headers.Autentication = 'Basic YWRtaW46cGFzc3dvcmQ=';
 						config.headers.Authorization = 'Bearer ' + token.access_token;
 					}
 				}
 			});
-			
+			console.log(config.headers);
 			return config;
 		}
 	};
 }]);
+
 'use strict';
 
 var interceptorService = angular.module('oauth.interceptor', []);
@@ -804,7 +819,7 @@ interceptorService.factory('ExpiredInterceptor', ['Storage', '$rootScope', funct
 
   service.request = function(config) {
     var token = Storage.get('token');
-
+    
     if (token && expired(token)) {
       $rootScope.$broadcast('oauth:expired', token);
     }
