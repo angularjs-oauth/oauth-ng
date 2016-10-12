@@ -217,9 +217,9 @@ angular.module('newProjectApp', ['oauth', ... ])</xmp></code></pre>
       </p>
 
       <pre><code><xmp>// app/scripts/app.js
-angular.module('newProjectApp').config(function($locationProvider) {
+angular.module('newProjectApp').config(['$locationProvider', function($locationProvider) {
   $locationProvider.html5Mode(true).hashPrefix('!');
-});</xmp></code></pre>
+}]);</xmp></code></pre>
 
       <h2 id="server">OAuth 2.0 Server</h2>
 
@@ -340,9 +340,9 @@ angular.module('newProjectApp').config(function($locationProvider) {
       <p>The oauth directive works just straight when the <a href="https://docs.angularjs.org/guide/$location#general-overview-of-the-api">HTML5 mode</a> is active.</p>
 
       <pre><code><xmp><script>
-  angular.module('app').config(function($locationProvider) {
+  angular.module('app').config(['$locationProvider', function($locationProvider) {
     $locationProvider.html5Mode(true).hashPrefix('!');
-  });</script></xmp></code></pre>
+  }]);</script></xmp></code></pre>
 
 
       <h2>HTML5 mode OFF</h2>
@@ -356,12 +356,12 @@ angular.module('newProjectApp').config(function($locationProvider) {
   $routeProvider
     .when('/access_token=:accessToken', {
       template: '',
-      controller: function ($location, AccessToken) {
+      controller: ['$location', 'AccessToken', function($location, AccessToken) {
         var hash = $location.path().substr(1);
         AccessToken.setTokenFromString(hash);
         $location.path('/');
         $location.replace();
-      }
+      }]
     })
     ...</xmp></code></pre>
 
