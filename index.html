@@ -525,6 +525,31 @@ angular.module('newProjectApp').config(function($locationProvider) {
               If not set, then the id_token itself should carry the public key, or the url which can be used to retrieve the public key.
             </td>
           </tr>
+          <tr>
+            <td class="parameter">
+              <span>well-known</span>
+              <span class="info">(optional)</span>
+            </td>
+            <td>
+              For OpenID Connect Implicit Flow only.
+              If set to true oauth-ng will try to get the key from the well-known endpoint <a href="https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig">See documentation</a><br>
+              When set to true, you don't need anymore to specify the pub-key parameter anymore.<br>
+              The signing key will be downloaded and cached into the local or session storage during the first load of the module.<br>
+            </td>
+          </tr>
+          <tr>
+            <td class="parameter">
+              <span>nonce</span>
+              <span class="info">(optional)</span>
+            </td>
+            <td>
+              For OpenID Connect Implicit Flow only.
+              Required for most OpenID connect servers implementations during id token requests.<br>
+              String used by the client during the authentication session and passed back by the server to protect the client from forgery.<br>
+              This value should be generated for each authentication session and checked when passed back.<br>
+              <a href="http://openid.net/specs/openid-connect-core-1_0.html#IDToken">documentation</a>
+            </td>
+          </tr>
         </tbody>
       </table>
 
