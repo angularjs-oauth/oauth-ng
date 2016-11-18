@@ -97,8 +97,8 @@ directives.directive('oauth', [
         var token = AccessToken.get();
 
         if (!token) {
-          return scope.logout();
-        }  // without access token it's logged out
+          return scope.login();
+        }  // without access token it's logged out, so we attempt to log in
         if (AccessToken.expired()) {
           return expired();
         }  // with a token, but it's expired
