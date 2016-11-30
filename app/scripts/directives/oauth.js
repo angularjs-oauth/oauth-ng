@@ -140,11 +140,13 @@ directives.directive('oauth', [
       };
 
       var checkValidity = function() {
-        Endpoint.checkValidity().then(function() {
-          $rootScope.$broadcast('oauth:valid');
-        }).catch(function(message){
-          $rootScope.$broadcast('oauth:invalid', message);
-        });
+        if (scope.sessionPath) {
+          Endpoint.checkValidity().then(function() {
+            $rootScope.$broadcast('oauth:valid');
+          }).catch(function(message){
+            $rootScope.$broadcast('oauth:invalid', message);
+          });
+        }
       };
 
       var refreshDirective = function () {
