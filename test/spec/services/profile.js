@@ -72,7 +72,7 @@ describe('Profile', function() {
 
                 it('gets the resource', inject(function(Profile) {
                     Profile.find(params.profileUri).then(function(response) {
-                        result = response;
+                        result = response.data;
                     });
                     $rootScope.$apply();
                     $httpBackend.flush();
