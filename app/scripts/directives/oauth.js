@@ -30,6 +30,7 @@ directives.directive('oauth', [
         template: '@',      // (optional) template to render (e.g views/templates/default.html)
         text: '@',          // (optional) login text
         authorizePath: '@', // (optional) authorization url
+        tokenPath: '@',     // (optional) token url
         state: '@',         // (optional) An arbitrary unique string created by your app to guard against Cross-site Request Forgery
         storage: '@',        // (optional) Store token in 'sessionStorage' or 'localStorage', defaults to 'sessionStorage'
         nonce: '@',          // (optional) Send nonce on auth request
@@ -58,10 +59,13 @@ directives.directive('oauth', [
         OidcConfig.load(scope)     // loads OIDC configuration from .well-known/openid-configuration if necessary
           .then(function() {
             IdToken.set(scope);
-            AccessToken.set(scope);    // sets the access token object (if existing, from fragment or session)
-            initProfile(scope);        // gets the profile resource (if existing the access token)
-            initView();                // sets the view (logged in or out)
-            checkValidity();           // ensure the validity of the current token
+            AccessToken.set(scope).then(function () { // sets the access token object (if existing, from fragment or session)
+            })
+            ["finally"](function () {
+              initProfile(scope);                     // gets the profile resource (if existing the access token)
+              initView();                             // sets the view (logged in or out)
+              checkValidity();                        // ensure the validity of the current token
+            });
           });
       };
 
