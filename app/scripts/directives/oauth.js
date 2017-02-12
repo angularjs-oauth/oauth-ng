@@ -24,7 +24,7 @@ directives.directive('oauth', [
         site: '@',          // (required) set the oauth server host (e.g. http://oauth.example.com)
         clientId: '@',      // (required) client id
         redirectUri: '@',   // (required) client redirect uri
-        responseType: '@',  // (optional) response type, defaults to token (use 'token' for implicit flow and 'code' for authorization code flow
+        responseType: '@',  // (optional) response type, defaults to token (use 'token' for implicit flow, 'code' for authorization code flow and 'password' for resource owner password
         scope: '@',         // (optional) scope
         profileUri: '@',    // (optional) user profile uri (e.g http://example.com/me)
         template: '@',      // (optional) template to render (e.g views/templates/default.html)

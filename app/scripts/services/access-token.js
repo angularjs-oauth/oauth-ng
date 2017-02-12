@@ -33,14 +33,11 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$http', '$q
     refreshTokenUri = scope.site + scope.tokenPath;
     if ($location.search().code) {
       return this.setTokenFromCode($location.search(), scope);
-    } else {
-      this.setTokenFromString($location.hash());
     }
+    
+    this.setTokenFromString($location.hash());
 
     //If hash is present in URL always use it, cuz its coming from oAuth2 provider redirect
-    if(null === service.token){
-      setTokenFromSession();
-    }
     
     var deferred = $q.defer();
     
@@ -50,7 +47,11 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$http', '$q
       deferred.reject();
     }
     
-    return deferred.promise;
+    if(null === service.token) {
+      return setTokenFromSession();
+    } else {
+      return deferred.promise;
+    }
   };
 
   /**
@@ -76,10 +77,10 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$http', '$q
       url: scope.site + scope.tokenPath,
       headers: {'Content-Type': 'application/x-www-form-urlencoded'},
       transformRequest: function(obj) {
-          var str = [];
-          for(var p in obj)
+        var str = [];
+        for(var p in obj)
           str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
-          return str.join("&");
+        return str.join("&");
       },
       data: {grant_type: "authorization_code", code: search.code, redirect_uri: scope.redirectUri, client_id: scope.clientId}
     }).then(function (result) {
@@ -121,12 +122,39 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$http', '$q
   /**
    * Set the access token from the sessionStorage.
    */
-  var setTokenFromSession = function(){
+  var setTokenFromSession = function() {
     var params = Storage.get('token');
     if (params) {
       setToken(params);
-      $rootScope.$broadcast('oauth:login', params);
+      if (!params.refresh_token) {
+        var deferred = $q.defer();
+        deferred.resolve(params);
+        $rootScope.$broadcast('oauth:login', token);
+        return deferred.promise;
+      } else {
+        return refreshToken();
+      }
     }
+  };
+  
+  var refreshToken = function () {
+    return $http({
+      method: "POST",
+      url: refreshTokenUri,
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+      transformRequest: function(obj) {
+        var str = [];
+        for(var p in obj)
+        str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+        return str.join("&");
+      },
+      data: {grant_type: "refresh_token", refresh_token: service.token.refresh_token}
+    }).then(function (result) {
+      setToken(result.data);
+      $rootScope.$broadcast('oauth:login', service.token);
+    }, function () {
+      $rootScope.$broadcast('oauth:expired', service.token);
+    });
   };
 
   /**
@@ -209,23 +237,7 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$http', '$q
     if(time && time > 0 && time <= 2147483647) {
       if (service.token.refresh_token) {
         expiresAtEvent = $interval(function() {
-          $http({
-            method: "POST",
-            url: refreshTokenUri,
-            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-            transformRequest: function(obj) {
-                var str = [];
-                for(var p in obj)
-                str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
-                return str.join("&");
-            },
-            data: {grant_type: "refresh_token", refresh_token: service.token.refresh_token}
-          }).then(function (result) {
-            setToken(result.data);
-            $rootScope.$broadcast('oauth:login', service.token);
-          }, function () {
-            $rootScope.$broadcast('oauth:expired', service.token);
-          });
+          refreshToken();
         }, time);
       } else {
         expiresAtEvent = $interval(function() {
