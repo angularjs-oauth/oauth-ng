@@ -1,5 +1,25 @@
 <a class="oauth">
-  <span href="#" class="logged-out" ng-show="show=='logged-out'" ng-click="login()" >{{text}}</span>
-  <span href="#" class="logged-in"  ng-show="show=='logged-in'"  ng-click="logout()">Logout {{profile.email}}</span>
-  <span href="#" class="denied"     ng-show="show=='denied'"     ng-click="login()">Access denied. Try again.</span>
+  <span href="#" class="logged-out" data-ng-show="show==='logged-out'"                                data-ng-click="login()" >{{text}}</span>
+  <span href="#" class="logged-in"  data-ng-show="responseType !== 'password' && show==='logged-in'"  data-ng-click="logout()">Logout {{profile.email}}</span>
+  <span href="#" class="denied"     data-ng-show="responseType !== 'password' && show==='denied'"     data-ng-click="login()">Access denied. Try again.</span>
 </a>
+
+<!-- Login/password form for response_type 'password' -->
+
+<div data-ng-show="responseType === 'password' && show !== 'logged-in'">
+  <form>
+    <div>
+      <label>Login</label>
+      <input type="text" data-ng-model="typedLogin" placeholder="login" >
+    </div>
+    <div>
+      <label>Password</label>
+      <input type="password" data-ng-model="typedPassword" placeholder="password" >
+    </div>
+    <div>
+      <label>Keep connection</label>
+      <input type="checkbox" data-ng-model="typedKeepConnection" >
+    </div>
+    <input type="submit" value="Submit" data-ng-click="checkPassword()">
+  </form>
+</div>

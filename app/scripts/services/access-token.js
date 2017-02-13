@@ -5,7 +5,10 @@ var accessTokenService = angular.module('oauth.accessToken', []);
 accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$http', '$q', '$location', '$interval', '$timeout', 'IdToken', function(Storage, $rootScope, $http, $q, $location, $interval, $timeout, IdToken){
 
   var service = {
-    token: null
+    token: null,
+    typedLogin: "",
+    typedPassword: "",
+    scope: ""
   },
   hashFragmentKeys = [
     //Oauth2 keys per http://tools.ietf.org/html/rfc6749#section-4.2.2
@@ -29,7 +32,12 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$http', '$q
    * - takes the token from the fragment URI
    * - takes the token from the sessionStorage
    */
-  service.set = function(scope) {
+  service.set = function(scope, typedLogin, typedPassword, oauthScope) {
+    if (typedLogin && typedPassword) {
+      service.typedLogin = typedLogin;
+      service.typedPassword = typedPassword;
+      service.scope = oauthScope;
+    }
     refreshTokenUri = scope.site + scope.tokenPath;
     if ($location.search().code) {
       return this.setTokenFromCode($location.search(), scope);
@@ -129,11 +137,15 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$http', '$q
       if (!params.refresh_token) {
         var deferred = $q.defer();
         deferred.resolve(params);
-        $rootScope.$broadcast('oauth:login', token);
+        $rootScope.$broadcast('oauth:login', params);
         return deferred.promise;
       } else {
         return refreshToken();
       }
+    } else {
+      var deferred = $q.defer();
+      deferred.reject();
+      return deferred.promise;
     }
   };
   
@@ -153,7 +165,31 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$http', '$q
       setToken(result.data);
       $rootScope.$broadcast('oauth:login', service.token);
     }, function () {
-      $rootScope.$broadcast('oauth:expired', service.token);
+      if (service.typedLogin && service.typedPassword) {
+        return reconnect();
+      } else {
+        $rootScope.$broadcast('oauth:expired', service.token);
+      }
+    });
+  };
+  
+  var reconnect = function () {
+    return $http({
+      method: "POST",
+      url: refreshTokenUri,
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+      transformRequest: function(obj) {
+        var str = [];
+        for(var p in obj)
+        str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+        return str.join("&");
+      },
+      data: {grant_type: "password", username: service.typedLogin, password: service.typedPassword, scope: service.scope}
+    }).then(function (result) {
+      setToken(result.data);
+      $rootScope.$broadcast('oauth:login', service.token);
+    }, function () {
+      $rootScope.$broadcast('oauth:denied');
     });
   };
 
