@@ -8,7 +8,8 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$http', '$q
     token: null,
     typedLogin: "",
     typedPassword: "",
-    scope: ""
+    scope: "",
+    runExpired: null
   },
   hashFragmentKeys = [
     //Oauth2 keys per http://tools.ietf.org/html/rfc6749#section-4.2.2
@@ -29,16 +30,14 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$http', '$q
 
   /**
    * Sets and returns the access token. It tries (in order) the following strategies:
+   * - Get the token using the code in the url
    * - takes the token from the fragment URI
    * - takes the token from the sessionStorage
    */
-  service.set = function(scope, typedLogin, typedPassword, oauthScope) {
-    if (typedLogin && typedPassword) {
-      service.typedLogin = typedLogin;
-      service.typedPassword = typedPassword;
-      service.scope = oauthScope;
-    }
+  service.set = function(scope) {
     refreshTokenUri = scope.site + scope.tokenPath;
+    this.runExpired = scope.runExpired;
+    
     if ($location.search().code) {
       return this.setTokenFromCode($location.search(), scope);
     }
@@ -61,12 +60,24 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$http', '$q
       return deferred.promise;
     }
   };
+  
+  service.setTokenFromPassword = function(scope, token, typedLogin, typedPassword, oauthScope) {
+    this.runExpired = scope.runExpired;
+    if (typedLogin && typedPassword && oauthScope) {
+      service.typedLogin = typedLogin;
+      service.typedPassword = typedPassword;
+      service.scope = oauthScope;
+    }
+    setToken(token);
+    $rootScope.$broadcast('oauth:login', token);
+  }
 
   /**
    * Delete the access token and remove the session.
    * @returns {null}
    */
   service.destroy = function(){
+    cancelExpiresAtEvent();
     Storage.delete('token');
     this.token = null;
     return this.token;
@@ -140,7 +151,7 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$http', '$q
         $rootScope.$broadcast('oauth:login', params);
         return deferred.promise;
       } else {
-        return refreshToken();
+        return refreshToken(true);
       }
     } else {
       var deferred = $q.defer();
@@ -149,28 +160,44 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$http', '$q
     }
   };
   
-  var refreshToken = function () {
-    return $http({
-      method: "POST",
-      url: refreshTokenUri,
-      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-      transformRequest: function(obj) {
-        var str = [];
-        for(var p in obj)
-        str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
-        return str.join("&");
-      },
-      data: {grant_type: "refresh_token", refresh_token: service.token.refresh_token}
-    }).then(function (result) {
-      setToken(result.data);
-      $rootScope.$broadcast('oauth:login', service.token);
-    }, function () {
-      if (service.typedLogin && service.typedPassword) {
-        return reconnect();
-      } else {
-        $rootScope.$broadcast('oauth:expired', service.token);
-      }
-    });
+  var refreshToken = function (connect) {
+    if (service.token && service.token.refresh_token) {
+      return $http({
+        method: "POST",
+        url: refreshTokenUri,
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        transformRequest: function(obj) {
+          var str = [];
+          for(var p in obj)
+          str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+          return str.join("&");
+        },
+        data: {grant_type: "refresh_token", refresh_token: service.token.refresh_token}
+      }).then(function (result) {
+        angular.extend(service.token, result.data);
+        setExpiresAt();
+        setTokenInSession();
+        if (connect) {
+          $rootScope.$broadcast('oauth:login', service.token);
+        } else {
+          $rootScope.$broadcast('oauth:refresh', service.token);
+        }
+        return result.data;
+      }, function () {
+        if (!!service.typedLogin && !!service.typedPassword) {
+          return reconnect();
+        } else {
+          cancelExpiresAtEvent();
+          Storage.delete('token');
+          $rootScope.$broadcast('oauth:expired');
+          service.runExpired();
+        }
+      });
+    } else {
+      var deferred = $q.defer();
+      deferred.reject();
+      return deferred.promise;
+    }
   };
   
   var reconnect = function () {
@@ -186,8 +213,9 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$http', '$q
       },
       data: {grant_type: "password", username: service.typedLogin, password: service.typedPassword, scope: service.scope}
     }).then(function (result) {
-      setToken(result.data);
-      $rootScope.$broadcast('oauth:login', service.token);
+      angular.extend(service.token, result.data);
+      setTokenInSession();
+      $rootScope.$broadcast('oauth:refresh', service.token);
     }, function () {
       $rootScope.$broadcast('oauth:denied');
     });
@@ -200,11 +228,11 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$http', '$q
    * @returns {*|{}}
    */
   var setToken = function(params){
-    service.token = service.token || {};      // init the token
-    angular.extend(service.token, params);      // set the access token params
-    setTokenInSession();                // save the token into the session
+    service.token = service.token || {};    // init the token
+    angular.extend(service.token, params);  // set the access token params
+    setTokenInSession();                    // save the token into the session
     setExpiresAt();
-    setExpiresAtEvent();                // event to fire when the token expires
+    setExpiresAtEvent();                    // event to fire when the token expires
 
     return service.token;
   };
@@ -238,7 +266,7 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$http', '$q
   /**
    * Save the access token into the session
    */
-  var setTokenInSession = function(){
+  var setTokenInSession = function() {
     Storage.set('token', service.token);
   };
 
@@ -261,7 +289,7 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$http', '$q
 
 
   /**
-   * Set the timeout at which the expired event is fired
+   * Set the interval at which the expired event is fired
    */
   var setExpiresAtEvent = function(){
     // Don't bother if there's no expires token
@@ -276,16 +304,21 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$http', '$q
           refreshToken();
         }, time);
       } else {
-        expiresAtEvent = $interval(function() {
-          $rootScope.$broadcast('oauth:expired', service.token);
+        expiresAtEvent = $timeout(function() {
+          $rootScope.$broadcast('oauth:expired');
+          service.runExpired();
         }, time, 1);
       }
     }
   };
 
   var cancelExpiresAtEvent = function() {
-    if(expiresAtEvent && !service.token.refresh_token) {
-      $timeout.cancel(expiresAtEvent);
+    if(expiresAtEvent) {
+      if (service.token.refresh_token) {
+        $interval.cancel(expiresAtEvent);
+      } else {
+        $timeout.cancel(expiresAtEvent);
+      }
       expiresAtEvent = undefined;
     }
   };

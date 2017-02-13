@@ -21,26 +21,27 @@ directives.directive('oauth', [
       restrict: 'AE',
       replace: true,
       scope: {
-        site: '@',          // (required) set the oauth server host (e.g. http://oauth.example.com)
-        clientId: '@',      // (required) client id
-        redirectUri: '@',   // (required) client redirect uri
-        responseType: '@',  // (optional) response type, defaults to token (use 'token' for implicit flow, 'code' for authorization code flow and 'password' for resource owner password
-        scope: '@',         // (optional) scope
-        profileUri: '@',    // (optional) user profile uri (e.g http://example.com/me)
-        template: '@',      // (optional) template to render (e.g views/templates/default.html)
-        text: '@',          // (optional) login text
-        authorizePath: '@', // (optional) authorization url
-        tokenPath: '@',     // (optional) token url
-        state: '@',         // (optional) An arbitrary unique string created by your app to guard against Cross-site Request Forgery
-        storage: '@',       // (optional) Store token in 'sessionStorage' or 'localStorage', defaults to 'sessionStorage'
-        nonce: '@',         // (optional) Send nonce on auth request
-                            // OpenID Connect extras, more details in id-token.js:
-        issuer: '@',        // (optional for OpenID Connect) issuer of the id_token, should match the 'iss' claim in id_token payload
-        subject: '@',       // (optional for OpenID Connect) subject of the id_token, should match the 'sub' claim in id_token payload
-        pubKey: '@',        // (optional for OpenID Connect) the public key(RSA public key or X509 certificate in PEM format) to verify the signature
-        wellKnown: '@',     // (optional for OpenID Connect) whether to load public key according to .well-known/openid-configuration endpoint
-        logoutPath: '@',    // (optional) A url to go to at logout
-        sessionPath: '@'    // (optional) A url to use to check the validity of the current token.
+        site: '@',              // (required) set the oauth server host (e.g. http://oauth.example.com)
+        clientId: '@',          // (required) client id
+        redirectUri: '@',       // (required) client redirect uri
+        responseType: '@',      // (optional) response type, defaults to token (use 'token' for implicit flow, 'code' for authorization code flow and 'password' for resource owner password
+        scope: '@',             // (optional) scope
+        profileUri: '@',        // (optional) user profile uri (e.g http://example.com/me)
+        template: '@',          // (optional) template to render (e.g views/templates/default.html)
+        text: '@',              // (optional) login text
+        authorizePath: '@',     // (optional) authorization url
+        tokenPath: '@',         // (optional) token url
+        state: '@',             // (optional) An arbitrary unique string created by your app to guard against Cross-site Request Forgery
+        storage: '@',           // (optional) Store token in 'sessionStorage' or 'localStorage', defaults to 'sessionStorage'
+        nonce: '@',             // (optional) Send nonce on auth request
+                                // OpenID Connect extras, more details in id-token.js:
+        issuer: '@',            // (optional for OpenID Connect) issuer of the id_token, should match the 'iss' claim in id_token payload
+        subject: '@',           // (optional for OpenID Connect) subject of the id_token, should match the 'sub' claim in id_token payload
+        pubKey: '@',            // (optional for OpenID Connect) the public key(RSA public key or X509 certificate in PEM format) to verify the signature
+        wellKnown: '@',         // (optional for OpenID Connect) whether to load public key according to .well-known/openid-configuration endpoint
+        logoutPath: '@',        // (optional) A url to go to at logout
+        sessionPath: '@',       // (optional) A url to use to check the validity of the current token.
+        disableCheckSession:'@' // (optional) can current token be checked ?
       }
     };
 
@@ -78,6 +79,7 @@ directives.directive('oauth', [
         scope.state               = scope.state         || undefined;
         scope.scope               = scope.scope         || undefined;
         scope.storage             = scope.storage       || 'sessionStorage';
+        scope.disableCheckSession = scope.disableCheckSession || false;
         scope.typedLogin          = "";
         scope.typedPassword       = "";
         scope.typedKeepConnection = false;
@@ -122,9 +124,13 @@ directives.directive('oauth', [
       };
 
       scope.logout = function () {
+        scope.typedLogin          = "";
+        scope.typedPassword       = "";
+        scope.typedKeepConnection = false;
         Endpoint.logout();
         $rootScope.$broadcast('oauth:loggedOut');
         scope.show = 'logged-out';
+        AccessToken.destroy();
       };
       
       scope.checkPassword = function () {
@@ -140,16 +146,21 @@ directives.directive('oauth', [
           },
           data: {grant_type: "password", username: scope.typedLogin, password: scope.typedPassword, scope: scope.scope}
         }).then(function (result) {
-          AccessToken.set(result.data, scope.typedLogin, scope.typedPassword, scope.scope).then(function () { // sets the access token object (if existing, from fragment or session)
-          });
-          $rootScope.$broadcast('oauth:login', result.data);
+          if (scope.typedKeepConnection) {
+            AccessToken.setTokenFromPassword(scope, result.data, scope.typedLogin, scope.typedPassword, scope.scope);
+          } else {
+            AccessToken.setTokenFromPassword(scope, result.data);
+            scope.typedLogin          = "";
+            scope.typedPassword       = "";
+            scope.typedKeepConnection = false;
+          }
           scope.show = "logged-in";
         }, function () {
           $rootScope.$broadcast('oauth:denied');
         });
       };
 
-      scope.$on('oauth:expired',expired);
+      scope.$on('oauth:expired', expired);
 
       // user is authorized
       var authorized = function() {
@@ -158,8 +169,12 @@ directives.directive('oauth', [
       };
 
       var expired = function() {
-        $rootScope.$broadcast('oauth:expired');
+        scope.show = 'logged-out';
         scope.logout();
+      };
+      
+      scope.runExpired = function() {
+        expired();
       };
 
       // set the oauth directive to the denied status
@@ -194,7 +209,6 @@ directives.directive('oauth', [
       scope.$on('$stateChangeSuccess', function () {
         $timeout(refreshDirective);
       });
-      
       
     };
 

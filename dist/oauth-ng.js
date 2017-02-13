@@ -372,7 +372,8 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$http', '$q
     token: null,
     typedLogin: "",
     typedPassword: "",
-    scope: ""
+    scope: "",
+    runExpired: null
   },
   hashFragmentKeys = [
     //Oauth2 keys per http://tools.ietf.org/html/rfc6749#section-4.2.2
@@ -393,16 +394,14 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$http', '$q
 
   /**
    * Sets and returns the access token. It tries (in order) the following strategies:
+   * - Get the token using the code in the url
    * - takes the token from the fragment URI
    * - takes the token from the sessionStorage
    */
-  service.set = function(scope, typedLogin, typedPassword, oauthScope) {
-    if (typedLogin && typedPassword) {
-      service.typedLogin = typedLogin;
-      service.typedPassword = typedPassword;
-      service.scope = oauthScope;
-    }
+  service.set = function(scope) {
     refreshTokenUri = scope.site + scope.tokenPath;
+    this.runExpired = scope.runExpired;
+    
     if ($location.search().code) {
       return this.setTokenFromCode($location.search(), scope);
     }
@@ -425,12 +424,24 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$http', '$q
       return deferred.promise;
     }
   };
+  
+  service.setTokenFromPassword = function(scope, token, typedLogin, typedPassword, oauthScope) {
+    this.runExpired = scope.runExpired;
+    if (typedLogin && typedPassword && oauthScope) {
+      service.typedLogin = typedLogin;
+      service.typedPassword = typedPassword;
+      service.scope = oauthScope;
+    }
+    setToken(token);
+    $rootScope.$broadcast('oauth:login', token);
+  }
 
   /**
    * Delete the access token and remove the session.
    * @returns {null}
    */
   service.destroy = function(){
+    cancelExpiresAtEvent();
     Storage.delete('token');
     this.token = null;
     return this.token;
@@ -504,7 +515,7 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$http', '$q
         $rootScope.$broadcast('oauth:login', params);
         return deferred.promise;
       } else {
-        return refreshToken();
+        return refreshToken(true);
       }
     } else {
       var deferred = $q.defer();
@@ -513,28 +524,44 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$http', '$q
     }
   };
   
-  var refreshToken = function () {
-    return $http({
-      method: "POST",
-      url: refreshTokenUri,
-      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-      transformRequest: function(obj) {
-        var str = [];
-        for(var p in obj)
-        str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
-        return str.join("&");
-      },
-      data: {grant_type: "refresh_token", refresh_token: service.token.refresh_token}
-    }).then(function (result) {
-      setToken(result.data);
-      $rootScope.$broadcast('oauth:login', service.token);
-    }, function () {
-      if (service.typedLogin && service.typedPassword) {
-        return reconnect();
-      } else {
-        $rootScope.$broadcast('oauth:expired', service.token);
-      }
-    });
+  var refreshToken = function (connect) {
+    if (service.token && service.token.refresh_token) {
+      return $http({
+        method: "POST",
+        url: refreshTokenUri,
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        transformRequest: function(obj) {
+          var str = [];
+          for(var p in obj)
+          str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+          return str.join("&");
+        },
+        data: {grant_type: "refresh_token", refresh_token: service.token.refresh_token}
+      }).then(function (result) {
+        angular.extend(service.token, result.data);
+        setExpiresAt();
+        setTokenInSession();
+        if (connect) {
+          $rootScope.$broadcast('oauth:login', service.token);
+        } else {
+          $rootScope.$broadcast('oauth:refresh', service.token);
+        }
+        return result.data;
+      }, function () {
+        if (!!service.typedLogin && !!service.typedPassword) {
+          return reconnect();
+        } else {
+          cancelExpiresAtEvent();
+          Storage.delete('token');
+          $rootScope.$broadcast('oauth:expired');
+          service.runExpired();
+        }
+      });
+    } else {
+      var deferred = $q.defer();
+      deferred.reject();
+      return deferred.promise;
+    }
   };
   
   var reconnect = function () {
@@ -550,8 +577,9 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$http', '$q
       },
       data: {grant_type: "password", username: service.typedLogin, password: service.typedPassword, scope: service.scope}
     }).then(function (result) {
-      setToken(result.data);
-      $rootScope.$broadcast('oauth:login', service.token);
+      angular.extend(service.token, result.data);
+      setTokenInSession();
+      $rootScope.$broadcast('oauth:refresh', service.token);
     }, function () {
       $rootScope.$broadcast('oauth:denied');
     });
@@ -564,11 +592,11 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$http', '$q
    * @returns {*|{}}
    */
   var setToken = function(params){
-    service.token = service.token || {};      // init the token
-    angular.extend(service.token, params);      // set the access token params
-    setTokenInSession();                // save the token into the session
+    service.token = service.token || {};    // init the token
+    angular.extend(service.token, params);  // set the access token params
+    setTokenInSession();                    // save the token into the session
     setExpiresAt();
-    setExpiresAtEvent();                // event to fire when the token expires
+    setExpiresAtEvent();                    // event to fire when the token expires
 
     return service.token;
   };
@@ -602,7 +630,7 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$http', '$q
   /**
    * Save the access token into the session
    */
-  var setTokenInSession = function(){
+  var setTokenInSession = function() {
     Storage.set('token', service.token);
   };
 
@@ -625,7 +653,7 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$http', '$q
 
 
   /**
-   * Set the timeout at which the expired event is fired
+   * Set the interval at which the expired event is fired
    */
   var setExpiresAtEvent = function(){
     // Don't bother if there's no expires token
@@ -640,16 +668,21 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$http', '$q
           refreshToken();
         }, time);
       } else {
-        expiresAtEvent = $interval(function() {
-          $rootScope.$broadcast('oauth:expired', service.token);
+        expiresAtEvent = $timeout(function() {
+          $rootScope.$broadcast('oauth:expired');
+          service.runExpired();
         }, time, 1);
       }
     }
   };
 
   var cancelExpiresAtEvent = function() {
-    if(expiresAtEvent && !service.token.refresh_token) {
-      $timeout.cancel(expiresAtEvent);
+    if(expiresAtEvent) {
+      if (service.token.refresh_token) {
+        $interval.cancel(expiresAtEvent);
+      } else {
+        $timeout.cancel(expiresAtEvent);
+      }
       expiresAtEvent = undefined;
     }
   };
@@ -740,7 +773,7 @@ endpointClient.factory('Endpoint', ['$rootScope', 'AccessToken', '$q', '$http', 
    */
   service.checkValidity = function() {
     var params = service.config;
-    if( params.sessionPath ) {
+    if( params.sessionPath && !params.disableCheckSession ) {
       var token = AccessToken.get();
       if( !token ) {
         return $q.reject("No token configured");
@@ -755,6 +788,8 @@ endpointClient.factory('Endpoint', ['$rootScope', 'AccessToken', '$q', '$http', 
           return $q.reject("Server replied: token is invalid.");
         }
       });
+    } else if (params.disableCheckSession) {
+      return true;
     } else {
       return $q.reject("You must give a :session-path param in order to validate the token.")
     }
@@ -946,26 +981,27 @@ directives.directive('oauth', [
       restrict: 'AE',
       replace: true,
       scope: {
-        site: '@',          // (required) set the oauth server host (e.g. http://oauth.example.com)
-        clientId: '@',      // (required) client id
-        redirectUri: '@',   // (required) client redirect uri
-        responseType: '@',  // (optional) response type, defaults to token (use 'token' for implicit flow, 'code' for authorization code flow and 'password' for resource owner password
-        scope: '@',         // (optional) scope
-        profileUri: '@',    // (optional) user profile uri (e.g http://example.com/me)
-        template: '@',      // (optional) template to render (e.g bower_components/oauth-ng/dist/views/templates/default.html)
-        text: '@',          // (optional) login text
-        authorizePath: '@', // (optional) authorization url
-        tokenPath: '@',     // (optional) token url
-        state: '@',         // (optional) An arbitrary unique string created by your app to guard against Cross-site Request Forgery
-        storage: '@',       // (optional) Store token in 'sessionStorage' or 'localStorage', defaults to 'sessionStorage'
-        nonce: '@',         // (optional) Send nonce on auth request
-                            // OpenID Connect extras, more details in id-token.js:
-        issuer: '@',        // (optional for OpenID Connect) issuer of the id_token, should match the 'iss' claim in id_token payload
-        subject: '@',       // (optional for OpenID Connect) subject of the id_token, should match the 'sub' claim in id_token payload
-        pubKey: '@',        // (optional for OpenID Connect) the public key(RSA public key or X509 certificate in PEM format) to verify the signature
-        wellKnown: '@',     // (optional for OpenID Connect) whether to load public key according to .well-known/openid-configuration endpoint
-        logoutPath: '@',    // (optional) A url to go to at logout
-        sessionPath: '@'    // (optional) A url to use to check the validity of the current token.
+        site: '@',              // (required) set the oauth server host (e.g. http://oauth.example.com)
+        clientId: '@',          // (required) client id
+        redirectUri: '@',       // (required) client redirect uri
+        responseType: '@',      // (optional) response type, defaults to token (use 'token' for implicit flow, 'code' for authorization code flow and 'password' for resource owner password
+        scope: '@',             // (optional) scope
+        profileUri: '@',        // (optional) user profile uri (e.g http://example.com/me)
+        template: '@',          // (optional) template to render (e.g bower_components/oauth-ng/dist/views/templates/default.html)
+        text: '@',              // (optional) login text
+        authorizePath: '@',     // (optional) authorization url
+        tokenPath: '@',         // (optional) token url
+        state: '@',             // (optional) An arbitrary unique string created by your app to guard against Cross-site Request Forgery
+        storage: '@',           // (optional) Store token in 'sessionStorage' or 'localStorage', defaults to 'sessionStorage'
+        nonce: '@',             // (optional) Send nonce on auth request
+                                // OpenID Connect extras, more details in id-token.js:
+        issuer: '@',            // (optional for OpenID Connect) issuer of the id_token, should match the 'iss' claim in id_token payload
+        subject: '@',           // (optional for OpenID Connect) subject of the id_token, should match the 'sub' claim in id_token payload
+        pubKey: '@',            // (optional for OpenID Connect) the public key(RSA public key or X509 certificate in PEM format) to verify the signature
+        wellKnown: '@',         // (optional for OpenID Connect) whether to load public key according to .well-known/openid-configuration endpoint
+        logoutPath: '@',        // (optional) A url to go to at logout
+        sessionPath: '@',       // (optional) A url to use to check the validity of the current token.
+        disableCheckSession:'@' // (optional) can current token be checked ?
       }
     };
 
@@ -1003,6 +1039,7 @@ directives.directive('oauth', [
         scope.state               = scope.state         || undefined;
         scope.scope               = scope.scope         || undefined;
         scope.storage             = scope.storage       || 'sessionStorage';
+        scope.disableCheckSession = scope.disableCheckSession || false;
         scope.typedLogin          = "";
         scope.typedPassword       = "";
         scope.typedKeepConnection = false;
@@ -1047,9 +1084,13 @@ directives.directive('oauth', [
       };
 
       scope.logout = function () {
+        scope.typedLogin          = "";
+        scope.typedPassword       = "";
+        scope.typedKeepConnection = false;
         Endpoint.logout();
         $rootScope.$broadcast('oauth:loggedOut');
         scope.show = 'logged-out';
+        AccessToken.destroy();
       };
       
       scope.checkPassword = function () {
@@ -1065,16 +1106,21 @@ directives.directive('oauth', [
           },
           data: {grant_type: "password", username: scope.typedLogin, password: scope.typedPassword, scope: scope.scope}
         }).then(function (result) {
-          AccessToken.set(result.data, scope.typedLogin, scope.typedPassword, scope.scope).then(function () { // sets the access token object (if existing, from fragment or session)
-          });
-          $rootScope.$broadcast('oauth:login', result.data);
+          if (scope.typedKeepConnection) {
+            AccessToken.setTokenFromPassword(scope, result.data, scope.typedLogin, scope.typedPassword, scope.scope);
+          } else {
+            AccessToken.setTokenFromPassword(scope, result.data);
+            scope.typedLogin          = "";
+            scope.typedPassword       = "";
+            scope.typedKeepConnection = false;
+          }
           scope.show = "logged-in";
         }, function () {
           $rootScope.$broadcast('oauth:denied');
         });
       };
 
-      scope.$on('oauth:expired',expired);
+      scope.$on('oauth:expired', expired);
 
       // user is authorized
       var authorized = function() {
@@ -1083,8 +1129,12 @@ directives.directive('oauth', [
       };
 
       var expired = function() {
-        $rootScope.$broadcast('oauth:expired');
+        scope.show = 'logged-out';
         scope.logout();
+      };
+      
+      scope.runExpired = function() {
+        expired();
       };
 
       // set the oauth directive to the denied status
@@ -1119,7 +1169,6 @@ directives.directive('oauth', [
       scope.$on('$stateChangeSuccess', function () {
         $timeout(refreshDirective);
       });
-      
       
     };
 
