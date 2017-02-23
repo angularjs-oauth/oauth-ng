@@ -42,10 +42,10 @@ describe('Profile', function() {
           Profile.find(params.profileUri);
           $rootScope.$apply();
           $httpBackend.flush();
-        });
+        });X
 
         it('gets the resource', inject(function(Profile) {
-          Profile.find(params.profileUri).success(function(response) { result = response; });
+          Profile.find(params.profileUri).then(function(response) { result = response.data; });
           $rootScope.$apply();
           $httpBackend.flush();
           expect(result.name).toEqual('Alice');
