@@ -77,8 +77,8 @@ directives.directive('oauth', [
       };
 
       var compile = function() {
-        $http.get(scope.template, { cache: $templateCache }).success(function(html) {
-          element.html(html);
+        $http.get(scope.template, { cache: $templateCache }).then(function(html) {
+          element.html(html.data);
           $compile(element.contents())(scope);
         });
       };
@@ -87,8 +87,8 @@ directives.directive('oauth', [
         var token = AccessToken.get();
 
         if (token && token.access_token && scope.profileUri) {
-          Profile.find(scope.profileUri).success(function(response) {
-            scope.profile = response;
+          Profile.find(scope.profileUri).then(function(response) {
+            scope.profile = response.data;
           });
         }
       };

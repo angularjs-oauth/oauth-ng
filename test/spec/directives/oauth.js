@@ -222,7 +222,7 @@ describe('oauth', function() {
       spyOn(Endpoint, 'redirect');
     });
 
-    it('shows the text "Sing In"', function() {
+    it('shows the text "Sign In"', function() {
       result = element.find('.logged-out').text();
       expect(result).toBe('Sign In');
     });
