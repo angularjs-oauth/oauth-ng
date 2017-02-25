@@ -210,6 +210,10 @@ directives.directive('oauth', [
         $timeout(refreshDirective);
       });
       
+      scope.$on("oauth:external:refresh", function () {
+        AccessToken.forceRefresh(0);
+      });
+      
     };
 
     return definition;
