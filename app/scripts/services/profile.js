@@ -8,8 +8,8 @@ profileClient.factory('Profile', ['$http', 'AccessToken', '$rootScope', function
 
   service.find = function(uri) {
     var promise = $http.get(uri, { headers: headers() });
-    promise.success(function(response) {
-        profile = response;
+    promise.then(function(response) {
+        profile = response.data;
         $rootScope.$broadcast('oauth:profile', profile);
       });
     return promise;
