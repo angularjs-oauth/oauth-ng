@@ -106,7 +106,7 @@ directives.directive('oauth', [
         var token = AccessToken.get();
 
         if (!token && scope.responseType !== "password") {
-          return scope.login();
+          return expired();
         }  // without access token it's logged out, so we attempt to log in
         if (AccessToken.expired()) {
           return expired();
@@ -208,10 +208,6 @@ directives.directive('oauth', [
 
       scope.$on('$stateChangeSuccess', function () {
         $timeout(refreshDirective);
-      });
-      
-      scope.$on("oauth:external:refresh", function () {
-        AccessToken.forceRefresh(0);
       });
       
     };
