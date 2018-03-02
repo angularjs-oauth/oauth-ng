@@ -142,7 +142,7 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$http', '$q
     };
 
     service.forceRefresh = function(connect) {
-        refreshToken(connect);
+        return refreshToken(connect);
     };
 
     /* * * * * * * * * *
@@ -203,10 +203,12 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$http', '$q
                 if (!!service.typedLogin && !!service.typedPassword) {
                     return reconnect();
                 } else {
-                    cancelExpiresAtEvent();
-                    Storage.delete('token');
-                    $rootScope.$broadcast('oauth:expired');
-                    service.runExpired();
+										if (error.status === 401 || error.status === 400) {
+												cancelExpiresAtEvent();
+												Storage.delete('token');
+												$rootScope.$broadcast('oauth:expired');
+												service.runExpired();
+										}
                 }
             });
         } else {
