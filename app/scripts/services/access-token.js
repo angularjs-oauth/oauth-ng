@@ -203,12 +203,12 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$http', '$q
                 if (!!service.typedLogin && !!service.typedPassword) {
                     return reconnect();
                 } else {
-										if (error.status === 401 || error.status === 400) {
-												cancelExpiresAtEvent();
-												Storage.delete('token');
-												$rootScope.$broadcast('oauth:expired');
-												service.runExpired();
-										}
+                    if (error.status === 401 || error.status === 400) {
+                        cancelExpiresAtEvent();
+                        Storage.delete('token');
+                        $rootScope.$broadcast('oauth:expired');
+                        service.runExpired();
+                    }
                 }
             });
         } else {
@@ -241,8 +241,17 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$http', '$q
             angular.extend(service.token, result.data);
             setTokenInSession();
             $rootScope.$broadcast('oauth:refresh', service.token);
-        }, function() {
-            $rootScope.$broadcast('oauth:denied');
+        }, function(error) {
+            if (!!service.typedLogin && !!service.typedPassword) {
+                return reconnect();
+            } else {
+                if (error.status === 401 || error.status === 400) {
+                    cancelExpiresAtEvent();
+                    Storage.delete('token');
+                    $rootScope.$broadcast('oauth:expired');
+                    service.runExpired();
+                }
+            }
         });
     };
 

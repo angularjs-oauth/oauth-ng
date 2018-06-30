@@ -1,4 +1,4 @@
-/* oauth-ng - v0.4.10 - 2018-03-02 */
+/* oauth-ng - v0.4.10 - 2018-06-30 */
 
 'use strict';
 
@@ -567,12 +567,12 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$http', '$q
                 if (!!service.typedLogin && !!service.typedPassword) {
                     return reconnect();
                 } else {
-										if (error.status === 401 || error.status === 400) {
-												cancelExpiresAtEvent();
-												Storage.delete('token');
-												$rootScope.$broadcast('oauth:expired');
-												service.runExpired();
-										}
+                    if (error.status === 401 || error.status === 400) {
+                        cancelExpiresAtEvent();
+                        Storage.delete('token');
+                        $rootScope.$broadcast('oauth:expired');
+                        service.runExpired();
+                    }
                 }
             });
         } else {
@@ -605,8 +605,17 @@ accessTokenService.factory('AccessToken', ['Storage', '$rootScope', '$http', '$q
             angular.extend(service.token, result.data);
             setTokenInSession();
             $rootScope.$broadcast('oauth:refresh', service.token);
-        }, function() {
-            $rootScope.$broadcast('oauth:denied');
+        }, function(error) {
+            if (!!service.typedLogin && !!service.typedPassword) {
+                return reconnect();
+            } else {
+                if (error.status === 401 || error.status === 400) {
+                    cancelExpiresAtEvent();
+                    Storage.delete('token');
+                    $rootScope.$broadcast('oauth:expired');
+                    service.runExpired();
+                }
+            }
         });
     };
 
