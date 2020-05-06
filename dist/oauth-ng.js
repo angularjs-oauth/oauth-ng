@@ -1,4 +1,4 @@
-/* oauth-ng - v0.4.10 - 2016-05-25 */
+/* oauth-ng - v0.4.10 - 2016-11-30 */
 
 'use strict';
 
@@ -641,8 +641,16 @@ endpointClient.factory('Endpoint', ['$rootScope', 'AccessToken', '$q', '$http', 
       if( !token ) {
         return $q.reject("No token configured");
       }
-      var path = params.site + params.sessionPath + "?token=" + token.access_token;
-      return $http.get(path).then( function(httpResponse) {
+      var path = params.site + params.sessionPath;
+      var options = null;
+      var sessionPathHasQuery = (params.sessionPath.indexOf('?') == -1) ? false : true;
+      if (sessionPathHasQuery) {
+          path += "token=" + token.access_token;
+      } else {
+        options = { headers: headers() };
+      }
+      var promise = $http.get(path, options);
+      return promise.then( function(httpResponse) {
         var tokenInfo = httpResponse.data;
         if(tokenInfo.valid) {
           extendValidity(tokenInfo);
@@ -654,6 +662,10 @@ endpointClient.factory('Endpoint', ['$rootScope', 'AccessToken', '$q', '$http', 
     } else {
       return $q.reject("You must give a :session-path param in order to validate the token.")
     }
+  };
+
+  var headers = function() {
+    return { Authorization: 'Bearer ' + AccessToken.get().access_token };
   };
 
   /*
@@ -961,11 +973,13 @@ directives.directive('oauth', [
       };
 
       var checkValidity = function() {
-        Endpoint.checkValidity().then(function() {
-          $rootScope.$broadcast('oauth:valid');
-        }).catch(function(message){
-          $rootScope.$broadcast('oauth:invalid', message);
-        });
+        if (scope.sessionPath) {
+          Endpoint.checkValidity().then(function() {
+            $rootScope.$broadcast('oauth:valid');
+          }).catch(function(message){
+            $rootScope.$broadcast('oauth:invalid', message);
+          });
+        }
       };
 
       var refreshDirective = function () {
