@@ -67,7 +67,7 @@ endpointClient.factory('Endpoint', ['$rootScope', 'AccessToken', '$q', '$http', 
    */
   service.checkValidity = function() {
     var params = service.config;
-    if( params.sessionPath ) {
+    if( params.sessionPath && !params.disableCheckSession ) {
       var token = AccessToken.get();
       if( !token ) {
         return $q.reject("No token configured");
@@ -82,6 +82,8 @@ endpointClient.factory('Endpoint', ['$rootScope', 'AccessToken', '$q', '$http', 
           return $q.reject("Server replied: token is invalid.");
         }
       });
+    } else if (params.disableCheckSession) {
+      return true;
     } else {
       return $q.reject("You must give a :session-path param in order to validate the token.")
     }
